@@ -154,7 +154,7 @@ class _JiraViewState extends State<JiraView> {
     return initialDate;
   }
 
-  bool _isCorrectValidationFields({isSimple}) {
+  bool _isCorrectValidationFields({isSimple = false}) {
     late bool isCorrect = true;
     if (isSimple) {
       if (_issueController.text.isEmpty) {
