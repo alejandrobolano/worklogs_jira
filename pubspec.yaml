@@ -1,7 +1,10 @@
 name: worklogs_jira
-description: A new Flutter project.
+description: This is a small project in Flutter about work logs in Jira.
+
+# Prevent accidental publishing to pub.dev.
 publish_to: 'none'
-version: 0.1.0
+
+version: 1.0.0+1
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -9,11 +12,21 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  http: ^1.1.0
+  intl: any
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
   flutter_lints: ^2.0.0
 
 flutter:
   uses-material-design: true
+  generate: true
+
+  assets:
+    - assets/images/

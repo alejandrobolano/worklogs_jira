@@ -1,6 +1,6 @@
 {
-    "name": "worklogs_jira",
-    "short_name": "worklogs_jira",
+    "name": "Worklogs Jira",
+    "short_name": "Worklogs Jira",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
