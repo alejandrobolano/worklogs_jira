@@ -3,32 +3,28 @@ import 'package:flutter/widgets.dart';
 class AppConfig extends InheritedWidget {
   const AppConfig({
     Key? key,
-    required this.appName,
     required this.flavorName,
     required this.apiBaseUrl,
-    required this.apiEndpointUrl,
+    required this.debug,
     required Widget child,
   }) : super(key: key, child: child);
 
-  final String appName;
   final String flavorName;
   final String apiBaseUrl;
-  final String apiEndpointUrl;
+  final bool debug;
 
   static AppConfig? _instance;
 
   static AppConfig getInstance({
-    required String appName,
     required String flavorName,
     required String apiBaseUrl,
-    required String apiEndpointUrl,
+    required bool debug,
     required Widget child,
   }) {
     _instance ??= AppConfig(
-      appName: appName,
       flavorName: flavorName,
       apiBaseUrl: apiBaseUrl,
-      apiEndpointUrl: apiEndpointUrl,
+      debug: debug,
       child: child,
     );
     return _instance!;

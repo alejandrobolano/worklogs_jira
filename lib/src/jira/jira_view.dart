@@ -47,7 +47,7 @@ class _JiraViewState extends State<JiraView> {
   }
 
   String _createUrlByEnvironment(AppConfig config) {
-    return config.apiBaseUrl + config.apiEndpointUrl;
+    return config.apiBaseUrl;
   }
 
   void _getData() async {
@@ -203,13 +203,12 @@ class _JiraViewState extends State<JiraView> {
                             padding: const EdgeInsets.only(right: 5.0),
                             child: SizedBox(
                               child: TextField(
-                                keyboardType: TextInputType.text,
-                                controller: _issueController,
-                                decoration: const InputDecoration(
-                                  border: OutlineInputBorder(),
-                                  labelText: 'Issue',
-                                ),
-                              ),
+                                  keyboardType: TextInputType.text,
+                                  controller: _issueController,
+                                  decoration: const InputDecoration(
+                                    border: OutlineInputBorder(),
+                                    labelText: 'Issue',
+                                  )),
                             )),
                         const SizedBox(height: 24.0),
                         Padding(

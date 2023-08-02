@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'config/app_config.dart';
 import 'src/app.dart';
@@ -12,11 +13,12 @@ void main() async {
   final jiraController = JiraController(JiraService(), SettingsService());
   await settingsController.loadSettings();
 
+  await dotenv.load(fileName: "assets/.env.production");
+
   var configuredApp = AppConfig.getInstance(
-      appName: 'Production',
-      flavorName: 'production',
-      apiBaseUrl: '###',
-      apiEndpointUrl: '/rest/api/2/issue/',
+      flavorName: dotenv.env['FLAVOR_NAME'].toString(),
+      apiBaseUrl: dotenv.env['API_URL'].toString(),
+      debug: bool.parse(dotenv.env['DEBUG'].toString()),
       child: MyApp(
         settingsController: settingsController,
         jiraController: jiraController,
