@@ -85,6 +85,7 @@ app.*.map.json
 /packages/flutter/coverage/
 version
 analysis_benchmark.json
+pubspec.lock
 
 # packages file containing multi-root paths
 .packages.generated
@@ -151,6 +152,8 @@ unlinked_spec.ds
 **/macos/Flutter/GeneratedPluginRegistrant.swift
 **/macos/Flutter/ephemeral
 **/xcuserdata/
+**/macos/Runner/*
+macos/Runner.xcodeproj/
 
 # Coverage
 coverage/
@@ -169,3 +172,7 @@ app.*.symbols
 
 # Environment
 *.env.development
+
+# Firebase
+*.firebase
+

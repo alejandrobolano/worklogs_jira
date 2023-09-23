@@ -61,7 +61,7 @@ class JiraController with ChangeNotifier {
   }
 
   bool isOkStatusCode(statusCode) {
-    return statusCode == 200 || statusCode == 201;
+    return statusCode == 200 || statusCode == 201 || statusCode == 204;
   }
 
   Future<Response> deleteData(String url, String id, String issueId) async {

@@ -7,7 +7,7 @@ class JiraService {
     final String finalUrl = '$url$issue/worklog';
     final response = await http.get(
       Uri.parse(finalUrl),
-      headers: {'Authorization': basicAuth, 'Content-Type': 'application/json'},
+      headers: buildHeader(basicAuth),
     );
     return response;
   }
@@ -32,10 +32,20 @@ class JiraService {
 
   Future<Response> deleteData(String url, basicAuth, id, issueId) async {
     final String finalUrl = '$url$issueId/worklog/$id';
-    final response = await http.delete(
-      Uri.parse(finalUrl),
-      headers: {'Authorization': basicAuth, 'Content-Type': 'application/json'},
-    );
+    final response =
+        await http.delete(Uri.parse(finalUrl), headers: buildHeader(basicAuth));
     return response;
+  }
+
+  Map<String, String> buildHeader(basicAuth) {
+    return {
+      'Authorization': basicAuth,
+      'Content-Type': 'application/json',
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET,PUT,PATCH,POST,DELETE",
+      "Access-Control-Allow-Headers":
+          "Origin, X-Requested-With, Content-Type, Accept",
+      'Access-Control-Allow-Credentials': 'true'
+    };
   }
 }
