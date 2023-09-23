@@ -3,5 +3,22 @@
   "settings": "Configuraciones",
   "@appTitle": {
     "description": "Proyecto pequeño para la imputación de horas de Jira."
-  }
+  },
+  "user": "Usuario",
+  "password": "Contraseña",
+  "authoritazionSaved": "Autorización guardada",
+  "systemTheme": "Tema del sistema",
+  "lightTheme": "Tema claro",
+  "darkTheme": "Tema oscuro",
+  "issue": "Tarea",
+  "hours": "Horas",
+  "repetitions": "# Repeticiones de la tarea",
+  "startDate": "Fecha de inicio",
+  "load": "Cargar tarea",
+  "log": "Imputar tarea",
+  "successfulRequest": "Petición satisfactoria",
+  "errorRequest": "Ha ocurrido un error",
+  "issueRequired": "La tarea es requerida",
+  "someFieldsRequired": "Algunos campos son requeridos",
+  "issueEmpty": "Esta tarea no tiene imputaciones"
 }

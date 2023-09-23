@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/jira_response.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class JiraListView extends StatelessWidget {
   final JiraResponse jiraResponse;
@@ -11,9 +12,9 @@ class JiraListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (jiraResponse.worklogs != null && jiraResponse.worklogs?.length == 0) {
-      return const ListTile(
-        leading: Icon(Icons.access_alarms),
-        title: Text("This issue has not worklogs"),
+      return ListTile(
+        leading: const Icon(Icons.access_alarms),
+        title: Text(AppLocalizations.of(context)!.issueEmpty),
       );
     }
     return ListView.builder(

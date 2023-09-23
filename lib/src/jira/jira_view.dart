@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:intl/intl.dart';
 
 import '../../config/app_config.dart';
@@ -104,9 +105,10 @@ class _JiraViewState extends State<JiraView> {
       debugPrint('Successful request');
       text = extraText != null && extraText != ''
           ? extraText
-          : "Successful request";
+          : AppLocalizations.of(context)?.successfulRequest;
     } else {
-      text = "An error has occurred | ${response.reasonPhrase}";
+      text =
+          "${AppLocalizations.of(context)?.errorRequest} | ${response.reasonPhrase}";
       debugPrint("An error has ocurred in the request | $response");
     }
     _showMessageSnackBar(text);
@@ -114,6 +116,12 @@ class _JiraViewState extends State<JiraView> {
 
   void _showMessageSnackBar(String text) {
     final snackBar = SnackBar(
+      showCloseIcon: true,
+      closeIconColor: Theme.of(context).secondaryHeaderColor,
+      behavior: SnackBarBehavior.floating,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5.0),
+      ),
       content: Text(text),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -158,13 +166,14 @@ class _JiraViewState extends State<JiraView> {
     late bool isCorrect = true;
     if (isSimple) {
       if (_issueController.text.isEmpty) {
-        _showMessageSnackBar("Issue required");
+        _showMessageSnackBar(AppLocalizations.of(context)?.issueRequired ?? '');
         return false;
       }
     } else {
       for (TextEditingController controller in _textControllers) {
         if (controller.text.isEmpty) {
-          _showMessageSnackBar("Some fields are required");
+          _showMessageSnackBar(
+              AppLocalizations.of(context)?.someFieldsRequired ?? '');
           isCorrect = false;
           break;
         }
@@ -179,115 +188,132 @@ class _JiraViewState extends State<JiraView> {
     AppConfig config = AppConfig.of(context)!;
     _url = _createUrlByEnvironment(config);
     return Scaffold(
-        appBar: AppBar(
-          title: Text(AppLocalizations.of(context)!.appTitle),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () {
-                Navigator.restorablePushNamed(context, SettingsView.routeName);
-              },
-            ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      children: [
-                        Padding(
-                            padding: const EdgeInsets.only(right: 5.0),
-                            child: SizedBox(
-                              child: TextField(
-                                  keyboardType: TextInputType.text,
-                                  controller: _issueController,
-                                  decoration: const InputDecoration(
-                                    border: OutlineInputBorder(),
-                                    labelText: 'Issue',
-                                  )),
-                            )),
-                        const SizedBox(height: 24.0),
-                        Padding(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.appTitle),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.restorablePushNamed(context, SettingsView.routeName);
+            },
+          ),
+        ],
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    children: [
+                      Padding(
                           padding: const EdgeInsets.only(right: 5.0),
                           child: SizedBox(
                             child: TextField(
-                              keyboardType: TextInputType.datetime,
-                              controller: _dateController,
-                              decoration: const InputDecoration(
-                                border: OutlineInputBorder(),
-                                suffixIcon: Icon(Icons.calendar_today),
-                                labelText: 'Start date',
-                              ),
-                              readOnly: true,
-                              onTap: _showDatePicker,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Expanded(
-                    child: Column(
-                      children: [
-                        SizedBox(
+                                keyboardType: TextInputType.text,
+                                controller: _issueController,
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  labelText:
+                                      AppLocalizations.of(context)?.issue,
+                                )),
+                          )),
+                      const SizedBox(height: 24.0),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 5.0),
+                        child: SizedBox(
                           child: TextField(
-                            keyboardType: TextInputType.number,
-                            controller: _hoursController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Hours',
+                            keyboardType: TextInputType.datetime,
+                            controller: _dateController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              suffixIcon: const Icon(Icons.calendar_today),
+                              labelText:
+                                  AppLocalizations.of(context)?.startDate,
                             ),
+                            readOnly: true,
+                            onTap: _showDatePicker,
                           ),
                         ),
-                        const SizedBox(height: 24.0),
-                        SizedBox(
-                          child: TextField(
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
-                            controller: _repetitionsController,
-                            decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              labelText: 'Repeat x times',
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(height: 24.0),
-              Expanded(
-                  child: JiraListView(
-                jiraResponse: _jiraResponse,
-                onDeleteData: _deleteData,
-              ))
-            ],
-          ),
-        ),
-        floatingActionButton: Wrap(
-          direction: Axis.vertical,
-          children: <Widget>[
-            Container(
-                margin: const EdgeInsets.all(10),
-                child: FloatingActionButton(
-                  heroTag: 'check',
-                  onPressed: _getData,
-                  child: const Icon(Icons.refresh),
-                )),
-            Container(
-                margin: const EdgeInsets.all(10),
-                child: FloatingActionButton(
-                    onPressed: _postData,
-                    heroTag: 'send',
-                    child: const Icon(Icons.send))),
+                ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          controller: _hoursController,
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText: AppLocalizations.of(context)?.hours,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24.0),
+                      SizedBox(
+                        child: TextField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          controller: _repetitionsController,
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            labelText:
+                                AppLocalizations.of(context)?.repetitions,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24.0),
+            Expanded(
+                child: JiraListView(
+              jiraResponse: _jiraResponse,
+              onDeleteData: _deleteData,
+            ))
           ],
-        ));
+        ),
+      ),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Container(
+          height: 50.0,
+        ),
+      ),
+      floatingActionButton: Container(
+          margin: const EdgeInsets.all(10),
+          child: SpeedDial(
+            heroTag: 'more',
+            useRotationAnimation: true,
+            direction: SpeedDialDirection.up,
+            icon: Icons.expand_less,
+            activeIcon: Icons.expand_more,
+            closeManually: false,
+            curve: Curves.bounceIn,
+            children: [
+              SpeedDialChild(
+                child: const Icon(Icons.send),
+                label: AppLocalizations.of(context)!.log,
+                onTap: () => _postData(),
+              ),
+              SpeedDialChild(
+                child: const Icon(Icons.refresh),
+                label: AppLocalizations.of(context)!.load,
+                onTap: () => _getData(),
+              ),
+            ],
+          )),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+    );
   }
 }

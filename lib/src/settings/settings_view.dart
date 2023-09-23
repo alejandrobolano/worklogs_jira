@@ -64,7 +64,9 @@ class _SettingsViewState extends State<SettingsView> {
                   child: InputChip(
                       avatar: const Icon(Icons.check),
                       onSelected: (bool value) {},
-                      label: const Text('Authorization saved'),
+                      label: Text(AppLocalizations.of(context)!
+                          .authoritazionSaved
+                          .toString()),
                       backgroundColor: Colors.lightGreen,
                       surfaceTintColor: Colors.black)),
             const SizedBox(height: 24.0),
@@ -73,9 +75,9 @@ class _SettingsViewState extends State<SettingsView> {
               child: TextField(
                 keyboardType: TextInputType.text,
                 controller: _userController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  labelText: 'User',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: AppLocalizations.of(context)?.user,
                 ),
               ),
             ),
@@ -86,8 +88,7 @@ class _SettingsViewState extends State<SettingsView> {
                 controller: _passwordController,
                 decoration: InputDecoration(
                   border: const OutlineInputBorder(),
-                  //hintText: "Password",
-                  labelText: "Password",
+                  labelText: AppLocalizations.of(context)?.password,
                   suffixIcon: IconButton(
                     icon: Icon(_isVisiblePassword
                         ? Icons.visibility
@@ -101,7 +102,6 @@ class _SettingsViewState extends State<SettingsView> {
                     },
                   ),
                   alignLabelWithHint: false,
-                  //filled: true,
                 ),
                 keyboardType: TextInputType.visiblePassword,
                 textInputAction: TextInputAction.done,
@@ -116,29 +116,36 @@ class _SettingsViewState extends State<SettingsView> {
               isExpanded: false,
               borderRadius: BorderRadius.circular(5),
               onChanged: widget.controller.updateThemeMode,
-              items: const [
+              items: [
                 DropdownMenuItem(
                   value: ThemeMode.system,
-                  child: Text('System Theme'),
+                  child: Text(AppLocalizations.of(context)!.systemTheme),
                 ),
                 DropdownMenuItem(
                   value: ThemeMode.light,
-                  child: Text('Light Theme'),
+                  child: Text(AppLocalizations.of(context)!.lightTheme),
                 ),
                 DropdownMenuItem(
                   value: ThemeMode.dark,
-                  child: Text('Dark Theme'),
+                  child: Text(AppLocalizations.of(context)!.darkTheme),
                 )
               ],
             ),
           ])),
+      bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        child: Container(
+          height: 50.0,
+        ),
+      ),
       floatingActionButton: Container(
           margin: const EdgeInsets.all(10),
-          child: FloatingActionButton.extended(
+          child: FloatingActionButton(
               onPressed: _save,
               heroTag: 'save',
-              label: const Text('Save'),
-              icon: const Icon(Icons.save))),
+              child: const Icon(Icons.save))),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
     );
   }
 }

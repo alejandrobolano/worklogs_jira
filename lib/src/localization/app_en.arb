@@ -3,5 +3,22 @@
   "settings": "Settings",
   "@appTitle": {
     "description": "This is a small project to log works in Jira."
-  }
+  },
+  "user": "User",
+  "password": "Password",
+  "authoritazionSaved": "Authorization saved",
+  "systemTheme": "System Theme",
+  "lightTheme": "Light Theme",
+  "darkTheme": "Dark Theme",
+  "issue": "Issue",
+  "hours": "Hours",
+  "repetitions": "# Repetitions of issue",
+  "startDate": "Start date",
+  "load": "Load issue",
+  "log": "Log issue",
+  "successfulRequest": "Successful request",
+  "errorRequest": "An error has occurred",
+  "issueRequired": "Issue required",
+  "someFieldsRequired": "Some fields are required",
+  "issueEmpty": "This issue has not worklogs"
 }
