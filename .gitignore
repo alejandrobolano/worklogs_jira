@@ -155,6 +155,9 @@ unlinked_spec.ds
 **/macos/Runner/*
 macos/Runner.xcodeproj/
 
+# Windows
+/windows/runner/Runner.rc
+
 # Coverage
 coverage/
 
