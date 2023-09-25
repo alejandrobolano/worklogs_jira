@@ -24,9 +24,18 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   project.set_dart_entrypoint_arguments(std::move(command_line_arguments));
 
+  int window_width = 720;
+  int window_height = 720;
+
+  int screen_width = GetSystemMetrics(SM_CXSCREEN);
+  int screen_height = GetSystemMetrics(SM_CYSCREEN);
+
+  int originX = (screen_width - window_width) / 2;
+  int originY = (screen_height - window_height) / 2;
+  
   FlutterWindow window(project);
-  Win32Window::Point origin(10, 10);
-  Win32Window::Size size(1280, 720);
+  Win32Window::Point origin(originX, originY);
+  Win32Window::Size size(window_width, window_height);
   if (!window.Create(L"Worklogs Jira", origin, size)) {
     return EXIT_FAILURE;
   }
