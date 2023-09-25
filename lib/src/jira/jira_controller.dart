@@ -14,6 +14,14 @@ class JiraController with ChangeNotifier {
     return issuePreffix;
   }
 
+  Future<String?> getLastIssue() async {
+    return await _settingsService.getLastIssue();
+  }
+
+  void setLastIssue(String lastIssue) async {
+    await _settingsService.addLastIssue(lastIssue.toUpperCase());
+  }
+
   Future<Response> getData(String url, String issue) async {
     final basicAuth = await _settingsService.getBasicAuth();
     if (basicAuth == null || basicAuth == "") {

@@ -9,6 +9,7 @@ class SettingsService {
 
   static const String _basicAuthKey = 'basicAuth';
   static const String _issuePreffixKey = 'issuePreffix';
+  static const String _lastIssueKey = 'lastIssue';
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding
@@ -45,5 +46,13 @@ class SettingsService {
 
   Future<void> addIssuePreffix(issuePreffix) async {
     await _preferencesService.set(_issuePreffixKey, issuePreffix);
+  }
+
+  Future<String?> getLastIssue() async {
+    return _preferencesService.get(_lastIssueKey);
+  }
+
+  Future<void> addLastIssue(lastIssue) async {
+    await _preferencesService.set(_lastIssueKey, lastIssue);
   }
 }

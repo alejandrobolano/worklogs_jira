@@ -61,6 +61,7 @@ class _JiraViewState extends State<JiraView> {
         setState(() {
           _jiraResponse = JiraResponse.fromJson(map);
         });
+        widget.controller.setLastIssue(issue);
       }
 
       _handleReponse(response);
@@ -187,6 +188,18 @@ class _JiraViewState extends State<JiraView> {
   Widget build(BuildContext context) {
     AppConfig config = AppConfig.of(context)!;
     _url = _createUrlByEnvironment(config);
+
+    var isLastIssueLoaded = false;
+    widget.controller.getLastIssue().then((value) {
+      if (value != null &&
+          value.isNotEmpty &&
+          _issueController.text.isEmpty &&
+          !isLastIssueLoaded) {
+        _issueController.text = value;
+        _getData();
+        isLastIssueLoaded = true;
+      }
+    });
     widget.controller.getIssuePreffix().then((value) {
       if (value != null && value.isNotEmpty && _issueController.text.isEmpty) {
         _issueController.text = value;
