@@ -16,6 +16,8 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
+  var _issuePreffixController = TextEditingController();
+
   late bool _isVisiblePassword = false;
   final _textControllers = [];
   int inputs = 1;
@@ -24,6 +26,8 @@ class _SettingsViewState extends State<SettingsView> {
   void initState() {
     _textControllers.add(_userController);
     _textControllers.add(_passwordController);
+    _issuePreffixController =
+        TextEditingController(text: widget.controller.issuePreffix ?? "");
     super.initState();
   }
 
@@ -36,8 +40,8 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Future<void> _save() async {
-    await widget.controller
-        .savePreferences(_userController.text, _passwordController.text);
+    await widget.controller.savePreferences(_userController.text,
+        _passwordController.text, _issuePreffixController.text);
     await widget.controller.loadSettings();
     _clearTextControllers();
   }
@@ -105,6 +109,18 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
                 keyboardType: TextInputType.visiblePassword,
                 textInputAction: TextInputAction.done,
+              ),
+            ),
+            const SizedBox(height: 24.0),
+            SizedBox(
+              child: TextField(
+                keyboardType: TextInputType.text,
+                controller: _issuePreffixController,
+                textCapitalization: TextCapitalization.words,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: AppLocalizations.of(context)?.issuePreffix,
+                ),
               ),
             ),
             const SizedBox(height: 30.0),

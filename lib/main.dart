@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:worklogs_jira/src/settings/preferences_service.dart';
 
 import 'config/app_config.dart';
 import 'src/app.dart';
@@ -9,8 +10,10 @@ import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
 
 void main() async {
-  final settingsController = SettingsController(SettingsService());
-  final jiraController = JiraController(JiraService(), SettingsService());
+  final settingsController =
+      SettingsController(SettingsService(PreferencesService()));
+  final jiraController =
+      JiraController(JiraService(), SettingsService(PreferencesService()));
   await settingsController.loadSettings();
 
   await dotenv.load(fileName: "assets/.env.production");

@@ -187,6 +187,11 @@ class _JiraViewState extends State<JiraView> {
   Widget build(BuildContext context) {
     AppConfig config = AppConfig.of(context)!;
     _url = _createUrlByEnvironment(config);
+    widget.controller.getIssuePreffix().then((value) {
+      if (value != null && value.isNotEmpty && _issueController.text.isEmpty) {
+        _issueController.text = value;
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.appTitle),
@@ -212,13 +217,14 @@ class _JiraViewState extends State<JiraView> {
                           padding: const EdgeInsets.only(right: 5.0),
                           child: SizedBox(
                             child: TextField(
-                                keyboardType: TextInputType.text,
-                                controller: _issueController,
-                                decoration: InputDecoration(
-                                  border: const OutlineInputBorder(),
-                                  labelText:
-                                      AppLocalizations.of(context)?.issue,
-                                )),
+                              keyboardType: TextInputType.text,
+                              controller: _issueController,
+                              decoration: InputDecoration(
+                                border: const OutlineInputBorder(),
+                                labelText: AppLocalizations.of(context)?.issue,
+                              ),
+                              onChanged: (value) => _issueController.text,
+                            ),
                           )),
                       const SizedBox(height: 24.0),
                       Padding(

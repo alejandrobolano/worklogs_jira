@@ -11,7 +11,7 @@ class JiraListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (jiraResponse.worklogs != null && jiraResponse.worklogs?.length == 0) {
+    if (jiraResponse.worklogs != null && jiraResponse.worklogs!.isEmpty) {
       return ListTile(
         leading: const Icon(Icons.access_alarms),
         title: Text(AppLocalizations.of(context)!.issueEmpty),

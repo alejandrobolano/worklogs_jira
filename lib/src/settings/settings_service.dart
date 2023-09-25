@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:worklogs_jira/src/settings/preferences_service.dart';
 
 class SettingsService {
+  SettingsService(this._preferencesService);
+
+  final PreferencesService _preferencesService;
+
   static const String _basicAuthKey = 'basicAuth';
+  static const String _issuePreffixKey = 'issuePreffix';
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding
@@ -26,14 +32,18 @@ class SettingsService {
   }
 
   Future<String?> getBasicAuth() async {
-    final SharedPreferences prefs = await _getPreferencesInstance();
-    final value = prefs.getString(_basicAuthKey);
-    return value;
+    return _preferencesService.get(_basicAuthKey);
   }
 
-  //More info: https://pub.dev/packages/shared_preferences
   Future<void> addBasicAuth(basicAuth) async {
-    final SharedPreferences prefs = await _getPreferencesInstance();
-    await prefs.setString(_basicAuthKey, basicAuth);
+    await _preferencesService.set(_basicAuthKey, basicAuth);
+  }
+
+  Future<String?> getIssuePreffix() async {
+    return _preferencesService.get(_issuePreffixKey);
+  }
+
+  Future<void> addIssuePreffix(issuePreffix) async {
+    await _preferencesService.set(_issuePreffixKey, issuePreffix);
   }
 }

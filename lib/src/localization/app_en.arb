@@ -20,5 +20,6 @@
   "errorRequest": "An error has occurred",
   "issueRequired": "Issue required",
   "someFieldsRequired": "Some fields are required",
-  "issueEmpty": "This issue has not worklogs"
+  "issueEmpty": "This issue has not worklogs",
+  "issuePreffix": "Issue preffix"
 }
