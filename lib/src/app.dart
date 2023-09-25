@@ -36,9 +36,13 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (BuildContext context) =>
               AppLocalizations.of(context)!.appTitle,
           theme: ThemeData(
+            useMaterial3: true,
             fontFamily: 'JetBrainsMono',
           ),
-          darkTheme: ThemeData.dark(),
+          darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
+              textTheme: ThemeData.dark()
+                  .textTheme
+                  .apply(fontFamily: 'JetBrainsMono')),
           themeMode: settingsController.themeMode,
           onGenerateRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
