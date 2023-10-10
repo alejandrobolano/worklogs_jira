@@ -30,7 +30,8 @@ class JiraController with ChangeNotifier {
             reasonPhrase: "Basic auth not found"),
       );
     }
-    return _jiraService.getData(url, basicAuth, issue);
+    final String finalUrl = '$url$issue/worklog';
+    return _jiraService.getData(finalUrl, basicAuth);
   }
 
   Future<Response> postData(String url, String issue, double hours,
@@ -49,17 +50,22 @@ class JiraController with ChangeNotifier {
       repetitionsArray.add(i);
     }
 
+    double hoursCorrectly;
+    bool isPlusDays = false;
     for (var index in repetitionsArray) {
+      hoursCorrectly = hours;
       final dateTime = DateTime.parse(startDate);
-      var date = dateTime.add(Duration(days: index));
+      var daysSum = isPlusDays ? 2 + index : index;
+      var date = dateTime.add(Duration(days: daysSum));
       if (date.weekday == DateTime.saturday) {
         date = date.add(const Duration(days: 2));
+        isPlusDays = true;
       } else if (date.weekday == DateTime.friday && hours > 7) {
-        hours = 7;
+        hoursCorrectly = 7;
       }
 
-      final response = await _jiraService.postData(
-          url, basicAuth, issue, hours, DateFormat('yyyy-MM-dd').format(date));
+      final response = await _jiraService.postData(url, basicAuth, issue,
+          hoursCorrectly, DateFormat('yyyy-MM-dd').format(date));
       if (!isOkStatusCode(response.statusCode)) {
         return Future<Response>(
           () => Response('Error: ${response.body}', response.statusCode,

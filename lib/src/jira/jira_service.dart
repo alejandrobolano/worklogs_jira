@@ -3,10 +3,9 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class JiraService {
-  Future<Response> getData(String url, basicAuth, issue) async {
-    final String finalUrl = '$url$issue/worklog';
+  Future<Response> getData(String url, basicAuth) async {
     final response = await http.get(
-      Uri.parse(finalUrl),
+      Uri.parse(url),
       headers: buildHeader(basicAuth),
     );
     return response;

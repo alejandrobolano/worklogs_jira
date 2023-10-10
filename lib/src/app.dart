@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
+import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
 import 'jira/jira_controller.dart';
 import 'jira/jira_view.dart';
 import 'settings/settings_controller.dart';
@@ -11,10 +13,12 @@ class MyApp extends StatelessWidget {
     super.key,
     required this.settingsController,
     required this.jiraController,
+    required this.dashboardController,
   });
 
   final SettingsController settingsController;
   final JiraController jiraController;
+  final DashboardController dashboardController;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +55,8 @@ class MyApp extends StatelessWidget {
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
+                  case DashboardView.routeName:
+                    return DashboardView(controller: dashboardController);
                   default:
                     return JiraView(
                       controller: jiraController,
