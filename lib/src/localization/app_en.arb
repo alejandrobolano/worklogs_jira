@@ -21,5 +21,17 @@
   "issueRequired": "Issue required",
   "someFieldsRequired": "Some fields are required",
   "issueEmpty": "This issue has not worklogs",
-  "issuePreffix": "Issue preffix"
+  "issuePreffix": "Issue preffix",
+  "showChart": "Show chart",
+  "barsChart": "Bars chart",
+  "pieChart": "Pie chart",
+  "startRange": "Start range",
+  "finishRange": "Finish range",
+  "loading": "Loading",
+  "timeSpent": "Time spent",
+  "startedLog": "Started log",
+  "comment": "Comments",
+  "created": "Created",
+  "updated": "Updated",
+  "assginee": "Assignee"
 }

@@ -21,5 +21,17 @@
   "issueRequired": "La tarea es requerida",
   "someFieldsRequired": "Algunos campos son requeridos",
   "issueEmpty": "Esta tarea no tiene imputaciones",
-  "issuePreffix": "Prefijo de la tarea"
+  "issuePreffix": "Prefijo de la tarea",
+  "showChart": "Mostrar gráfico",
+  "barsChart": "Gráfico de barras",
+  "pieChart": "Gráfico de pastel",
+  "startRange": "Rango de inicio",
+  "finishRange": "Rango final",
+  "loading": "Cargando",
+  "timeSpent": "Tiempo gastando",
+  "startedLog": "Día de imputación",
+  "comment": "Comentarios",
+  "created": "Creado",
+  "updated": "Actualizado",
+  "assginee": "Asignada"
 }
