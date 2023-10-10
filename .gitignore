@@ -173,9 +173,6 @@ app.*.symbols
 !/dev/ci/**/Gemfile.lock
 
 
-# Environment
-*.env.development
-
 # Firebase
 *.firebase
 

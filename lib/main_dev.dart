@@ -1,4 +1,4 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
 import 'package:worklogs_jira/src/settings/preferences_service.dart';
 
 import 'config/app_config.dart';
@@ -15,17 +15,19 @@ Future<void> main() async {
       SettingsController(SettingsService(PreferencesService()));
   final jiraController =
       JiraController(JiraService(), SettingsService(PreferencesService()));
+
+  final dashboardController =
+      DashboardController(JiraService(), SettingsService(PreferencesService()));
   await settingsController.loadSettings();
-  await dotenv.load(fileName: "assets/.env.development");
 
   var configuredApp = AppConfig.getInstance(
-      flavorName: dotenv.env['FLAVOR_NAME'].toString(),
-      apiBaseUrl: dotenv.env['API_URL'].toString(),
-      debug: bool.parse(dotenv.env['DEBUG'].toString()),
+      flavorName: "development",
+      apiBaseUrl: "#",
+      debug: true,
       child: MyApp(
-        settingsController: settingsController,
-        jiraController: jiraController,
-      ));
+          settingsController: settingsController,
+          jiraController: jiraController,
+          dashboardController: dashboardController));
 
   runApp(configuredApp);
 }
