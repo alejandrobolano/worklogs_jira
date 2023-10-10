@@ -37,6 +37,7 @@ class SettingsController with ChangeNotifier {
       final String basicAuth =
           'Basic ${base64Encode(utf8.encode('$username:$password'))}';
       await _settingsService.addBasicAuth(basicAuth);
+      await _settingsService.addUsername(username);
     }
     if (issuePreffix.isNotEmpty) {
       await _settingsService.addIssuePreffix(issuePreffix.toUpperCase());

@@ -7,13 +7,13 @@ class SettingsService {
 
   final PreferencesService _preferencesService;
 
+  static const String _usernameKey = 'username';
   static const String _basicAuthKey = 'basicAuth';
   static const String _issuePreffixKey = 'issuePreffix';
   static const String _lastIssueKey = 'lastIssue';
 
   Future<SharedPreferences> _getPreferencesInstance() async {
-    WidgetsFlutterBinding
-        .ensureInitialized(); // Asegura la inicialización de Flutter
+    WidgetsFlutterBinding.ensureInitialized();
     return await SharedPreferences.getInstance();
   }
 
@@ -54,5 +54,13 @@ class SettingsService {
 
   Future<void> addLastIssue(lastIssue) async {
     await _preferencesService.set(_lastIssueKey, lastIssue);
+  }
+
+  Future<String?> getUsername() async {
+    return _preferencesService.get(_usernameKey);
+  }
+
+  Future<void> addUsername(username) async {
+    await _preferencesService.set(_usernameKey, username);
   }
 }

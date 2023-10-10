@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'settings_controller.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -21,6 +22,7 @@ class _SettingsViewState extends State<SettingsView> {
   late bool _isVisiblePassword = false;
   final _textControllers = [];
   int inputs = 1;
+  String _version = "";
 
   @override
   void initState() {
@@ -28,6 +30,7 @@ class _SettingsViewState extends State<SettingsView> {
     _textControllers.add(_passwordController);
     _issuePreffixController =
         TextEditingController(text: widget.controller.issuePreffix ?? "");
+    _getAppVersion();
     super.initState();
   }
 
@@ -50,6 +53,15 @@ class _SettingsViewState extends State<SettingsView> {
     for (var controller in _textControllers) {
       controller.clear();
     }
+  }
+
+  void _getAppVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    setState(() {
+      if (mounted) {
+        _version = packageInfo.version;
+      }
+    });
   }
 
   @override
@@ -147,6 +159,13 @@ class _SettingsViewState extends State<SettingsView> {
                 )
               ],
             ),
+            const SizedBox(height: 24.0),
+            if (_version.isNotEmpty)
+              InputChip(
+                  avatar: const Icon(Icons.lock_outline_rounded),
+                  onSelected: (bool value) {},
+                  label: Text("v.$_version")),
+            const SizedBox(height: 24.0),
           ])),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
