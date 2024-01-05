@@ -18,6 +18,7 @@ class _SettingsViewState extends State<SettingsView> {
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
   var _issuePreffixController = TextEditingController();
+  var _jiraPathController = TextEditingController();
 
   late bool _isVisiblePassword = false;
   final _textControllers = [];
@@ -30,6 +31,8 @@ class _SettingsViewState extends State<SettingsView> {
     _textControllers.add(_passwordController);
     _issuePreffixController =
         TextEditingController(text: widget.controller.issuePreffix ?? "");
+    _jiraPathController =
+        TextEditingController(text: widget.controller.jiraPath ?? "");
     _getAppVersion();
     super.initState();
   }
@@ -43,8 +46,11 @@ class _SettingsViewState extends State<SettingsView> {
   }
 
   Future<void> _save() async {
-    await widget.controller.savePreferences(_userController.text,
-        _passwordController.text, _issuePreffixController.text);
+    await widget.controller.savePreferences(
+        _userController.text,
+        _passwordController.text,
+        _issuePreffixController.text,
+        _jiraPathController.text);
     await widget.controller.loadSettings();
     _clearTextControllers();
   }
@@ -121,6 +127,18 @@ class _SettingsViewState extends State<SettingsView> {
                 ),
                 keyboardType: TextInputType.visiblePassword,
                 textInputAction: TextInputAction.done,
+              ),
+            ),
+            const SizedBox(height: 24.0),
+            SizedBox(
+              child: TextField(
+                keyboardType: TextInputType.url,
+                controller: _jiraPathController,
+                textCapitalization: TextCapitalization.words,
+                decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    labelText: 'Url' //AppLocalizations.of(context)?.jiraPath,
+                    ),
               ),
             ),
             const SizedBox(height: 24.0),

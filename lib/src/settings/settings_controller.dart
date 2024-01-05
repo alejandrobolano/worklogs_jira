@@ -14,12 +14,15 @@ class SettingsController with ChangeNotifier {
   bool get isAuthSaved => _isAuthSaved;
   late String? _issuePreffix;
   String? get issuePreffix => _issuePreffix;
+  late String? _jiraPath;
+  String? get jiraPath => _jiraPath;
 
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
     final basicAuth = await _settingsService.getBasicAuth();
     _isAuthSaved = basicAuth != '' && basicAuth != null;
     _issuePreffix = await _settingsService.getIssuePreffix();
+    _jiraPath = await _settingsService.getJiraPath();
     notifyListeners();
   }
 
@@ -31,16 +34,21 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> savePreferences(
-      String username, String password, String issuePreffix) async {
+  Future<void> savePreferences(String username, String password,
+      String issuePreffix, String jiraPath) async {
     if (username.isNotEmpty && password.isNotEmpty) {
       final String basicAuth =
           'Basic ${base64Encode(utf8.encode('$username:$password'))}';
       await _settingsService.addBasicAuth(basicAuth);
       await _settingsService.addUsername(username);
     }
+
     if (issuePreffix.isNotEmpty) {
       await _settingsService.addIssuePreffix(issuePreffix.toUpperCase());
+    }
+
+    if (jiraPath.isNotEmpty) {
+      await _settingsService.addJiraPath(jiraPath);
     }
   }
 }

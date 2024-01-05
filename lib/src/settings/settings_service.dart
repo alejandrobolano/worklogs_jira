@@ -11,6 +11,7 @@ class SettingsService {
   static const String _basicAuthKey = 'basicAuth';
   static const String _issuePreffixKey = 'issuePreffix';
   static const String _lastIssueKey = 'lastIssue';
+  static const String _jiraPathKey = 'jiraPath';
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -62,5 +63,13 @@ class SettingsService {
 
   Future<void> addUsername(username) async {
     await _preferencesService.set(_usernameKey, username);
+  }
+
+  Future<String?> getJiraPath() async {
+    return _preferencesService.get(_jiraPathKey);
+  }
+
+  Future<void> addJiraPath(jiraPath) async {
+    await _preferencesService.set(_jiraPathKey, jiraPath);
   }
 }
