@@ -5,8 +5,6 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
-
-import '../../config/app_config.dart';
 import '../settings/settings_view.dart';
 import 'jira_controller.dart';
 import 'worklog_list/worklog_list_view.dart';
