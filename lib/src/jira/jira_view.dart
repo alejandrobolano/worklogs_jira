@@ -10,6 +10,7 @@ import 'jira_controller.dart';
 import 'worklog_list/worklog_list_view.dart';
 import '../models/worklog_response.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class JiraView extends StatefulWidget {
   const JiraView({super.key, required this.controller});
@@ -131,7 +132,7 @@ class _JiraViewState extends State<JiraView> {
     DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: DateHelper.getInitialDate(),
-        firstDate: DateTime(DateTime.now().year),
+        firstDate: DateTime(DateTime.now().year - 3),
         lastDate: DateTime(2101),
         selectableDayPredicate: (DateTime val) =>
             val.weekday == DateTime.saturday || val.weekday == DateTime.sunday
@@ -170,10 +171,15 @@ class _JiraViewState extends State<JiraView> {
     return isCorrect;
   }
 
+  _launchURL() async {
+    final uri = Uri.parse('https://github.com/alejandrobolano/worklogs_jira');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    //AppConfig config = AppConfig.of(context)!;
-
     var isLastIssueLoaded = false;
     widget.controller.getLastIssue().then((value) {
       if (value != null &&
@@ -194,6 +200,11 @@ class _JiraViewState extends State<JiraView> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
+          IconButton(
+              onPressed: () {
+                _launchURL();
+              },
+              icon: const Icon(Icons.code)),
           IconButton(
               onPressed: () {
                 Navigator.restorablePushNamed(context, DashboardView.routeName);

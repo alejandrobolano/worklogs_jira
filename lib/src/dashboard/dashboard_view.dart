@@ -84,7 +84,7 @@ class _DashboardViewState extends State<DashboardView> {
     DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: DateHelper.getInitialDate(),
-        firstDate: DateTime(DateTime.now().year),
+        firstDate: DateTime(DateTime.now().year - 3),
         lastDate: DateTime(2101),
         selectableDayPredicate: (DateTime val) =>
             val.weekday == DateTime.saturday || val.weekday == DateTime.sunday
