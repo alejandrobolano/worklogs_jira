@@ -33,5 +33,6 @@
   "comment": "Comentarios",
   "created": "Creado",
   "updated": "Actualizado",
-  "assginee": "Asignada"
+  "assginee": "Asignada",
+  "jiraPath": "Url de Jira"
 }

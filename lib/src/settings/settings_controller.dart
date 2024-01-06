@@ -22,7 +22,7 @@ class SettingsController with ChangeNotifier {
     final basicAuth = await _settingsService.getBasicAuth();
     _isAuthSaved = basicAuth != '' && basicAuth != null;
     _issuePreffix = await _settingsService.getIssuePreffix();
-    _jiraPath = await _settingsService.getJiraPath();
+    _jiraPath = await _settingsService.getJiraBasePath();
     notifyListeners();
   }
 

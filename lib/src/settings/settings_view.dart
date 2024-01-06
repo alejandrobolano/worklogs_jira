@@ -73,6 +73,7 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text(
           AppLocalizations.of(context)!.settings,
@@ -80,7 +81,7 @@ class _SettingsViewState extends State<SettingsView> {
       ),
       body: Padding(
           padding: const EdgeInsets.all(24),
-          child: Column(children: [
+          child: ListView(children: [
             if (widget.controller.isAuthSaved)
               SizedBox(
                   child: InputChip(
@@ -135,10 +136,11 @@ class _SettingsViewState extends State<SettingsView> {
                 keyboardType: TextInputType.url,
                 controller: _jiraPathController,
                 textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Url' //AppLocalizations.of(context)?.jiraPath,
-                    ),
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: 'https://jira.domain.com/',
+                  labelText: AppLocalizations.of(context)?.jiraPath,
+                ),
               ),
             ),
             const SizedBox(height: 24.0),

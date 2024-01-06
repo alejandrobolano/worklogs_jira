@@ -33,5 +33,6 @@
   "comment": "Comments",
   "created": "Created",
   "updated": "Updated",
-  "assginee": "Assignee"
+  "assginee": "Assignee",
+  "jiraPath": "Jira's URL"
 }

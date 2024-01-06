@@ -32,7 +32,6 @@ class _JiraViewState extends State<JiraView> {
   final _textControllers = [];
   bool _isLoading = false;
   late WorklogResponse _worklogResponse = WorklogResponse();
-  static String _url = '';
 
   @override
   void initState() {
@@ -50,17 +49,13 @@ class _JiraViewState extends State<JiraView> {
     super.dispose();
   }
 
-  String _createUrlByEnvironment(AppConfig config) {
-    return "${config.apiBaseUrl}issue/";
-  }
-
   void _getData() async {
     if (_isCorrectValidationFields(isSimple: true)) {
       setState(() {
         _isLoading = true;
       });
       final String issue = _issueController.text;
-      final response = await widget.controller.getData(_url, issue);
+      final response = await widget.controller.getData(issue);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
         Map<String, dynamic> map = jsonDecode(response.body);
@@ -86,8 +81,8 @@ class _JiraViewState extends State<JiraView> {
       final String date = _dateController.text;
       var repetitions = int.tryParse(_repetitionsController.text);
       repetitions ??= 1;
-      final response = await widget.controller
-          .postData(_url, issue, hours, date, repetitions);
+      final response =
+          await widget.controller.postData(issue, hours, date, repetitions);
       _handleReponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
@@ -107,7 +102,7 @@ class _JiraViewState extends State<JiraView> {
       late String? id = worklog.id;
       late String? issueId = worklog.issueId;
       if (id != null && issueId != null) {
-        final response = await widget.controller.deleteData(_url, id, issueId);
+        final response = await widget.controller.deleteData(id, issueId);
         _handleReponse(response);
 
         if (widget.controller.isOkStatusCode(response.statusCode)) {
@@ -179,8 +174,7 @@ class _JiraViewState extends State<JiraView> {
 
   @override
   Widget build(BuildContext context) {
-    AppConfig config = AppConfig.of(context)!;
-    _url = _createUrlByEnvironment(config);
+    //AppConfig config = AppConfig.of(context)!;
 
     var isLastIssueLoaded = false;
     widget.controller.getLastIssue().then((value) {

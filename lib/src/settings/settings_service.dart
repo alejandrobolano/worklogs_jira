@@ -65,7 +65,14 @@ class SettingsService {
     await _preferencesService.set(_usernameKey, username);
   }
 
+//todo /rest/api/2
+
   Future<String?> getJiraPath() async {
+    var jiraPathSaved = await getJiraBasePath();
+    return "$jiraPathSaved/rest/api/2/";
+  }
+
+  Future<String?> getJiraBasePath() async {
     return _preferencesService.get(_jiraPathKey);
   }
 

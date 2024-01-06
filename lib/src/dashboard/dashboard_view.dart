@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:worklogs_jira/config/app_config.dart';
 import 'package:worklogs_jira/src/dashboard/charts/bars_chart_view.dart';
 import 'package:worklogs_jira/src/dashboard/charts/pie_chart_view.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
@@ -26,7 +25,6 @@ class DashboardView extends StatefulWidget {
 enum ChartType { none, bars, pie }
 
 class _DashboardViewState extends State<DashboardView> {
-  static String _url = '';
   late WorklistResponse _worklistResponse = WorklistResponse();
   late final _startRangeDateController =
       TextEditingController(text: DateHelper.getFirstDayOfMonth());
@@ -53,7 +51,7 @@ class _DashboardViewState extends State<DashboardView> {
       _isLoading = true;
     });
     final response = await widget.controller.getWorklist(
-        _url, _startRangeDateController.text, _finishRangeDateController.text);
+        _startRangeDateController.text, _finishRangeDateController.text);
     _handleReponse(response);
     setState(() {
       _isLoading = false;
@@ -80,10 +78,6 @@ class _DashboardViewState extends State<DashboardView> {
       debugPrint("An error has ocurred in the request | $response");
     }
     WidgetHelper.showMessageSnackBar(context, text);
-  }
-
-  String _createUrlByEnvironment(AppConfig config) {
-    return config.apiBaseUrl;
   }
 
   void _showDatePicker(TextEditingController rangeController) async {
@@ -155,9 +149,6 @@ class _DashboardViewState extends State<DashboardView> {
 
   @override
   Widget build(BuildContext context) {
-    AppConfig config = AppConfig.of(context)!;
-    _url = _createUrlByEnvironment(config);
-    //_getData();
     return Scaffold(
         appBar: AppBar(
           title: const Text(
@@ -171,10 +162,12 @@ class _DashboardViewState extends State<DashboardView> {
                   case ChartType.bars:
                     setState(() {
                       _isBarsChartVisible = !_isBarsChartVisible;
+                      _isPieChartVisible = !_isBarsChartVisible;
                     });
                   case ChartType.pie:
                     setState(() {
                       _isPieChartVisible = !_isPieChartVisible;
+                      _isBarsChartVisible = !_isPieChartVisible;
                     });
                   default:
                     _isBarsChartVisible = false;
