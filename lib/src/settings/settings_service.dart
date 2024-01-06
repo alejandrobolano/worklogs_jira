@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:worklogs_jira/src/settings/preferences_service.dart';
+import 'package:http/http.dart' as http;
 
 class SettingsService {
   SettingsService(this._preferencesService);
@@ -69,6 +70,12 @@ class SettingsService {
 
   Future<String?> getJiraPath() async {
     var jiraPathSaved = await getJiraBasePath();
+    if (jiraPathSaved == null || (jiraPathSaved.isEmpty)) {
+      return "";
+    }
+    if (jiraPathSaved.endsWith("/")) {
+      return jiraPathSaved.substring(0, jiraPathSaved.length - 1);
+    }
     return "$jiraPathSaved/rest/api/2/";
   }
 
@@ -78,5 +85,14 @@ class SettingsService {
 
   Future<void> addJiraPath(jiraPath) async {
     await _preferencesService.set(_jiraPathKey, jiraPath);
+  }
+
+  Future<bool> isCorrectUrl(String url) async {
+    try {
+      final response = await http.head(Uri.parse(url));
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 }

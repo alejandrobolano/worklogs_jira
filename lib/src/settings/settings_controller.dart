@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'settings_service.dart';
@@ -48,6 +49,9 @@ class SettingsController with ChangeNotifier {
     }
 
     if (jiraPath.isNotEmpty) {
+      final isCorrectUrl = await _settingsService.isCorrectUrl(jiraPath);
+      log("is correct url: $isCorrectUrl");
+
       await _settingsService.addJiraPath(jiraPath);
     }
   }
