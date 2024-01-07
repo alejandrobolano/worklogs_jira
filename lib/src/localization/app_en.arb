@@ -34,5 +34,7 @@
   "created": "Created",
   "updated": "Updated",
   "assginee": "Assignee",
-  "jiraPath": "Jira's URL"
+  "jiraPath": "Jira's URL",
+  "useToken": "Use token",
+  "useTokenDescription": "You can use token or password for authentication"
 }

@@ -16,7 +16,7 @@ class DashboardController with ChangeNotifier {
             reasonPhrase: "Jira URL not found"),
       );
     }
-    final basicAuth = await _settingsService.getBasicAuth();
+    final basicAuth = await _settingsService.getAuthentication();
     String? username = await _settingsService.getUsername();
     if (basicAuth == null || basicAuth == "") {
       return Future<Response>(

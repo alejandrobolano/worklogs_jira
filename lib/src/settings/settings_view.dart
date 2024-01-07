@@ -17,10 +17,12 @@ class SettingsView extends StatefulWidget {
 class _SettingsViewState extends State<SettingsView> {
   final _userController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _tokenController = TextEditingController();
   var _issuePreffixController = TextEditingController();
   var _jiraPathController = TextEditingController();
 
   late bool _isVisiblePassword = false;
+  late bool _isTokenSelected = true;
   final _textControllers = [];
   int inputs = 1;
   String _version = "";
@@ -29,6 +31,7 @@ class _SettingsViewState extends State<SettingsView> {
   void initState() {
     _textControllers.add(_userController);
     _textControllers.add(_passwordController);
+    _textControllers.add(_tokenController);
     _issuePreffixController =
         TextEditingController(text: widget.controller.issuePreffix ?? "");
     _jiraPathController =
@@ -49,6 +52,7 @@ class _SettingsViewState extends State<SettingsView> {
     await widget.controller.savePreferences(
         _userController.text,
         _passwordController.text,
+        _tokenController.text,
         _issuePreffixController.text,
         _jiraPathController.text);
     await widget.controller.loadSettings();
@@ -72,6 +76,16 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
+    final MaterialStateProperty<Icon?> thumbIcon =
+        MaterialStateProperty.resolveWith<Icon?>(
+      (Set<MaterialState> states) {
+        if (states.contains(MaterialState.selected)) {
+          return const Icon(Icons.check);
+        }
+        return const Icon(Icons.close);
+      },
+    );
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -82,17 +96,6 @@ class _SettingsViewState extends State<SettingsView> {
       body: Padding(
           padding: const EdgeInsets.all(24),
           child: ListView(children: [
-            if (widget.controller.isAuthSaved)
-              SizedBox(
-                  child: InputChip(
-                      avatar: const Icon(Icons.check),
-                      onSelected: (bool value) {},
-                      label: Text(AppLocalizations.of(context)!
-                          .authoritazionSaved
-                          .toString()),
-                      backgroundColor: Colors.lightGreen,
-                      surfaceTintColor: Colors.black)),
-            const SizedBox(height: 24.0),
             SizedBox(
               //width: 250,
               child: TextField(
@@ -105,31 +108,71 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             const SizedBox(height: 24.0),
-            SizedBox(
-              child: TextField(
-                obscureText: !_isVisiblePassword,
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  labelText: AppLocalizations.of(context)?.password,
-                  suffixIcon: IconButton(
-                    icon: Icon(_isVisiblePassword
-                        ? Icons.visibility
-                        : Icons.visibility_off),
-                    onPressed: () {
-                      setState(
-                        () {
-                          _isVisiblePassword = !_isVisiblePassword;
-                        },
-                      );
-                    },
+            SwitchListTile(
+                thumbIcon: thumbIcon,
+                value: _isTokenSelected,
+                onChanged: (bool value) {
+                  setState(() {
+                    _isTokenSelected = value;
+                  });
+                },
+                title: Text(AppLocalizations.of(context)!.useToken.toString()),
+                subtitle: Text(AppLocalizations.of(context)!
+                    .useTokenDescription
+                    .toString())),
+            const SizedBox(height: 24.0),
+            if (!_isTokenSelected)
+              SizedBox(
+                child: TextField(
+                  obscureText: !_isVisiblePassword,
+                  controller: _passwordController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: AppLocalizations.of(context)?.password,
+                    suffixIcon: IconButton(
+                      icon: Icon(_isVisiblePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      onPressed: () {
+                        setState(
+                          () {
+                            _isVisiblePassword = !_isVisiblePassword;
+                          },
+                        );
+                      },
+                    ),
+                    alignLabelWithHint: false,
                   ),
-                  alignLabelWithHint: false,
+                  keyboardType: TextInputType.visiblePassword,
+                  textInputAction: TextInputAction.done,
                 ),
-                keyboardType: TextInputType.visiblePassword,
-                textInputAction: TextInputAction.done,
               ),
-            ),
+            if (_isTokenSelected)
+              SizedBox(
+                child: TextField(
+                  obscureText: !_isVisiblePassword,
+                  controller: _tokenController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText: "Token",
+                    suffixIcon: IconButton(
+                      icon: Icon(_isVisiblePassword
+                          ? Icons.visibility
+                          : Icons.visibility_off),
+                      onPressed: () {
+                        setState(
+                          () {
+                            _isVisiblePassword = !_isVisiblePassword;
+                          },
+                        );
+                      },
+                    ),
+                    alignLabelWithHint: false,
+                  ),
+                  keyboardType: TextInputType.visiblePassword,
+                  textInputAction: TextInputAction.done,
+                ),
+              ),
             const SizedBox(height: 24.0),
             SizedBox(
               child: TextField(
@@ -179,13 +222,24 @@ class _SettingsViewState extends State<SettingsView> {
                 )
               ],
             ),
-            const SizedBox(height: 24.0),
+            const SizedBox(height: 16.0),
             if (_version.isNotEmpty)
               InputChip(
                   avatar: const Icon(Icons.lock_outline_rounded),
                   onSelected: (bool value) {},
                   label: Text("v.$_version")),
-            const SizedBox(height: 24.0),
+            const SizedBox(height: 16.0),
+            if (widget.controller.isAuthSaved)
+              SizedBox(
+                  child: InputChip(
+                avatar: const Icon(Icons.check),
+                onSelected: (bool value) {},
+                label: Text(
+                    AppLocalizations.of(context)!.authoritazionSaved.toString(),
+                    style: const TextStyle(color: Colors.black)),
+                backgroundColor: Colors.greenAccent,
+                selectedColor: Colors.black,
+              )),
           ])),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),

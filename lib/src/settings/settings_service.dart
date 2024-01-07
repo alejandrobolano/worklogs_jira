@@ -34,11 +34,11 @@ class SettingsService {
     await prefs.setString("theme", theme.name);
   }
 
-  Future<String?> getBasicAuth() async {
+  Future<String?> getAuthentication() async {
     return _preferencesService.get(_basicAuthKey);
   }
 
-  Future<void> addBasicAuth(basicAuth) async {
+  Future<void> addAuthentication(basicAuth) async {
     await _preferencesService.set(_basicAuthKey, basicAuth);
   }
 

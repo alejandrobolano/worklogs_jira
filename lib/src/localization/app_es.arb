@@ -34,5 +34,7 @@
   "created": "Creado",
   "updated": "Actualizado",
   "assginee": "Asignada",
-  "jiraPath": "Url de Jira"
+  "jiraPath": "Url de Jira",
+  "useToken": "Usar token",
+  "useTokenDescription": "Puede usar el token o contraseña para la autenticación"
 }

@@ -116,7 +116,7 @@ class JiraController with ChangeNotifier {
   }
 
   Future<String> _getBasicAuth() async {
-    final basicAuth = await _settingsService.getBasicAuth();
+    final basicAuth = await _settingsService.getAuthentication();
     return basicAuth ?? "";
   }
 

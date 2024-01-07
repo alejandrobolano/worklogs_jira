@@ -20,7 +20,7 @@ class SettingsController with ChangeNotifier {
 
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-    final basicAuth = await _settingsService.getBasicAuth();
+    final basicAuth = await _settingsService.getAuthentication();
     _isAuthSaved = basicAuth != '' && basicAuth != null;
     _issuePreffix = await _settingsService.getIssuePreffix();
     _jiraPath = await _settingsService.getJiraBasePath();
@@ -35,12 +35,12 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> savePreferences(String username, String password,
+  Future<void> savePreferences(String username, String password, String token,
       String issuePreffix, String jiraPath) async {
-    if (username.isNotEmpty && password.isNotEmpty) {
-      final String basicAuth =
-          'Basic ${base64Encode(utf8.encode('$username:$password'))}';
-      await _settingsService.addBasicAuth(basicAuth);
+    if (username.isNotEmpty && (password.isNotEmpty || token.isNotEmpty)) {
+      await _settingsService.addAuthentication(token.isNotEmpty
+          ? 'Bearer $token'
+          : 'Basic ${base64Encode(utf8.encode('$username:$password'))}');
       await _settingsService.addUsername(username);
     }
 
@@ -50,9 +50,9 @@ class SettingsController with ChangeNotifier {
 
     if (jiraPath.isNotEmpty) {
       final isCorrectUrl = await _settingsService.isCorrectUrl(jiraPath);
-      log("is correct url: $isCorrectUrl");
-
-      await _settingsService.addJiraPath(jiraPath);
+      if (isCorrectUrl) {
+        await _settingsService.addJiraPath(jiraPath);
+      }
     }
   }
 }
