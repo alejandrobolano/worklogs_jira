@@ -23,6 +23,6 @@ jobs:
       - name: 🎯 Deploy to firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT_WORKLOGSJIRA }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
           projectId: worklogsjira
 
