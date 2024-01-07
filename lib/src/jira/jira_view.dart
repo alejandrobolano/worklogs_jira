@@ -173,8 +173,11 @@ class _JiraViewState extends State<JiraView> {
 
   _launchURL() async {
     final uri = Uri.parse('https://github.com/alejandrobolano/worklogs_jira');
-    if (await canLaunchUrl(uri)) {
+    final isPossibleLaunchUrl = await canLaunchUrl(uri);
+    if (isPossibleLaunchUrl) {
       await launchUrl(uri);
+    } else {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
