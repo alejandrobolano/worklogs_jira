@@ -15,6 +15,10 @@ For help getting started with Flutter development, view the
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+### Firebase deploy
+
+This project has CI/CD to web deploy with Firebase. If you need read about it you can obtain [information here](https://github.com/marketplace/actions/deploy-to-firebase-hosting)
+
 ## Using
 
 Firstly, before using it, you must go to the settings section and insert the username and token or password, and then save it. 
