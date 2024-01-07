@@ -22,26 +22,37 @@ class JiraController with ChangeNotifier {
     await _settingsService.addLastIssue(lastIssue.toUpperCase());
   }
 
-  Future<Response> getData(String url, String issue) async {
-    final basicAuth = await _settingsService.getBasicAuth();
-    if (basicAuth == null || basicAuth == "") {
-      return Future<Response>(
-        () => Response('Error: Basic Auth not found', 400,
-            reasonPhrase: "Basic auth not found"),
-      );
+  Future<Response> getData(String issue) async {
+    final url = await _getJiraPath();
+    final basicAuth = await _getBasicAuth();
+
+    if (url == "") {
+      return _buildErrorResponse(
+          'Error: Jira URL not found', 400, "Jira URL not found");
     }
+
+    if (basicAuth == "") {
+      return _buildErrorResponse(
+          'Error: Basic Auth not found', 400, "Basic auth not found");
+    }
+
     final String finalUrl = '$url$issue/worklog';
     return _jiraService.getData(finalUrl, basicAuth);
   }
 
-  Future<Response> postData(String url, String issue, double hours,
-      String startDate, int repetitions) async {
-    final basicAuth = await _settingsService.getBasicAuth();
-    if (basicAuth == null || basicAuth == "") {
-      return Future<Response>(
-        () => Response('Error: Basic Auth not found', 400,
-            reasonPhrase: "Basic auth not found"),
-      );
+  Future<Response> postData(
+      String issue, double hours, String startDate, int repetitions) async {
+    final url = await _getJiraPath();
+    final basicAuth = await _getBasicAuth();
+
+    if (url == "") {
+      return _buildErrorResponse(
+          'Error: Jira URL not found', 400, "Jira URL not found");
+    }
+
+    if (basicAuth == "") {
+      return _buildErrorResponse(
+          'Error: Basic Auth not found', 400, "Basic auth not found");
     }
 
     final repetitionsArray = [];
@@ -64,7 +75,7 @@ class JiraController with ChangeNotifier {
         hoursCorrectly = 7;
       }
 
-      final response = await _jiraService.postData(url, basicAuth, issue,
+      final response = await _jiraService.postData(url!, basicAuth, issue,
           hoursCorrectly, DateFormat('yyyy-MM-dd').format(date));
       if (!isOkStatusCode(response.statusCode)) {
         return Future<Response>(
@@ -83,14 +94,34 @@ class JiraController with ChangeNotifier {
     return statusCode == 200 || statusCode == 201 || statusCode == 204;
   }
 
-  Future<Response> deleteData(String url, String id, String issueId) async {
-    final basicAuth = await _settingsService.getBasicAuth();
-    if (basicAuth == null || basicAuth == "") {
-      return Future<Response>(
-        () => Response('Error: Basic Auth not found', 400,
-            reasonPhrase: "Basic auth not found"),
-      );
+  Future<Response> deleteData(String id, String issueId) async {
+    final url = await _getJiraPath();
+    final basicAuth = await _getBasicAuth();
+
+    if (url == "") {
+      return _buildErrorResponse(
+          'Error: Jira URL not found', 400, "Jira URL not found");
     }
-    return _jiraService.deleteData(url, basicAuth, id, issueId);
+
+    if (basicAuth == "") {
+      return _buildErrorResponse(
+          'Error: Basic Auth not found', 400, "Basic auth not found");
+    }
+    return _jiraService.deleteData(url!, basicAuth, id, issueId);
+  }
+
+  Future<String?> _getJiraPath() async {
+    final url = await _settingsService.getJiraPath();
+    return url != null && url.isNotEmpty ? "${url}issue/" : "";
+  }
+
+  Future<String> _getBasicAuth() async {
+    final basicAuth = await _settingsService.getAuthentication();
+    return basicAuth ?? "";
+  }
+
+  Response _buildErrorResponse(
+      String message, int statusCode, String reasonPhrase) {
+    return Response(message, statusCode, reasonPhrase: reasonPhrase);
   }
 }

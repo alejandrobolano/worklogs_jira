@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
 import 'package:worklogs_jira/src/settings/preferences_service.dart';
-
-import 'config/app_config.dart';
 import 'src/app.dart';
 import 'src/jira/jira_controller.dart';
 import 'src/jira/jira_service.dart';
@@ -18,14 +16,9 @@ void main() async {
       DashboardController(JiraService(), SettingsService(PreferencesService()));
   await settingsController.loadSettings();
 
-  var configuredApp = AppConfig.getInstance(
-      flavorName: "production",
-      apiBaseUrl: "#",
-      debug: false,
-      child: MyApp(
-        settingsController: settingsController,
-        jiraController: jiraController,
-        dashboardController: dashboardController,
-      ));
-  runApp(configuredApp);
+  runApp(MyApp(
+    settingsController: settingsController,
+    jiraController: jiraController,
+    dashboardController: dashboardController,
+  ));
 }

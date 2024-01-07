@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:worklogs_jira/src/settings/preferences_service.dart';
+import 'package:http/http.dart' as http;
 
 class SettingsService {
   SettingsService(this._preferencesService);
@@ -11,6 +12,7 @@ class SettingsService {
   static const String _basicAuthKey = 'basicAuth';
   static const String _issuePreffixKey = 'issuePreffix';
   static const String _lastIssueKey = 'lastIssue';
+  static const String _jiraPathKey = 'jiraPath';
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -32,11 +34,11 @@ class SettingsService {
     await prefs.setString("theme", theme.name);
   }
 
-  Future<String?> getBasicAuth() async {
+  Future<String?> getAuthentication() async {
     return _preferencesService.get(_basicAuthKey);
   }
 
-  Future<void> addBasicAuth(basicAuth) async {
+  Future<void> addAuthentication(basicAuth) async {
     await _preferencesService.set(_basicAuthKey, basicAuth);
   }
 
@@ -62,5 +64,35 @@ class SettingsService {
 
   Future<void> addUsername(username) async {
     await _preferencesService.set(_usernameKey, username);
+  }
+
+//todo /rest/api/2
+
+  Future<String?> getJiraPath() async {
+    var jiraPathSaved = await getJiraBasePath();
+    if (jiraPathSaved == null || (jiraPathSaved.isEmpty)) {
+      return "";
+    }
+    if (jiraPathSaved.endsWith("/")) {
+      return jiraPathSaved.substring(0, jiraPathSaved.length - 1);
+    }
+    return "$jiraPathSaved/rest/api/2/";
+  }
+
+  Future<String?> getJiraBasePath() async {
+    return _preferencesService.get(_jiraPathKey);
+  }
+
+  Future<void> addJiraPath(jiraPath) async {
+    await _preferencesService.set(_jiraPathKey, jiraPath);
+  }
+
+  Future<bool> isCorrectUrl(String url) async {
+    try {
+      final response = await http.head(Uri.parse(url));
+      return response.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 }

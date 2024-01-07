@@ -5,13 +5,12 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
-
-import '../../config/app_config.dart';
 import '../settings/settings_view.dart';
 import 'jira_controller.dart';
 import 'worklog_list/worklog_list_view.dart';
 import '../models/worklog_response.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class JiraView extends StatefulWidget {
   const JiraView({super.key, required this.controller});
@@ -32,7 +31,6 @@ class _JiraViewState extends State<JiraView> {
   final _textControllers = [];
   bool _isLoading = false;
   late WorklogResponse _worklogResponse = WorklogResponse();
-  static String _url = '';
 
   @override
   void initState() {
@@ -50,17 +48,13 @@ class _JiraViewState extends State<JiraView> {
     super.dispose();
   }
 
-  String _createUrlByEnvironment(AppConfig config) {
-    return "${config.apiBaseUrl}issue/";
-  }
-
   void _getData() async {
     if (_isCorrectValidationFields(isSimple: true)) {
       setState(() {
         _isLoading = true;
       });
       final String issue = _issueController.text;
-      final response = await widget.controller.getData(_url, issue);
+      final response = await widget.controller.getData(issue);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
         Map<String, dynamic> map = jsonDecode(response.body);
@@ -86,8 +80,8 @@ class _JiraViewState extends State<JiraView> {
       final String date = _dateController.text;
       var repetitions = int.tryParse(_repetitionsController.text);
       repetitions ??= 1;
-      final response = await widget.controller
-          .postData(_url, issue, hours, date, repetitions);
+      final response =
+          await widget.controller.postData(issue, hours, date, repetitions);
       _handleReponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
@@ -107,7 +101,7 @@ class _JiraViewState extends State<JiraView> {
       late String? id = worklog.id;
       late String? issueId = worklog.issueId;
       if (id != null && issueId != null) {
-        final response = await widget.controller.deleteData(_url, id, issueId);
+        final response = await widget.controller.deleteData(id, issueId);
         _handleReponse(response);
 
         if (widget.controller.isOkStatusCode(response.statusCode)) {
@@ -138,7 +132,7 @@ class _JiraViewState extends State<JiraView> {
     DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: DateHelper.getInitialDate(),
-        firstDate: DateTime(DateTime.now().year),
+        firstDate: DateTime(DateTime.now().year - 3),
         lastDate: DateTime(2101),
         selectableDayPredicate: (DateTime val) =>
             val.weekday == DateTime.saturday || val.weekday == DateTime.sunday
@@ -177,11 +171,18 @@ class _JiraViewState extends State<JiraView> {
     return isCorrect;
   }
 
+  _launchURL() async {
+    final uri = Uri.parse('https://github.com/alejandrobolano/worklogs_jira');
+    final isPossibleLaunchUrl = await canLaunchUrl(uri);
+    if (isPossibleLaunchUrl) {
+      await launchUrl(uri);
+    } else {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    AppConfig config = AppConfig.of(context)!;
-    _url = _createUrlByEnvironment(config);
-
     var isLastIssueLoaded = false;
     widget.controller.getLastIssue().then((value) {
       if (value != null &&
@@ -202,6 +203,11 @@ class _JiraViewState extends State<JiraView> {
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
+          IconButton(
+              onPressed: () {
+                _launchURL();
+              },
+              icon: const Icon(Icons.code)),
           IconButton(
               onPressed: () {
                 Navigator.restorablePushNamed(context, DashboardView.routeName);

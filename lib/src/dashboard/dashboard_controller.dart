@@ -8,9 +8,15 @@ class DashboardController with ChangeNotifier {
   final JiraService _jiraService;
   final SettingsService _settingsService;
 
-  Future<Response> getWorklist(
-      String url, String startRange, String finisRange) async {
-    final basicAuth = await _settingsService.getBasicAuth();
+  Future<Response> getWorklist(String startRange, String finisRange) async {
+    final url = await _settingsService.getJiraPath();
+    if (url == "") {
+      return Future<Response>(
+        () => Response('Error: Jira URL not found', 400,
+            reasonPhrase: "Jira URL not found"),
+      );
+    }
+    final basicAuth = await _settingsService.getAuthentication();
     String? username = await _settingsService.getUsername();
     if (basicAuth == null || basicAuth == "") {
       return Future<Response>(

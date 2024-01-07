@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import '../../models/worklog_response.dart';
@@ -27,6 +28,10 @@ class WorklogListView extends StatelessWidget {
         final worklog = worklogResponse.worklogs?[index];
         final author = worklog?.author;
         final started = worklog?.started;
+        var urlImage = worklog?.author?.avatarUrls?.big;
+        urlImage = urlImage!.contains("ownerId")
+            ? worklog?.author?.avatarUrls?.big
+            : "${worklog?.author?.avatarUrls!.big}&ownerId=${worklog?.author?.name}";
 
         return Card(
           child: ListTile(
@@ -34,8 +39,7 @@ class WorklogListView extends StatelessWidget {
             title: Text('${author?.displayName}'),
             subtitle: Text('${worklog?.timeSpent} | ${started.toString()}'),
             leading: CircleAvatar(
-              backgroundImage:
-                  Image.network('${worklog?.author?.avatarUrls?.big}').image,
+              backgroundImage: Image.network('$urlImage').image,
             ),
             trailing: IconButton(
               icon: const Icon(
@@ -53,6 +57,10 @@ class WorklogListView extends StatelessWidget {
     final createdDate = DateHelper.formatDate(worklog.created!.toUtc());
     final updatedDate = DateHelper.formatDate(worklog.updated!.toUtc());
     final startedDate = DateHelper.formatDate(worklog.started!.toUtc());
+    var urlImage = worklog.author?.avatarUrls?.big;
+    urlImage = urlImage!.contains("ownerId")
+        ? worklog.author?.avatarUrls?.big
+        : "${worklog.author?.avatarUrls!.big}&ownerId=${worklog.author?.name}";
 
     showModalBottomSheet(
         context: context,
@@ -61,7 +69,10 @@ class WorklogListView extends StatelessWidget {
             children: <Widget>[
               Center(
                   heightFactor: 2,
-                  child: Image.network('${worklog.author?.avatarUrls?.big}')),
+                  child: CachedNetworkImage(
+                      imageUrl: '$urlImage',
+                      errorWidget: (context, url, error) =>
+                          const Icon(Icons.error))),
               ListTile(
                   leading: const Icon(Icons.person_outline),
                   title: Text('${worklog.author!.displayName}'),

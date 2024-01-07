@@ -15,9 +15,16 @@ For help getting started with Flutter development, view the
 [online documentation](https://flutter.dev/docs), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
+### Firebase deploy
+
+This project has CI/CD to web deploy with Firebase. If you need read about it you can obtain [information here](https://github.com/marketplace/actions/deploy-to-firebase-hosting)
+
 ## Using
 
-Firstly, before using it, you must go to the settings section and insert the username and password, and then save it. **These data are not stored in plain text**. Afterwards, a message will appear confirming that the authorization is saved, allowing you to use it within the application.
+Firstly, before using it, you must go to the settings section and insert the username and token or password, and then save it. 
+**These data are not stored in plain text**. 
+Also, you must introduce Jira's URL from your Company.
+Afterwards, a message will appear confirming that the authorization is saved, allowing you to use it within the application.
 
 On the main screen, you can:
 
@@ -30,28 +37,4 @@ Dashboard screen, you can:
 * To see all issues logged between some range.
 * To see different charts and to appreciate all issues graphically.
 
-## VSCode
-
-If you want to compile using VSCode, it is recommended to have a launch.json file to facilitate deployment, as shown below.
-```
-{
-    "version": "2.0.6",
-    "configurations": [
-      {
-        "name": "Flutter: Development",
-        "request": "launch",
-        "type": "dart",
-        "program": "lib/main_dev.dart",
-        "args": ["development"] //"args": ["--flavor", "development"]
-      },
-      {
-        "name": "Flutter: Production",
-        "request": "launch",
-        "type": "dart",
-        "program": "lib/main.dart",
-        "args": ["production"]
-      }
-    ]
-  }
-```
 
