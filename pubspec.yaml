@@ -1,13 +1,22 @@
 name: worklogs_jira
-description: This is a small project in Flutter about work logs in Jira.
+description: This is a small project about work logs in Jira.
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 2.0.7
+version: 2.0.9
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
+
+msix_config:
+  display_name: Worklogs Jira
+  publisher_display_name:  Worklogs Jira
+  identity_name: 35383WorklogsJira.WorklogsJira
+  publisher: CN=164F3095-CE0A-446D-9F86-9468D3B6829B
+  msix_version: 1.0.2
+  store: true
+  languages: es, en
 
 dependencies:
   flutter:
@@ -24,6 +33,7 @@ dependencies:
   fl_chart: ^0.63.0
   package_info_plus: ^4.2.0
   cached_network_image: ^3.3.0
+  url_launcher: ^6.2.2
 
 dev_dependencies:
   flutter_test:
