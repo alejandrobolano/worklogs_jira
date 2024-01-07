@@ -20,6 +20,11 @@ jobs:
       - name: Build web app
         run: flutter build web
 
-      - name: Deploy to Firebase Hosting
-        run: firebase deploy
+      - name: 🎯 Deploy to firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: "${{ secrets.GITHUB_TOKEN }}"
+          firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
+          channelId: live
+          projectId: worklogsjira
 
