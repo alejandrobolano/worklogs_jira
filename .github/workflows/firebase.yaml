@@ -21,9 +21,5 @@ jobs:
         run: flutter build web
 
       - name: Deploy to Firebase Hosting
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
-          channelId: "live"
-          projectId: "worklogsjira"
+        uses: firebase deploy
 
