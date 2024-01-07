@@ -14,17 +14,12 @@ jobs:
         with:
           channel: 'stable'
       
-      - name: Install dependencies
+      - name: 💻 Install dependencies
         run: flutter pub get
 
-      - name: Build web app
+      - name: 👷 Build web app
         run: flutter build web
 
       - name: 🎯 Deploy to firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          repoToken: "${{ secrets.GITHUB_TOKEN }}"
-          firebaseServiceAccount: "${{ secrets.FIREBASE_TOKEN }}"
-          channelId: live
-          projectId: worklogsjira
 
