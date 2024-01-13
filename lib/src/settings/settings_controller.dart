@@ -20,10 +20,13 @@ class SettingsController with ChangeNotifier {
 
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-    final basicAuth = await _settingsService.getAuthentication();
-    _isAuthSaved = basicAuth != '' && basicAuth != null;
     _issuePreffix = await _settingsService.getIssuePreffix();
     _jiraPath = await _settingsService.getJiraBasePath();
+    var authentication = await _settingsService.getAuthentication();
+    _isAuthSaved = _jiraPath != null &&
+        _jiraPath != '' &&
+        authentication != null &&
+        authentication != '';
     notifyListeners();
   }
 
@@ -49,10 +52,7 @@ class SettingsController with ChangeNotifier {
     }
 
     if (jiraPath.isNotEmpty) {
-      final isCorrectUrl = await _settingsService.isCorrectUrl(jiraPath);
-      if (isCorrectUrl) {
-        await _settingsService.addJiraPath(jiraPath);
-      }
+      await _settingsService.addJiraPath(jiraPath);
     }
   }
 }

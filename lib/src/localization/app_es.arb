@@ -6,7 +6,7 @@
   },
   "user": "Usuario",
   "password": "Contraseña",
-  "authoritazionSaved": "Autorización guardada",
+  "authoritationSaved": "Autorización guardada",
   "systemTheme": "Tema del sistema",
   "lightTheme": "Tema claro",
   "darkTheme": "Tema oscuro",

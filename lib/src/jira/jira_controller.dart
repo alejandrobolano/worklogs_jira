@@ -24,26 +24,26 @@ class JiraController with ChangeNotifier {
 
   Future<Response> getData(String issue) async {
     final url = await _getJiraPath();
-    final basicAuth = await _getBasicAuth();
+    final authentication = await _getAuthentication();
 
     if (url == "") {
       return _buildErrorResponse(
           'Error: Jira URL not found', 400, "Jira URL not found");
     }
 
-    if (basicAuth == "") {
+    if (authentication == "") {
       return _buildErrorResponse(
           'Error: Basic Auth not found', 400, "Basic auth not found");
     }
 
     final String finalUrl = '$url$issue/worklog';
-    return _jiraService.getData(finalUrl, basicAuth);
+    return _jiraService.getData(finalUrl, authentication);
   }
 
   Future<Response> postData(
       String issue, double hours, String startDate, int repetitions) async {
     final url = await _getJiraPath();
-    final basicAuth = await _getBasicAuth();
+    final basicAuth = await _getAuthentication();
 
     if (url == "") {
       return _buildErrorResponse(
@@ -96,7 +96,7 @@ class JiraController with ChangeNotifier {
 
   Future<Response> deleteData(String id, String issueId) async {
     final url = await _getJiraPath();
-    final basicAuth = await _getBasicAuth();
+    final basicAuth = await _getAuthentication();
 
     if (url == "") {
       return _buildErrorResponse(
@@ -115,7 +115,7 @@ class JiraController with ChangeNotifier {
     return url != null && url.isNotEmpty ? "${url}issue/" : "";
   }
 
-  Future<String> _getBasicAuth() async {
+  Future<String> _getAuthentication() async {
     final basicAuth = await _settingsService.getAuthentication();
     return basicAuth ?? "";
   }
@@ -123,5 +123,9 @@ class JiraController with ChangeNotifier {
   Response _buildErrorResponse(
       String message, int statusCode, String reasonPhrase) {
     return Response(message, statusCode, reasonPhrase: reasonPhrase);
+  }
+
+  Future<bool> areAllDataSaved() async {
+    return await _settingsService.areAllDataSaved();
   }
 }
