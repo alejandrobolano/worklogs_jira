@@ -1,7 +1,9 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:worklogs_jira/src/settings/preferences_service.dart';
 import 'package:http/http.dart' as http;
+import 'package:worklogs_jira/src/models/work_day.dart';
 
 class SettingsService {
   SettingsService(this._preferencesService);
@@ -13,6 +15,7 @@ class SettingsService {
   static const String _issuePreffixKey = 'issuePreffix';
   static const String _lastIssueKey = 'lastIssue';
   static const String _jiraPathKey = 'jiraPath';
+  static const String _workDaysKey = 'workDaysKey';
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -42,6 +45,15 @@ class SettingsService {
     await _preferencesService.set(_basicAuthKey, basicAuth);
   }
 
+  Future<bool> areAllDataSaved() async {
+    final authentication = await getAuthentication();
+    final jiraPath = await getJiraBasePath();
+    return authentication != null &&
+        authentication != '' &&
+        jiraPath != null &&
+        jiraPath != '';
+  }
+
   Future<String?> getIssuePreffix() async {
     return _preferencesService.get(_issuePreffixKey);
   }
@@ -67,7 +79,6 @@ class SettingsService {
   }
 
 //todo /rest/api/2
-
   Future<String?> getJiraPath() async {
     var jiraPathSaved = await getJiraBasePath();
     if (jiraPathSaved == null || (jiraPathSaved.isEmpty)) {
@@ -94,5 +105,36 @@ class SettingsService {
     } catch (e) {
       return false;
     }
+  }
+
+  Future<List<WorkDay>?> getWorkDays() async {
+    final List<String>? encodedList =
+        await _preferencesService.getStringList(_workDaysKey);
+    List<WorkDay>? decodedList =
+        encodedList?.map((day) => WorkDay.fromMap(json.decode(day))).toList();
+    return decodedList;
+  }
+
+  Future<void> addWorkDays(List<WorkDay> workDays) async {
+    final List<String> encodedList =
+        workDays.map((day) => json.encode(day.toMap())).toList();
+    await _preferencesService.setStringList(_workDaysKey, encodedList);
+  }
+
+  Future<void> clear() async {
+    await _preferencesService.clear();
+  }
+
+  Future<List<int>> getNotWorkedDays() async {
+    final List<int> result = [];
+    List<WorkDay>? d = await getWorkDays();
+
+    d?.forEach((element) {
+      if (!element.isWorking) {
+        result.add(element.day);
+      }
+    });
+
+    return result;
   }
 }

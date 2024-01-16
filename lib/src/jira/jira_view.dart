@@ -133,15 +133,17 @@ class _JiraViewState extends State<JiraView> {
   }
 
   void _showDatePicker() async {
+    List<int> notWorkedDays = await widget.controller.getNotWorkedDays();
+    final initialDate = DateHelper.getInitialDate(notWorkedDays);
+
+    if (!context.mounted) return;
     DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: DateHelper.getInitialDate(),
+        initialDate: initialDate,
         firstDate: DateTime(DateTime.now().year - 3),
         lastDate: DateTime(2101),
         selectableDayPredicate: (DateTime val) =>
-            val.weekday == DateTime.saturday || val.weekday == DateTime.sunday
-                ? false
-                : true);
+            !notWorkedDays.contains(val.weekday));
 
     if (pickedDate != null) {
       debugPrint(pickedDate.toString());
@@ -209,16 +211,19 @@ class _JiraViewState extends State<JiraView> {
         title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
           IconButton(
+              tooltip: "GitHub Code",
               onPressed: () {
                 _launchURL();
               },
               icon: const Icon(Icons.code)),
           IconButton(
+              tooltip: "Dashboard",
               onPressed: () {
                 Navigator.restorablePushNamed(context, DashboardView.routeName);
               },
               icon: const Icon(Icons.insert_chart_outlined_rounded)),
           IconButton(
+            tooltip: AppLocalizations.of(context)?.settings,
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.restorablePushNamed(context, SettingsView.routeName);

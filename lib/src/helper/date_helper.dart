@@ -1,12 +1,19 @@
 import 'package:intl/intl.dart';
 
 class DateHelper {
-  static DateTime getInitialDate() {
+  static DateTime getInitialDate(List<int> notWorkedDays) {
     var initialDate = DateTime.now();
-    if (initialDate.weekday == DateTime.saturday) {
-      initialDate = initialDate.add(const Duration(days: 2));
-    } else if (initialDate.weekday == DateTime.sunday) {
-      initialDate = initialDate.add(const Duration(days: 1));
+    initialDate = checkInitialDate(notWorkedDays, initialDate);
+    return initialDate;
+  }
+
+  static DateTime checkInitialDate(
+      List<int> notWorkedDays, DateTime initialDate) {
+    if (notWorkedDays.isNotEmpty) {
+      if (notWorkedDays.contains(initialDate.weekday)) {
+        initialDate = initialDate.add(const Duration(days: 1));
+        return checkInitialDate(notWorkedDays, initialDate);
+      }
     }
     return initialDate;
   }
@@ -19,5 +26,26 @@ class DateHelper {
     var month = DateTime.now().month;
     var year = DateTime.now().year;
     return formatDate(DateTime(year, month, 1));
+  }
+
+  static String getDay(int day) {
+    switch (day) {
+      case 1:
+        return "monday";
+      case 2:
+        return "tuesday";
+      case 3:
+        return "wednesday";
+      case 4:
+        return "thursday";
+      case 5:
+        return "friday";
+      case 6:
+        return "saturday";
+      case 7:
+        return "sunday";
+      default:
+        return "not found";
+    }
   }
 }

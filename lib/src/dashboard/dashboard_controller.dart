@@ -46,4 +46,8 @@ class DashboardController with ChangeNotifier {
   bool isOkStatusCode(statusCode) {
     return statusCode == 200 || statusCode == 201 || statusCode == 204;
   }
+
+  Future<List<int>> getNotWorkedDays() {
+    return _settingsService.getNotWorkedDays();
+  }
 }
