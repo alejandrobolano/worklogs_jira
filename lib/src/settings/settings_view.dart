@@ -119,7 +119,7 @@ class _SettingsViewState extends State<SettingsView> {
         ),
         actions: [
           IconButton(
-            tooltip: "Clear cache",
+            tooltip: AppLocalizations.of(context)?.clearCache,
             icon: const Icon(Icons.delete_outline),
             onPressed: () {
               _clear();
@@ -222,9 +222,9 @@ class _SettingsViewState extends State<SettingsView> {
             ),
             const SizedBox(height: 24.0),
             ExpansionTile(
-              title: const Text('Hours worked'),
-              subtitle: const Text(
-                  'Put max quantity daily hours and check day worked'),
+              title: Text(AppLocalizations.of(context)?.workedHours ?? ""),
+              subtitle: Text(
+                  AppLocalizations.of(context)?.workedHoursDescription ?? ""),
               childrenPadding: const EdgeInsets.all(24),
               children: _workDays.map((day) => buildWorkDayRow(day)).toList(),
             ),
