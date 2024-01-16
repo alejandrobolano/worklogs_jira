@@ -30,6 +30,7 @@ class _JiraViewState extends State<JiraView> {
   late final _repetitionsController = TextEditingController();
   final _textControllers = [];
   bool _isLoading = false;
+  bool _areAllDataSaved = false;
   late WorklogResponse _worklogResponse = WorklogResponse();
 
   @override
@@ -37,6 +38,9 @@ class _JiraViewState extends State<JiraView> {
     _textControllers.add(_hoursController);
     _textControllers.add(_dateController);
     _textControllers.add(_issueController);
+    widget.controller.areAllDataSaved().then((value) {
+      _areAllDataSaved = value;
+    });
     super.initState();
   }
 
@@ -129,15 +133,17 @@ class _JiraViewState extends State<JiraView> {
   }
 
   void _showDatePicker() async {
+    List<int> notWorkedDays = await widget.controller.getNotWorkedDays();
+    final initialDate = DateHelper.getInitialDate(notWorkedDays);
+
+    if (!context.mounted) return;
     DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: DateHelper.getInitialDate(),
+        initialDate: initialDate,
         firstDate: DateTime(DateTime.now().year - 3),
         lastDate: DateTime(2101),
         selectableDayPredicate: (DateTime val) =>
-            val.weekday == DateTime.saturday || val.weekday == DateTime.sunday
-                ? false
-                : true);
+            !notWorkedDays.contains(val.weekday));
 
     if (pickedDate != null) {
       debugPrint(pickedDate.toString());
@@ -199,21 +205,25 @@ class _JiraViewState extends State<JiraView> {
         _issueController.text = value;
       }
     });
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
           IconButton(
+              tooltip: "GitHub Code",
               onPressed: () {
                 _launchURL();
               },
               icon: const Icon(Icons.code)),
           IconButton(
+              tooltip: "Dashboard",
               onPressed: () {
                 Navigator.restorablePushNamed(context, DashboardView.routeName);
               },
               icon: const Icon(Icons.insert_chart_outlined_rounded)),
           IconButton(
+            tooltip: AppLocalizations.of(context)?.settings,
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.restorablePushNamed(context, SettingsView.routeName);
@@ -298,6 +308,14 @@ class _JiraViewState extends State<JiraView> {
               ],
             ),
             const SizedBox(height: 24.0),
+            if (!_areAllDataSaved)
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.restorablePushNamed(
+                      context, SettingsView.routeName);
+                },
+                child: const Text('You must set setting params'),
+              ),
             if (_isLoading)
               Padding(
                 padding: const EdgeInsets.all(24),

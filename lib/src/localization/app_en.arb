@@ -6,7 +6,7 @@
   },
   "user": "User",
   "password": "Password",
-  "authoritazionSaved": "Authorization saved",
+  "authoritationSaved": "Authorization saved",
   "systemTheme": "System Theme",
   "lightTheme": "Light Theme",
   "darkTheme": "Dark Theme",
@@ -36,5 +36,8 @@
   "assginee": "Assignee",
   "jiraPath": "Jira's URL",
   "useToken": "Use token",
-  "useTokenDescription": "You can use token or password for authentication"
+  "useTokenDescription": "You can use token or password for authentication",
+  "workedHours": "Worked daily hours",
+  "workedHoursDescription": "Put your max quantity daily hours and check worked day",
+  "clearCache": "Clear cache"
 }

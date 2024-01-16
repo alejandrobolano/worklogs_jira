@@ -81,15 +81,15 @@ class _DashboardViewState extends State<DashboardView> {
   }
 
   void _showDatePicker(TextEditingController rangeController) async {
+    List<int> notWorkedDays = await widget.controller.getNotWorkedDays();
+    if (!context.mounted) return;
     DateTime? pickedDate = await showDatePicker(
         context: context,
-        initialDate: DateHelper.getInitialDate(),
+        initialDate: DateHelper.getInitialDate(notWorkedDays),
         firstDate: DateTime(DateTime.now().year - 3),
         lastDate: DateTime(2101),
         selectableDayPredicate: (DateTime val) =>
-            val.weekday == DateTime.saturday || val.weekday == DateTime.sunday
-                ? false
-                : true);
+            !notWorkedDays.contains(val.weekday));
 
     if (pickedDate != null) {
       debugPrint(pickedDate.toString());

@@ -18,4 +18,20 @@ class PreferencesService {
     final SharedPreferences prefs = await _getPreferencesInstance();
     await prefs.setString(key, newValue);
   }
+
+  Future<List<String>?> getStringList(String key) async {
+    final SharedPreferences prefs = await _getPreferencesInstance();
+    final value = prefs.getStringList(key);
+    return value;
+  }
+
+  Future<void> setStringList(String key, newValue) async {
+    final SharedPreferences prefs = await _getPreferencesInstance();
+    await prefs.setStringList(key, newValue);
+  }
+
+  Future<void> clear() async {
+    final SharedPreferences prefs = await _getPreferencesInstance();
+    await prefs.clear();
+  }
 }

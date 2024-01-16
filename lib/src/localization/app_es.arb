@@ -6,7 +6,7 @@
   },
   "user": "Usuario",
   "password": "Contraseña",
-  "authoritazionSaved": "Autorización guardada",
+  "authoritationSaved": "Autorización guardada",
   "systemTheme": "Tema del sistema",
   "lightTheme": "Tema claro",
   "darkTheme": "Tema oscuro",
@@ -36,5 +36,8 @@
   "assginee": "Asignada",
   "jiraPath": "Url de Jira",
   "useToken": "Usar token",
-  "useTokenDescription": "Puede usar el token o contraseña para la autenticación"
+  "useTokenDescription": "Puede usar el token o contraseña para la autenticación",
+  "workedHours": "Horas de trabajo por día",
+  "workedHoursDescription": "Escriba la máxima cantidad de horas de trabajo por día y seleccione los días activos",
+  "clearCache": "Eliminar la cache"
 }

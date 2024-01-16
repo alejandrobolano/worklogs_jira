@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:worklogs_jira/src/helper/date_helper.dart';
+import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_controller.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -24,8 +26,8 @@ class _SettingsViewState extends State<SettingsView> {
   late bool _isVisiblePassword = false;
   late bool _isTokenSelected = true;
   final _textControllers = [];
-  int inputs = 1;
   String _version = "";
+  List<WorkDay> _workDays = [];
 
   @override
   void initState() {
@@ -36,6 +38,8 @@ class _SettingsViewState extends State<SettingsView> {
         TextEditingController(text: widget.controller.issuePreffix ?? "");
     _jiraPathController =
         TextEditingController(text: widget.controller.jiraPath ?? "");
+    _workDays = _getWorkDays();
+
     _getAppVersion();
     super.initState();
   }
@@ -54,9 +58,16 @@ class _SettingsViewState extends State<SettingsView> {
         _passwordController.text,
         _tokenController.text,
         _issuePreffixController.text,
-        _jiraPathController.text);
+        _jiraPathController.text,
+        _workDays);
     await widget.controller.loadSettings();
     _clearTextControllers();
+  }
+
+  Future<void> _clear() async {
+    await widget.controller.clear();
+    _clearTextControllers();
+    await widget.controller.loadSettings();
   }
 
   void _clearTextControllers() {
@@ -73,6 +84,20 @@ class _SettingsViewState extends State<SettingsView> {
       }
     });
   }
+
+  List<WorkDay> _getWorkDays() {
+    return widget.controller.workDays ??
+        List.generate(
+          DateTime.daysPerWeek,
+          (index) => WorkDay(
+              day: index + 1,
+              hoursWorked: isWeekend(index) ? 0.0 : 8.0,
+              isWorking: isWeekend(index) ? false : true),
+        );
+  }
+
+  bool isWeekend(int index) =>
+      index + 1 == DateTime.saturday || index + 1 == DateTime.sunday;
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +117,15 @@ class _SettingsViewState extends State<SettingsView> {
         title: Text(
           AppLocalizations.of(context)!.settings,
         ),
+        actions: [
+          IconButton(
+            tooltip: AppLocalizations.of(context)?.clearCache,
+            icon: const Icon(Icons.delete_outline),
+            onPressed: () {
+              _clear();
+            },
+          )
+        ],
       ),
       body: Padding(
           padding: const EdgeInsets.all(24),
@@ -187,6 +221,14 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             const SizedBox(height: 24.0),
+            ExpansionTile(
+              title: Text(AppLocalizations.of(context)?.workedHours ?? ""),
+              subtitle: Text(
+                  AppLocalizations.of(context)?.workedHoursDescription ?? ""),
+              childrenPadding: const EdgeInsets.all(24),
+              children: _workDays.map((day) => buildWorkDayRow(day)).toList(),
+            ),
+            const SizedBox(height: 24.0),
             SizedBox(
               child: TextField(
                 keyboardType: TextInputType.text,
@@ -235,11 +277,12 @@ class _SettingsViewState extends State<SettingsView> {
                 avatar: const Icon(Icons.check),
                 onSelected: (bool value) {},
                 label: Text(
-                    AppLocalizations.of(context)!.authoritazionSaved.toString(),
+                    AppLocalizations.of(context)!.authoritationSaved.toString(),
                     style: const TextStyle(color: Colors.black)),
                 backgroundColor: Colors.greenAccent,
                 selectedColor: Colors.black,
               )),
+            const SizedBox(height: 24.0),
           ])),
       bottomNavigationBar: BottomAppBar(
         shape: const CircularNotchedRectangle(),
@@ -255,6 +298,49 @@ class _SettingsViewState extends State<SettingsView> {
               child: const Icon(Icons.save))),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+    );
+  }
+
+  Widget buildWorkDayRow(WorkDay workDay) {
+    return Column(
+      children: [
+        const SizedBox(height: 16.0),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("${workDay.hoursWorked} h"),
+            const SizedBox(width: 24.0),
+            Flexible(
+              child: TextField(
+                  decoration: InputDecoration(
+                    hintText: workDay.hoursWorked >= 0
+                        ? workDay.hoursWorked.toString()
+                        : "8.0",
+                    border: const OutlineInputBorder(),
+                    labelText: DateHelper.getDay(workDay.day).toString(),
+                    alignLabelWithHint: false,
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  textInputAction: TextInputAction.next,
+                  onChanged: (value) {
+                    setState(() {
+                      workDay.hoursWorked = double.tryParse(value) ?? 0.0;
+                    });
+                  }),
+            ),
+            const SizedBox(width: 24.0),
+            Checkbox(
+              value: workDay.isWorking,
+              onChanged: (value) {
+                setState(() {
+                  workDay.isWorking = value!;
+                });
+              },
+            ),
+          ],
+        )
+      ],
     );
   }
 }

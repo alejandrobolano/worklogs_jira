@@ -1,7 +1,6 @@
 import 'dart:convert';
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_service.dart';
 
 class SettingsController with ChangeNotifier {
@@ -17,13 +16,19 @@ class SettingsController with ChangeNotifier {
   String? get issuePreffix => _issuePreffix;
   late String? _jiraPath;
   String? get jiraPath => _jiraPath;
+  late List<WorkDay>? _workDays;
+  List<WorkDay>? get workDays => _workDays;
 
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
-    final basicAuth = await _settingsService.getAuthentication();
-    _isAuthSaved = basicAuth != '' && basicAuth != null;
     _issuePreffix = await _settingsService.getIssuePreffix();
     _jiraPath = await _settingsService.getJiraBasePath();
+    var authentication = await _settingsService.getAuthentication();
+    _isAuthSaved = _jiraPath != null &&
+        _jiraPath != '' &&
+        authentication != null &&
+        authentication != '';
+    _workDays = await _settingsService.getWorkDays();
     notifyListeners();
   }
 
@@ -36,7 +41,7 @@ class SettingsController with ChangeNotifier {
   }
 
   Future<void> savePreferences(String username, String password, String token,
-      String issuePreffix, String jiraPath) async {
+      String issuePreffix, String jiraPath, List<WorkDay> workDays) async {
     if (username.isNotEmpty && (password.isNotEmpty || token.isNotEmpty)) {
       await _settingsService.addAuthentication(token.isNotEmpty
           ? 'Bearer $token'
@@ -49,10 +54,15 @@ class SettingsController with ChangeNotifier {
     }
 
     if (jiraPath.isNotEmpty) {
-      final isCorrectUrl = await _settingsService.isCorrectUrl(jiraPath);
-      if (isCorrectUrl) {
-        await _settingsService.addJiraPath(jiraPath);
-      }
+      await _settingsService.addJiraPath(jiraPath);
     }
+
+    if (workDays.isNotEmpty) {
+      await _settingsService.addWorkDays(workDays);
+    }
+  }
+
+  Future<void> clear() async {
+    await _settingsService.clear();
   }
 }
