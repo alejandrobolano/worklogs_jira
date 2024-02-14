@@ -273,11 +273,9 @@ class _DashboardViewState extends State<DashboardView> {
             )
           ]),
         ),
-        bottomNavigationBar: BottomAppBar(
-          shape: const CircularNotchedRectangle(),
-          child: Container(
-            height: 50.0,
-          ),
+        bottomNavigationBar: const BottomAppBar(
+          shape: CircularNotchedRectangle(),
+          height: 65,
         ),
         floatingActionButton: Container(
             margin: const EdgeInsets.all(10),
