@@ -22,19 +22,28 @@ This project has CI/CD to web deploy with Firebase. If you need read about it yo
 ## Using
 
 Firstly, before using it, you must go to the settings section and insert the username and token or password, and then save it. 
-**These data are not stored in plain text**. 
+**These data are not stored in plain text, are encryption**. 
 Also, you must introduce Jira's URL from your Company.
+You should set the max daily hours.
 Afterwards, a message will appear confirming that the authorization is saved, allowing you to use it within the application.
 
 On the main screen, you can:
 
 * Insert a task and click the refresh button with the associated icon to perform a 'get' operation and view the related work.
-* Insert a task + start date (it shouldn't be Saturday or Sunday) + hours worked + repetition (default: 1). This way, you can log that task, and it will repeat based on the specified repetition.
+* Insert a task + start date + hours worked + repetition (default: 1). This way, you can log that task, and it will repeat based on the specified repetition.
 * See different items about the task, like owner, timespent, and other.
 
 Dashboard screen, you can:
 
 * To see all issues logged between some range.
 * To see different charts and to appreciate all issues graphically.
+
+## Windows App
+
+[You can download app here](http://worklogsjira.smarttechlite.com/)
+
+## Web App
+
+[You can watch the app here](https://worklogsjira.web.app/), but there are some functions incompatible with Jira. The recommendation is download Windows App.
 
 
