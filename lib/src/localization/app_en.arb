@@ -1,5 +1,5 @@
 {
-  "appTitle": "Worklogs Jira",
+  "appTitle": "WorklogsJira",
   "settings": "Settings",
   "@appTitle": {
     "description": "This is a small project to log works in Jira."

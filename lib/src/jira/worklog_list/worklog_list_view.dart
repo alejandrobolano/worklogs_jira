@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
+import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import '../../models/worklog_response.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -39,7 +40,8 @@ class WorklogListView extends StatelessWidget {
             title: Text('${author?.displayName}'),
             subtitle: Text('${worklog?.timeSpent} | ${started.toString()}'),
             leading: CircleAvatar(
-              backgroundImage: Image.network('$urlImage').image,
+              backgroundColor: WidgetHelper.getRandomColor(),
+              child: Text(_splitNameToInitials('${author?.displayName}')),
             ),
             trailing: IconButton(
               icon: const Icon(
@@ -51,6 +53,13 @@ class WorklogListView extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _splitNameToInitials(String fullName) {
+    List<String> words = fullName.split(' ');
+    String first = words[0];
+    String second = words[1];
+    return first[0].toUpperCase() + second[0].toUpperCase();
   }
 
   void _settingModalBottomSheet(context, Worklog worklog) {

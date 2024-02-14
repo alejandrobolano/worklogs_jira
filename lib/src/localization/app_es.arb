@@ -1,5 +1,5 @@
 {
-  "appTitle": "Imputaciones de Jira",
+  "appTitle": "WorklogsJira",
   "settings": "Configuraciones",
   "@appTitle": {
     "description": "Proyecto pequeño para la imputación de horas de Jira."
