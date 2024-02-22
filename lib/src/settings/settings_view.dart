@@ -23,7 +23,6 @@ class _SettingsViewState extends State<SettingsView> {
   var _jiraPathController = TextEditingController();
 
   late bool _isVisiblePassword = false;
-  late bool _isTokenSelected = true;
   final _textControllers = [];
   String _version = "";
   List<WorkDay> _workDays = [];
@@ -98,16 +97,6 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
-    final MaterialStateProperty<Icon?> thumbIcon =
-        MaterialStateProperty.resolveWith<Icon?>(
-      (Set<MaterialState> states) {
-        if (states.contains(MaterialState.selected)) {
-          return const Icon(Icons.check);
-        }
-        return const Icon(Icons.close);
-      },
-    );
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(

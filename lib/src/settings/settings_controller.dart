@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_service.dart';
