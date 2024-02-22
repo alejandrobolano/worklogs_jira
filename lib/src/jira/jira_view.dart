@@ -38,9 +38,6 @@ class _JiraViewState extends State<JiraView> {
     _textControllers.add(_hoursController);
     _textControllers.add(_dateController);
     _textControllers.add(_issueController);
-    widget.controller.areAllDataSaved().then((value) {
-      _areAllDataSaved = value;
-    });
     super.initState();
   }
 
@@ -67,7 +64,7 @@ class _JiraViewState extends State<JiraView> {
         });
         widget.controller.setLastIssue(issue);
       }
-      _handleReponse(response);
+      _handleResponse(response);
     }
     setState(() {
       _isLoading = false;
@@ -86,7 +83,7 @@ class _JiraViewState extends State<JiraView> {
       repetitions ??= 1;
       final response =
           await widget.controller.postData(issue, hours, date, repetitions);
-      _handleReponse(response, extraText: response.reasonPhrase);
+      _handleResponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
         _getData();
@@ -106,7 +103,7 @@ class _JiraViewState extends State<JiraView> {
       late String? issueId = worklog.issueId;
       if (id != null && issueId != null) {
         final response = await widget.controller.deleteData(id, issueId);
-        _handleReponse(response);
+        _handleResponse(response);
 
         if (widget.controller.isOkStatusCode(response.statusCode)) {
           _getData();
@@ -118,7 +115,7 @@ class _JiraViewState extends State<JiraView> {
     });
   }
 
-  void _handleReponse(response, {extraText}) {
+  void _handleResponse(response, {extraText}) {
     String text = '';
     if (widget.controller.isOkStatusCode(response.statusCode)) {
       text = extraText != null && extraText != ''
@@ -126,10 +123,19 @@ class _JiraViewState extends State<JiraView> {
           : AppLocalizations.of(context)?.successfulRequest;
     } else {
       text =
-          "${AppLocalizations.of(context)?.errorRequest} | ${response.reasonPhrase}";
-      debugPrint("An error has ocurred in the request | $response");
+          "${AppLocalizations.of(context)?.errorRequest} | ${response.reasonPhrase} | ${_getMessageFromErrorResponse(response?.body)}";
+      debugPrint(
+          "An error has ocurred in the request | ${response.reasonPhrase} | ${_getMessageFromErrorResponse(response?.body)}");
     }
     WidgetHelper.showMessageSnackBar(context, text);
+  }
+
+  String _getMessageFromErrorResponse(body) {
+    Map<String, dynamic> jsonResponse = jsonDecode(body);
+    if (jsonResponse.containsKey("message")) {
+      return jsonResponse["message"];
+    }
+    return '';
   }
 
   void _showDatePicker() async {
@@ -190,6 +196,9 @@ class _JiraViewState extends State<JiraView> {
   @override
   Widget build(BuildContext context) {
     var isLastIssueLoaded = false;
+    widget.controller.areAllDataSaved().asStream().listen((value) {
+      _areAllDataSaved = value;
+    });
     widget.controller.getLastIssue().then((value) {
       if (value != null &&
           value.isNotEmpty &&
@@ -314,7 +323,7 @@ class _JiraViewState extends State<JiraView> {
                   Navigator.restorablePushNamed(
                       context, SettingsView.routeName);
                 },
-                child: const Text('You must set setting params'),
+                child: Text(AppLocalizations.of(context)!.setSettings),
               ),
             if (_isLoading)
               Padding(

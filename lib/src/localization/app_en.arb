@@ -39,5 +39,6 @@
   "useTokenDescription": "You can use token or password for authentication",
   "workedHours": "Worked daily hours",
   "workedHoursDescription": "Put your max quantity daily hours and check worked day",
-  "clearCache": "Clear cache"
+  "clearCache": "Clear cache",
+  "setSettings":"You must set setting params"
 }
