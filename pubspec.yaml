@@ -4,7 +4,7 @@ description: This is a small project about worklogs in Jira.
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
 
-version: 2.2.1
+version: 2.2.2
 
 environment:
   sdk: '>=3.0.6 <4.0.0'
@@ -14,7 +14,7 @@ msix_config:
   publisher_display_name:  Worklogs Jira
   identity_name: 35383WorklogsJira.WorklogsJira
   publisher: CN=164F3095-CE0A-446D-9F86-9468D3B6829B
-  msix_version: 2.2.1.0
+  msix_version: 2.2.2.0
   store: true
   languages: es, en
 

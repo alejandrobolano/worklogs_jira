@@ -18,7 +18,6 @@ class SettingsView extends StatefulWidget {
 
 class _SettingsViewState extends State<SettingsView> {
   final _userController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _tokenController = TextEditingController();
   var _issuePreffixController = TextEditingController();
   var _jiraPathController = TextEditingController();
@@ -32,7 +31,6 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   void initState() {
     _textControllers.add(_userController);
-    _textControllers.add(_passwordController);
     _textControllers.add(_tokenController);
     _issuePreffixController =
         TextEditingController(text: widget.controller.issuePreffix ?? "");
@@ -55,7 +53,6 @@ class _SettingsViewState extends State<SettingsView> {
   Future<void> _save() async {
     await widget.controller.savePreferences(
         _userController.text,
-        _passwordController.text,
         _tokenController.text,
         _issuePreffixController.text,
         _jiraPathController.text,
@@ -142,71 +139,32 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             const SizedBox(height: 24.0),
-            SwitchListTile(
-                thumbIcon: thumbIcon,
-                value: _isTokenSelected,
-                onChanged: (bool value) {
-                  setState(() {
-                    _isTokenSelected = value;
-                  });
-                },
-                title: Text(AppLocalizations.of(context)!.useToken.toString()),
-                subtitle: Text(AppLocalizations.of(context)!
-                    .useTokenDescription
-                    .toString())),
-            const SizedBox(height: 24.0),
-            if (!_isTokenSelected)
-              SizedBox(
-                child: TextField(
-                  obscureText: !_isVisiblePassword,
-                  controller: _passwordController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: AppLocalizations.of(context)?.password,
-                    suffixIcon: IconButton(
-                      icon: Icon(_isVisiblePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () {
-                        setState(
-                          () {
-                            _isVisiblePassword = !_isVisiblePassword;
-                          },
-                        );
-                      },
-                    ),
-                    alignLabelWithHint: false,
+            SizedBox(
+              child: TextField(
+                obscureText: !_isVisiblePassword,
+                controller: _tokenController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  labelText: "Token",
+                  helperText: AppLocalizations.of(context)?.passwordDeprecated,
+                  suffixIcon: IconButton(
+                    icon: Icon(_isVisiblePassword
+                        ? Icons.visibility
+                        : Icons.visibility_off),
+                    onPressed: () {
+                      setState(
+                        () {
+                          _isVisiblePassword = !_isVisiblePassword;
+                        },
+                      );
+                    },
                   ),
-                  keyboardType: TextInputType.visiblePassword,
-                  textInputAction: TextInputAction.done,
+                  alignLabelWithHint: false,
                 ),
+                keyboardType: TextInputType.visiblePassword,
+                textInputAction: TextInputAction.done,
               ),
-            if (_isTokenSelected)
-              SizedBox(
-                child: TextField(
-                  obscureText: !_isVisiblePassword,
-                  controller: _tokenController,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    labelText: "Token",
-                    suffixIcon: IconButton(
-                      icon: Icon(_isVisiblePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off),
-                      onPressed: () {
-                        setState(
-                          () {
-                            _isVisiblePassword = !_isVisiblePassword;
-                          },
-                        );
-                      },
-                    ),
-                    alignLabelWithHint: false,
-                  ),
-                  keyboardType: TextInputType.visiblePassword,
-                  textInputAction: TextInputAction.done,
-                ),
-              ),
+            ),
             const SizedBox(height: 24.0),
             SizedBox(
               child: TextField(
