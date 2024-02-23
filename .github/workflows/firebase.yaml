@@ -16,6 +16,9 @@ jobs:
           channel: 'stable'
       - run: flutter --version
       
+      - name: 🚀 Flutter upgrade
+        run: flutter upgrade
+
       - name: 💻 Install dependencies
         run: flutter pub get
 
