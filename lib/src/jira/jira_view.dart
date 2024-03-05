@@ -77,7 +77,8 @@ class _JiraViewState extends State<JiraView> {
         _isLoading = true;
       });
       final String issue = _issueController.text;
-      final double hours = double.parse(_hoursController.text);
+      final hoursControllerValue = _hoursController.text.replaceAll(",", ".");
+      final double hours = double.parse(hoursControllerValue);
       final String date = _dateController.text;
       var repetitions = int.tryParse(_repetitionsController.text);
       repetitions ??= 1;
@@ -131,10 +132,15 @@ class _JiraViewState extends State<JiraView> {
   }
 
   String _getMessageFromErrorResponse(body) {
-    Map<String, dynamic> jsonResponse = jsonDecode(body);
-    if (jsonResponse.containsKey("message")) {
-      return jsonResponse["message"];
+    try {
+      Map<String, dynamic> jsonResponse = jsonDecode(body);
+      if (jsonResponse.containsKey("message")) {
+        return jsonResponse["message"];
+      }
+    } catch (exception) {
+      return '';
     }
+
     return '';
   }
 
