@@ -39,5 +39,7 @@
   "useTokenDescription": "Puede usar el token o contraseña para la autenticación",
   "workedHours": "Horas de trabajo por día",
   "workedHoursDescription": "Escriba la máxima cantidad de horas de trabajo por día y seleccione los días activos",
-  "clearCache": "Eliminar la cache"
+  "clearCache": "Eliminar la cache",
+  "setSettings":"Debes primero modificar las Configuraciones",
+  "passwordDeprecated":"Autenticación básica (usuario y contraseña) ha sido deshabilitada"
 }
