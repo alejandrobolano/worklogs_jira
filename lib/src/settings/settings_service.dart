@@ -84,10 +84,11 @@ class SettingsService {
     if (jiraPathSaved == null || (jiraPathSaved.isEmpty)) {
       return "";
     }
+    const version = 2;
     if (jiraPathSaved.endsWith("/")) {
-      return jiraPathSaved.substring(0, jiraPathSaved.length - 1);
+      return "${jiraPathSaved.substring(0, jiraPathSaved.length - 1)}/rest/api/$version/";
     }
-    return "$jiraPathSaved/rest/api/2/";
+    return "$jiraPathSaved/rest/api/$version/";
   }
 
   Future<String?> getJiraBasePath() async {

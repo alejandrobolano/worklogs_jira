@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_service.dart';
@@ -40,12 +39,10 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> savePreferences(String username, String password, String token,
+  Future<void> savePreferences(String username, String token,
       String issuePreffix, String jiraPath, List<WorkDay> workDays) async {
-    if (username.isNotEmpty && (password.isNotEmpty || token.isNotEmpty)) {
-      await _settingsService.addAuthentication(token.isNotEmpty
-          ? 'Bearer $token'
-          : 'Basic ${base64Encode(utf8.encode('$username:$password'))}');
+    if (username.isNotEmpty && token.isNotEmpty) {
+      await _settingsService.addAuthentication('Bearer $token');
       await _settingsService.addUsername(username);
     }
 
