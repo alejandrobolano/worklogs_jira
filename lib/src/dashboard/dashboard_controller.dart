@@ -8,8 +8,8 @@ class DashboardController with ChangeNotifier {
   final JiraService _jiraService;
   final SettingsService _settingsService;
 
-  Future<Response> getWorklist(String startRange, String finisRange) async {
-    final url = await _settingsService.getJiraPath();
+  Future<Response> getWorklist(String startRange, String finishRange) async {
+    final url = await _settingsService.getJiraBasePath();
     if (url == "") {
       return Future<Response>(
         () => Response('Error: Jira URL not found', 400,
@@ -17,30 +17,28 @@ class DashboardController with ChangeNotifier {
       );
     }
     final basicAuth = await _settingsService.getAuthentication();
-    String? username = await _settingsService.getUsername();
+    String? email = await _settingsService.getEmail();
     if (basicAuth == null || basicAuth == "") {
       return Future<Response>(
         () => Response('Error: Basic Auth not found', 400,
             reasonPhrase: "Basic auth not found"),
       );
     }
-    if (username == null || basicAuth == "") {
+    if (email == null || basicAuth == "") {
       return Future<Response>(
         () => Response(
-            'Error: Username not found. You should save username and password again',
+            'Error: Email not found. You should save username and password again',
             400,
             reasonPhrase:
-                "Username not found. You should save username and password again"),
+                "Email not found. You should save username and password again"),
       );
     }
 
-    String startRangeEncode = Uri.encodeComponent(' >="$startRange" ');
-    String finishRangeEncode = Uri.encodeComponent(' <="$finisRange" ');
+    String jqlQuery =
+        'worklogDate >= "$startRange" AND worklogDate <= "$finishRange" AND worklogAuthor = "$email"';
+    String finalUrl = '${url!}/search?jql=${Uri.encodeComponent(jqlQuery)}';
 
-    String query =
-        '/search?jql=worklogAuthor=$username%20AND%20worklogDate$startRangeEncode%20AND%20worklogDate$finishRangeEncode';
-    final String finalrUrl = '$url$query';
-    return _jiraService.getData(finalrUrl, basicAuth);
+    return _jiraService.getData(finalUrl, basicAuth);
   }
 
   bool isOkStatusCode(statusCode) {

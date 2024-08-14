@@ -18,6 +18,7 @@ class SettingsView extends StatefulWidget {
 
 class _SettingsViewState extends State<SettingsView> {
   final _userController = TextEditingController();
+  final _emailController = TextEditingController();
   final _tokenController = TextEditingController();
   var _issuePreffixController = TextEditingController();
   var _jiraPathController = TextEditingController();
@@ -30,12 +31,16 @@ class _SettingsViewState extends State<SettingsView> {
   @override
   void initState() {
     _textControllers.add(_userController);
-    _textControllers.add(_tokenController);
+    _textControllers.add(_emailController);
     _issuePreffixController =
         TextEditingController(text: widget.controller.issuePreffix ?? "");
     _jiraPathController =
         TextEditingController(text: widget.controller.jiraPath ?? "");
     _workDays = _getWorkDays();
+
+    _userController.addListener(() {
+      _emailController.text = _userController.text;
+    });
 
     _getAppVersion();
     super.initState();
@@ -52,6 +57,7 @@ class _SettingsViewState extends State<SettingsView> {
   Future<void> _save() async {
     await widget.controller.savePreferences(
         _userController.text,
+        _emailController.text,
         _tokenController.text,
         _issuePreffixController.text,
         _jiraPathController.text,
@@ -122,8 +128,23 @@ class _SettingsViewState extends State<SettingsView> {
                 keyboardType: TextInputType.text,
                 controller: _userController,
                 decoration: InputDecoration(
+                  icon: const Icon(Icons.person_2_outlined),
                   border: const OutlineInputBorder(),
                   labelText: AppLocalizations.of(context)?.user,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24.0),
+            SizedBox(
+              //width: 250,
+              child: TextField(
+                keyboardType: TextInputType.emailAddress,
+                controller: _emailController,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  icon: const Icon(Icons.email),
+                  labelText: AppLocalizations.of(context)?.email,
+                  helperText: AppLocalizations.of(context)?.emailHelperText,
                 ),
               ),
             ),
@@ -133,6 +154,7 @@ class _SettingsViewState extends State<SettingsView> {
                 obscureText: !_isVisiblePassword,
                 controller: _tokenController,
                 decoration: InputDecoration(
+                  icon: const Icon(Icons.security),
                   border: const OutlineInputBorder(),
                   labelText: "Token",
                   helperText: AppLocalizations.of(context)?.passwordDeprecated,
@@ -161,6 +183,7 @@ class _SettingsViewState extends State<SettingsView> {
                 controller: _jiraPathController,
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
+                  icon: const Icon(Icons.link_outlined),
                   border: const OutlineInputBorder(),
                   hintText: 'https://jira.domain.com/',
                   labelText: AppLocalizations.of(context)?.jiraPath,
@@ -182,6 +205,7 @@ class _SettingsViewState extends State<SettingsView> {
                 controller: _issuePreffixController,
                 textCapitalization: TextCapitalization.words,
                 decoration: InputDecoration(
+                  icon: const Icon(Icons.precision_manufacturing_outlined),
                   border: const OutlineInputBorder(),
                   labelText: AppLocalizations.of(context)?.issuePreffix,
                 ),
@@ -190,6 +214,7 @@ class _SettingsViewState extends State<SettingsView> {
             const SizedBox(height: 30.0),
             DropdownButtonFormField<ThemeMode>(
               decoration: const InputDecoration(
+                icon: Icon(Icons.color_lens_outlined),
                 border: OutlineInputBorder(),
               ),
               value: widget.controller.themeMode,

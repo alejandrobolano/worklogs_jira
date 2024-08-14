@@ -11,6 +11,7 @@ class SettingsService {
   final PreferencesService _preferencesService;
 
   static const String _usernameKey = 'username';
+  static const String _emailKey = 'email';
   static const String _basicAuthKey = 'basicAuth';
   static const String _issuePreffixKey = 'issuePreffix';
   static const String _lastIssueKey = 'lastIssue';
@@ -76,6 +77,14 @@ class SettingsService {
 
   Future<void> addUsername(username) async {
     await _preferencesService.set(_usernameKey, username);
+  }
+
+  Future<String?> getEmail() async {
+    return _preferencesService.get(_emailKey);
+  }
+
+  Future<void> addEmail(email) async {
+    await _preferencesService.set(_emailKey, email);
   }
 
 //todo /rest/api/2

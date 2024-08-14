@@ -15,6 +15,8 @@ class SettingsController with ChangeNotifier {
   String? get issuePreffix => _issuePreffix;
   late String? _jiraPath;
   String? get jiraPath => _jiraPath;
+  late String? _email;
+  String? get email => _email;
   late List<WorkDay>? _workDays;
   List<WorkDay>? get workDays => _workDays;
 
@@ -22,6 +24,7 @@ class SettingsController with ChangeNotifier {
     _themeMode = await _settingsService.themeMode();
     _issuePreffix = await _settingsService.getIssuePreffix();
     _jiraPath = await _settingsService.getJiraBasePath();
+    _email = await _settingsService.getEmail();
     var authentication = await _settingsService.getAuthentication();
     _isAuthSaved = _jiraPath != null &&
         _jiraPath != '' &&
@@ -39,7 +42,7 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> savePreferences(String username, String token,
+  Future<void> savePreferences(String username, String email, String token,
       String issuePreffix, String jiraPath, List<WorkDay> workDays) async {
     if (username.isNotEmpty && token.isNotEmpty) {
       await _settingsService.addAuthentication('Bearer $token');
@@ -56,6 +59,10 @@ class SettingsController with ChangeNotifier {
 
     if (workDays.isNotEmpty) {
       await _settingsService.addWorkDays(workDays);
+    }
+
+    if (email.isNotEmpty) {
+      await _settingsService.addEmail(email);
     }
   }
 
