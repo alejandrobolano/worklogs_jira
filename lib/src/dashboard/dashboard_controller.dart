@@ -48,4 +48,8 @@ class DashboardController with ChangeNotifier {
   Future<List<int>> getNotWorkedDays() {
     return _settingsService.getNotWorkedDays();
   }
+
+  Future<String?> getJiraBasePath() async {
+    return _settingsService.getJiraBasePath();
+  }
 }

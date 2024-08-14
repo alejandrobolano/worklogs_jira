@@ -44,5 +44,6 @@
   "workedHoursDescription": "Put your max quantity daily hours and check worked day",
   "clearCache": "Clear cache",
   "setSettings":"You must set setting params",
-  "passwordDeprecated":"Basic Authentication (user & password) has been disabled"
+  "passwordDeprecated":"Basic Authentication (user & password) has been disabled",
+  "subtasks":"Subtasks"
 }

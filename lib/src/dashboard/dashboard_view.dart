@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:worklogs_jira/src/dashboard/charts/bars_chart_view.dart';
 import 'package:worklogs_jira/src/dashboard/charts/pie_chart_view.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
@@ -147,6 +148,17 @@ class _DashboardViewState extends State<DashboardView> {
     }
   }
 
+  _launchURL(String? key) async {
+    final jiraPath = await widget.controller.getJiraBasePath();
+    final uri = Uri.parse("$jiraPath/browse/$key");
+    final isPossibleLaunchUrl = await canLaunchUrl(uri);
+    if (isPossibleLaunchUrl) {
+      await launchUrl(uri);
+    } else {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,6 +281,7 @@ class _DashboardViewState extends State<DashboardView> {
                   padding: const EdgeInsets.only(top: 24, bottom: 24),
                   child: WorkListView(
                     worklogResponse: _worklistResponse,
+                    launchUrl: _launchURL,
                   )),
             )
           ]),
