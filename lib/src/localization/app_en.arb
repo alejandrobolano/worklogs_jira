@@ -5,6 +5,8 @@
     "description": "This is a small project to log works in Jira."
   },
   "user": "User",
+  "email": "Email",
+  "emailHelperText": "(Optional) It is necessary if you want to use the Dashboard.",
   "password": "Password",
   "authoritationSaved": "Authorization saved",
   "systemTheme": "System Theme",
@@ -21,6 +23,7 @@
   "issueRequired": "Issue required",
   "someFieldsRequired": "Some fields are required",
   "issueEmpty": "This issue has not worklogs",
+  "listEmpty": "There aren't issues logs in this date range",
   "issuePreffix": "Issue preffix",
   "showChart": "Show chart",
   "barsChart": "Bars chart",
@@ -41,5 +44,6 @@
   "workedHoursDescription": "Put your max quantity daily hours and check worked day",
   "clearCache": "Clear cache",
   "setSettings":"You must set setting params",
-  "passwordDeprecated":"Basic Authentication (user & password) has been disabled"
+  "passwordDeprecated":"Basic Authentication (user & password) has been disabled",
+  "subtasks":"Subtasks"
 }

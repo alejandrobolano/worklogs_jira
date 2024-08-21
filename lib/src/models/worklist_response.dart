@@ -46,6 +46,7 @@ class Fields {
   Project? project;
   List<Issues?>? subtasks;
   Author? assignee;
+  Status? status;
 
   Fields(
       {this.summary,
@@ -53,7 +54,8 @@ class Fields {
       this.issueType,
       this.project,
       this.subtasks,
-      this.assignee});
+      this.assignee,
+      this.status});
 
   Fields.fromJson(Map<String, dynamic> json) {
     summary = json['summary'];
@@ -71,6 +73,7 @@ class Fields {
     }
     assignee =
         json['assignee'] != null ? Author?.fromJson(json['assignee']) : null;
+    status = json['status'] != null ? Status?.fromJson(json['status']) : null;
   }
 }
 
@@ -81,6 +84,16 @@ class IssueType extends Common {
 
   IssueType.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
     subtask = json['subtask'];
+  }
+}
+
+class Status {
+  String? name;
+
+  Status({this.name});
+
+  Status.fromJson(Map<String, dynamic> json) {
+    name = json['name'];
   }
 }
 

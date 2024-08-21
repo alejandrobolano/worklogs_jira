@@ -5,6 +5,8 @@
     "description": "Proyecto pequeño para la imputación de horas de Jira."
   },
   "user": "Usuario",
+  "email": "Correo electrónico",
+  "emailHelperText": "(Opcional) Sería necesario para visualizar el Dashboard.",
   "password": "Contraseña",
   "authoritationSaved": "Autorización guardada",
   "systemTheme": "Tema del sistema",
@@ -21,6 +23,7 @@
   "issueRequired": "La tarea es requerida",
   "someFieldsRequired": "Algunos campos son requeridos",
   "issueEmpty": "Esta tarea no tiene imputaciones",
+  "listEmpty": "No hay tareas imputadas en este rango de fechas",
   "issuePreffix": "Prefijo de la tarea",
   "showChart": "Mostrar gráfico",
   "barsChart": "Gráfico de barras",
@@ -41,5 +44,6 @@
   "workedHoursDescription": "Escriba la máxima cantidad de horas de trabajo por día y seleccione los días activos",
   "clearCache": "Eliminar la cache",
   "setSettings":"Debes primero modificar las Configuraciones",
-  "passwordDeprecated":"Autenticación básica (usuario y contraseña) ha sido deshabilitada"
+  "passwordDeprecated":"Autenticación básica (usuario y contraseña) ha sido deshabilitada",
+  "subtasks":"Subtareas"
 }
