@@ -9,7 +9,7 @@ class DashboardController with ChangeNotifier {
   final SettingsService _settingsService;
 
   Future<Response> getWorklist(String startRange, String finishRange) async {
-    final url = await _settingsService.getJiraBasePath();
+    final url = await _settingsService.getJiraPath();
     if (url == "") {
       return Future<Response>(
         () => Response('Error: Jira URL not found', 400,
