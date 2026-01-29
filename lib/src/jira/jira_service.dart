@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class JiraService {
-  Future<Response> getData(String url, basicAuth) async {
+  Future<Response> getData(String url, String basicAuth) async {
     final response = await http.get(
       Uri.parse(url),
       headers: buildHeader(basicAuth),
@@ -11,7 +11,8 @@ class JiraService {
     return response;
   }
 
-  Future<Response> postData(String url, basicAuth, issue, hours, date) async {
+  Future<Response> postData(String url, String basicAuth, String issue,
+      double hours, String date) async {
     final String finalUrl = '$url$issue/worklog';
 
     final Map<String, dynamic> requestBody = {
@@ -29,14 +30,15 @@ class JiraService {
     return response;
   }
 
-  Future<Response> deleteData(String url, basicAuth, id, issueId) async {
+  Future<Response> deleteData(
+      String url, String basicAuth, String id, String issueId) async {
     final String finalUrl = '$url$issueId/worklog/$id';
     final response =
         await http.delete(Uri.parse(finalUrl), headers: buildHeader(basicAuth));
     return response;
   }
 
-  Map<String, String> buildHeader(basicAuth) {
+  Map<String, String> buildHeader(String basicAuth) {
     return {
       'Authorization': basicAuth,
       'Content-Type': 'application/json',

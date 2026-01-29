@@ -15,6 +15,7 @@ class SettingsService {
   static const String _basicAuthKey = 'basicAuth';
   static const String _issuePreffixKey = 'issuePreffix';
   static const String _lastIssueKey = 'lastIssue';
+  static const String _lastLoggedDateKey = 'lastLoggedDate';
   static const String _jiraPathKey = 'jiraPath';
   static const String _workDaysKey = 'workDaysKey';
 
@@ -69,6 +70,14 @@ class SettingsService {
 
   Future<void> addLastIssue(lastIssue) async {
     await _preferencesService.set(_lastIssueKey, lastIssue);
+  }
+
+  Future<String?> getLastLoggedDate() async {
+    return _preferencesService.get(_lastLoggedDateKey);
+  }
+
+  Future<void> addLastLoggedDate(String lastLoggedDate) async {
+    await _preferencesService.set(_lastLoggedDateKey, lastLoggedDate);
   }
 
   Future<String?> getUsername() async {

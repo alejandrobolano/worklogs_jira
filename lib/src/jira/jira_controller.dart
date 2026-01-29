@@ -23,6 +23,14 @@ class JiraController with ChangeNotifier {
     await _settingsService.addLastIssue(lastIssue.toUpperCase());
   }
 
+  Future<String?> getLastLoggedDate() async {
+    return await _settingsService.getLastLoggedDate();
+  }
+
+  void setLastLoggedDate(String lastLoggedDate) async {
+    await _settingsService.addLastLoggedDate(lastLoggedDate);
+  }
+
   Future<Response> getData(String issue) async {
     final url = await _getJiraPath();
     final authentication = await _getAuthentication();
