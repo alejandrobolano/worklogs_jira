@@ -52,4 +52,16 @@ class DashboardController with ChangeNotifier {
   Future<String?> getJiraBasePath() async {
     return _settingsService.getJiraBasePath();
   }
+
+  Future<Response> getIssueWorklogs(String issueKey) async {
+    final url = await _settingsService.getJiraPath();
+    final basicAuth = await _settingsService.getAuthentication();
+    if (url == "" || basicAuth == null || basicAuth == "") {
+      return Future<Response>(
+        () => Response('Error: Configuration not found', 400),
+      );
+    }
+    String finalUrl = '${url!}issue/$issueKey/worklog';
+    return _jiraService.getData(finalUrl, basicAuth);
+  }
 }
