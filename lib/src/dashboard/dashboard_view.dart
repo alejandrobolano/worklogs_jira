@@ -8,6 +8,7 @@ import 'package:worklogs_jira/src/dashboard/charts/pie_chart_view.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
 import 'package:worklogs_jira/src/dashboard/charts/indicator_view.dart';
 import 'package:worklogs_jira/src/dashboard/worklist/worklist_view.dart';
+import 'package:worklogs_jira/src/dashboard/logged_tasks_table.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import 'package:worklogs_jira/src/models/worklist_response.dart';
@@ -25,7 +26,8 @@ class DashboardView extends StatefulWidget {
 
 enum ChartType { none, bars, pie }
 
-class _DashboardViewState extends State<DashboardView> {
+class _DashboardViewState extends State<DashboardView>
+    with SingleTickerProviderStateMixin {
   late WorklistResponse _worklistResponse = WorklistResponse();
   late final _startRangeDateController =
       TextEditingController(text: DateHelper.getFirstDayOfMonth());
@@ -39,11 +41,19 @@ class _DashboardViewState extends State<DashboardView> {
   List<BarChartGroupData> _bars = [];
   late double _biggerTimespent = 0;
   final Map<int, String> _tooltipTitle = {};
+  late TabController _tabController;
 
   int touchedIndex = -1;
 
   @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 2, vsync: this);
+  }
+
+  @override
   void dispose() {
+    _tabController.dispose();
     super.dispose();
   }
 
@@ -159,6 +169,19 @@ class _DashboardViewState extends State<DashboardView> {
     }
   }
 
+  Future<Map<String, dynamic>> _getWorklogs(String issueKey) async {
+    try {
+      final response = await widget.controller.getIssueWorklogs(issueKey);
+      if (widget.controller.isOkStatusCode(response.statusCode)) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        return data;
+      }
+    } catch (e) {
+      debugPrint('Error fetching worklogs for $issueKey: $e');
+    }
+    return {};
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -257,18 +280,6 @@ class _DashboardViewState extends State<DashboardView> {
                 )
               ],
             ),
-            if (_worklistResponse.issues != null && _isPieChartVisible)
-              PieChartView(
-                  pieWidgetModel: PieWidgetModel(
-                      indicators: _indicators, sections: _sections)),
-            if (_worklistResponse.issues != null && _isBarsChartVisible)
-              BarsChartView(
-                  barsWidgetModel: BarsWidgetModel(
-                      indicators: _indicators,
-                      sections: _sections,
-                      bars: _bars,
-                      maxY: _biggerTimespent,
-                      tooltipTitles: _tooltipTitle)),
             if (_isLoading)
               Padding(
                 padding: const EdgeInsets.all(24),
@@ -276,14 +287,54 @@ class _DashboardViewState extends State<DashboardView> {
                   semanticsLabel: AppLocalizations.of(context)?.loading,
                 ),
               ),
+            const SizedBox(height: 16),
             Expanded(
-              child: Padding(
-                  padding: const EdgeInsets.only(top: 24, bottom: 24),
-                  child: WorkListView(
-                    worklogResponse: _worklistResponse,
-                    launchUrl: _launchURL,
-                  )),
-            )
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    if (_worklistResponse.issues != null && _isPieChartVisible)
+                      PieChartView(
+                          pieWidgetModel: PieWidgetModel(
+                              indicators: _indicators, sections: _sections)),
+                    if (_worklistResponse.issues != null && _isBarsChartVisible)
+                      BarsChartView(
+                          barsWidgetModel: BarsWidgetModel(
+                              indicators: _indicators,
+                              sections: _sections,
+                              bars: _bars,
+                              maxY: _biggerTimespent,
+                              tooltipTitles: _tooltipTitle)),
+                    TabBar(
+                      controller: _tabController,
+                      tabs: const [
+                        Tab(icon: Icon(Icons.list), text: 'Lista'),
+                        Tab(icon: Icon(Icons.table_chart), text: 'Tabla'),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 500,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 24, bottom: 24),
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: [
+                            WorkListView(
+                              worklogResponse: _worklistResponse,
+                              launchUrl: _launchURL,
+                            ),
+                            LoggedTasksTable(
+                              issues: _worklistResponse.issues,
+                              onTaskTap: _launchURL,
+                              getWorklogsCallback: _getWorklogs,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ]),
         ),
         bottomNavigationBar: const BottomAppBar(

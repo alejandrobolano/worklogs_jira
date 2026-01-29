@@ -87,6 +87,7 @@ class _JiraViewState extends State<JiraView> {
       _handleResponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
+        widget.controller.setLastLoggedDate(date);
         _getData();
       }
     }
@@ -146,7 +147,22 @@ class _JiraViewState extends State<JiraView> {
 
   void _showDatePicker() async {
     List<int> notWorkedDays = await widget.controller.getNotWorkedDays();
-    final initialDate = DateHelper.getInitialDate(notWorkedDays);
+    String? lastLoggedDate = await widget.controller.getLastLoggedDate();
+
+    DateTime initialDate;
+    if (lastLoggedDate != null && lastLoggedDate.isNotEmpty) {
+      try {
+        initialDate = DateTime.parse(lastLoggedDate);
+        // Si la fecha guardada es anterior a hoy, usarla; si no, usar hoy
+        if (initialDate.isAfter(DateTime.now())) {
+          initialDate = DateHelper.getInitialDate(notWorkedDays);
+        }
+      } catch (e) {
+        initialDate = DateHelper.getInitialDate(notWorkedDays);
+      }
+    } else {
+      initialDate = DateHelper.getInitialDate(notWorkedDays);
+    }
 
     if (!context.mounted) return;
     DateTime? pickedDate = await showDatePicker(
@@ -250,28 +266,35 @@ class _JiraViewState extends State<JiraView> {
         padding: const EdgeInsets.all(24),
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
+            LayoutBuilder(
+              builder: (context, constraints) {
+                final isWideScreen = constraints.maxWidth > 900;
+                final isMediumScreen = constraints.maxWidth > 500;
+
+                if (isWideScreen) {
+                  // Pantallas grandes: todos los campos en una fila
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                          padding: const EdgeInsets.only(right: 5.0),
-                          child: SizedBox(
-                            child: TextField(
-                              keyboardType: TextInputType.text,
-                              controller: _issueController,
-                              decoration: InputDecoration(
-                                border: const OutlineInputBorder(),
-                                labelText: AppLocalizations.of(context)?.issue,
-                              ),
-                              onChanged: (value) => _issueController.text,
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: TextField(
+                            keyboardType: TextInputType.text,
+                            controller: _issueController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: AppLocalizations.of(context)?.issue,
                             ),
-                          )),
-                      const SizedBox(height: 24.0),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 5.0),
-                        child: SizedBox(
+                            onChanged: (value) => _issueController.text,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
                           child: TextField(
                             keyboardType: TextInputType.datetime,
                             controller: _dateController,
@@ -286,41 +309,166 @@ class _JiraViewState extends State<JiraView> {
                           ),
                         ),
                       ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            controller: _hoursController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText: AppLocalizations.of(context)?.hours,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: TextField(
+                            keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            controller: _repetitionsController,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText:
+                                  AppLocalizations.of(context)?.repetitions,
+                            ),
+                          ),
+                        ),
+                      ),
                     ],
-                  ),
-                ),
-                Expanded(
-                  child: Column(
+                  );
+                } else if (isMediumScreen) {
+                  // Pantallas medianas (tamaño mínimo): dos columnas 2x2
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          controller: _hoursController,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            labelText: AppLocalizations.of(context)?.hours,
-                          ),
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: TextField(
+                                keyboardType: TextInputType.text,
+                                controller: _issueController,
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  labelText:
+                                      AppLocalizations.of(context)?.issue,
+                                ),
+                                onChanged: (value) => _issueController.text,
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 8.0),
+                              child: TextField(
+                                keyboardType: TextInputType.datetime,
+                                controller: _dateController,
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  suffixIcon: const Icon(Icons.calendar_today),
+                                  labelText:
+                                      AppLocalizations.of(context)?.startDate,
+                                ),
+                                readOnly: true,
+                                onTap: _showDatePicker,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 24.0),
-                      SizedBox(
-                        child: TextField(
-                          keyboardType: TextInputType.number,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
+                      Expanded(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                controller: _hoursController,
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  labelText:
+                                      AppLocalizations.of(context)?.hours,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16.0),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: TextField(
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                controller: _repetitionsController,
+                                decoration: InputDecoration(
+                                  border: const OutlineInputBorder(),
+                                  labelText:
+                                      AppLocalizations.of(context)?.repetitions,
+                                ),
+                              ),
+                            ),
                           ],
-                          controller: _repetitionsController,
-                          decoration: InputDecoration(
-                            border: const OutlineInputBorder(),
-                            labelText:
-                                AppLocalizations.of(context)?.repetitions,
-                          ),
                         ),
                       ),
                     ],
-                  ),
-                ),
-              ],
+                  );
+                } else {
+                  // Pantallas pequeñas: una columna vertical
+                  return Column(
+                    children: [
+                      TextField(
+                        keyboardType: TextInputType.text,
+                        controller: _issueController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: AppLocalizations.of(context)?.issue,
+                        ),
+                        onChanged: (value) => _issueController.text,
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        keyboardType: TextInputType.datetime,
+                        controller: _dateController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          suffixIcon: const Icon(Icons.calendar_today),
+                          labelText: AppLocalizations.of(context)?.startDate,
+                        ),
+                        readOnly: true,
+                        onTap: _showDatePicker,
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        controller: _hoursController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: AppLocalizations.of(context)?.hours,
+                        ),
+                      ),
+                      const SizedBox(height: 16.0),
+                      TextField(
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        controller: _repetitionsController,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: AppLocalizations.of(context)?.repetitions,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+              },
             ),
             const SizedBox(height: 24.0),
             if (!_areAllDataSaved)
@@ -347,9 +495,41 @@ class _JiraViewState extends State<JiraView> {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        height: 65,
+      bottomNavigationBar: FutureBuilder<String?>(
+        future: widget.controller.getLastLoggedDate(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData &&
+              snapshot.data != null &&
+              snapshot.data!.isNotEmpty) {
+            try {
+              final DateTime lastDate = DateTime.parse(snapshot.data!);
+              final String formattedDate = DateHelper.formatDate(lastDate);
+              return BottomAppBar(
+                shape: const CircularNotchedRectangle(),
+                height: 65,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Center(
+                    child: Text(
+                      AppLocalizations.of(context)!
+                          .lastLoggedDate(formattedDate),
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                  ),
+                ),
+              );
+            } catch (e) {
+              return const BottomAppBar(
+                shape: CircularNotchedRectangle(),
+                height: 65,
+              );
+            }
+          }
+          return const BottomAppBar(
+            shape: CircularNotchedRectangle(),
+            height: 65,
+          );
+        },
       ),
       floatingActionButton: Container(
           margin: const EdgeInsets.all(10),

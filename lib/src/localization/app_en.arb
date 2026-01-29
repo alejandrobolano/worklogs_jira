@@ -45,5 +45,18 @@
   "clearCache": "Clear cache",
   "setSettings":"You must set setting params",
   "passwordDeprecated":"Basic Authentication (user & password) has been disabled",
-  "subtasks":"Subtasks"
+  "subtasks":"Subtasks",
+  "lastLoggedDate":"Last logged date: {date}",
+  "@lastLoggedDate": {
+    "description": "Shows the last date when hours were logged",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "loggedTasks":"Logged tasks",
+  "task":"Task",
+  "date":"Date",
+  "hours":"Hours"
 }
