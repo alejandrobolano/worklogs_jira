@@ -45,5 +45,18 @@
   "clearCache": "Eliminar la cache",
   "setSettings":"Debes primero modificar las Configuraciones",
   "passwordDeprecated":"Autenticación básica (usuario y contraseña) ha sido deshabilitada",
-  "subtasks":"Subtareas"
+  "subtasks":"Subtareas",
+  "lastLoggedDate":"Último día imputado: {date}",
+  "@lastLoggedDate": {
+    "description": "Muestra la última fecha en la que se imputaron horas",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "loggedTasks":"Tareas imputadas",
+  "task":"Tarea",
+  "date":"Fecha",
+  "hours":"Horas"
 }
