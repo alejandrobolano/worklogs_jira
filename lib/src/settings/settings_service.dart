@@ -18,6 +18,7 @@ class SettingsService {
   static const String _lastLoggedDateKey = 'lastLoggedDate';
   static const String _jiraPathKey = 'jiraPath';
   static const String _workDaysKey = 'workDaysKey';
+  static const int _jiraApiVersion = 2;
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -102,11 +103,10 @@ class SettingsService {
     if (jiraPathSaved == null || (jiraPathSaved.isEmpty)) {
       return "";
     }
-    const version = 2;
     if (jiraPathSaved.endsWith("/")) {
-      return "${jiraPathSaved.substring(0, jiraPathSaved.length - 1)}/rest/api/$version/";
+      return "${jiraPathSaved.substring(0, jiraPathSaved.length - 1)}/rest/api/$_jiraApiVersion/";
     }
-    return "$jiraPathSaved/rest/api/$version/";
+    return "$jiraPathSaved/rest/api/$_jiraApiVersion/";
   }
 
   Future<String?> getJiraBasePath() async {
@@ -155,5 +155,37 @@ class SettingsService {
     });
 
     return result;
+  }
+
+  Future<List<String>> getUserProjects() async {
+    try {
+      final jiraBasePath = await getJiraBasePath();
+      final auth = await getAuthentication();
+
+      if (jiraBasePath == null ||
+          jiraBasePath.isEmpty ||
+          auth == null ||
+          auth.isEmpty) {
+        return [];
+      }
+
+      final url = '$jiraBasePath/rest/api/$_jiraApiVersion/project';
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': auth,
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final List projects = json.decode(response.body);
+        return projects.map((project) => project['key'] as String).toList();
+      }
+
+      return [];
+    } catch (e) {
+      return [];
+    }
   }
 }
