@@ -58,5 +58,23 @@
   "loggedTasks":"Logged tasks",
   "task":"Task",
   "date":"Date",
-  "hours":"Hours"
+  "hours":"Hours",
+  "reloadProjects":"Reload projects",
+  "loadProjectsFromJira":"Load projects from Jira",
+  "loadProjectsHelper":"Load projects from Jira or write manually",
+  "projectsAvailable":"{count} projects available",
+  "@projectsAvailable": {
+    "description": "Shows the number of available projects",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "updateAvailable":"Update Available",
+  "newVersion":"New version",
+  "releaseNotes":"Release Notes",
+  "noReleaseNotes":"No release notes available",
+  "later":"Later",
+  "download":"Download"
 }
