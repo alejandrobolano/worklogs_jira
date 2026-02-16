@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
+import 'package:worklogs_jira/src/widgets/update_checker.dart';
 import 'jira/jira_controller.dart';
 import 'jira/jira_view.dart';
 import 'settings/settings_controller.dart';
@@ -52,16 +53,21 @@ class MyApp extends StatelessWidget {
             return MaterialPageRoute<void>(
               settings: routeSettings,
               builder: (BuildContext context) {
+                Widget view;
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
-                    return SettingsView(controller: settingsController);
+                    view = SettingsView(controller: settingsController);
+                    break;
                   case DashboardView.routeName:
-                    return DashboardView(controller: dashboardController);
+                    view = DashboardView(controller: dashboardController);
+                    break;
                   default:
-                    return JiraView(
-                      controller: jiraController,
-                    );
+                    view = JiraView(controller: jiraController);
                 }
+                if (routeSettings.name == null || routeSettings.name == '/') {
+                  return UpdateChecker(child: view);
+                }
+                return view;
               },
             );
           },

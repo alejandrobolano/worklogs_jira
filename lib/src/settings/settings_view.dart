@@ -27,6 +27,8 @@ class _SettingsViewState extends State<SettingsView> {
   final _textControllers = [];
   String _version = "";
   List<WorkDay> _workDays = [];
+  List<String> _availableProjects = [];
+  bool _isLoadingProjects = false;
 
   @override
   void initState() {
@@ -43,6 +45,11 @@ class _SettingsViewState extends State<SettingsView> {
     });
 
     _getAppVersion();
+    
+    if (widget.controller.isAuthSaved) {
+      _loadProjects();
+    }
+    
     super.initState();
   }
 
@@ -100,6 +107,29 @@ class _SettingsViewState extends State<SettingsView> {
 
   bool isWeekend(int index) =>
       index + 1 == DateTime.saturday || index + 1 == DateTime.sunday;
+
+  Future<void> _loadProjects() async {
+    if (widget.controller.jiraPath == null ||
+        widget.controller.jiraPath!.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _isLoadingProjects = true;
+    });
+
+    try {
+      final projects = await widget.controller.getUserProjects();
+      setState(() {
+        _availableProjects = projects;
+        _isLoadingProjects = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingProjects = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -199,17 +229,92 @@ class _SettingsViewState extends State<SettingsView> {
               children: _workDays.map((day) => buildWorkDayRow(day)).toList(),
             ),
             const SizedBox(height: 24.0),
-            SizedBox(
-              child: TextField(
-                keyboardType: TextInputType.text,
-                controller: _issuePreffixController,
-                textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
-                  icon: const Icon(Icons.precision_manufacturing_outlined),
-                  border: const OutlineInputBorder(),
-                  labelText: AppLocalizations.of(context)?.issuePreffix,
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 15.0),
+                  child: Icon(Icons.precision_manufacturing_outlined),
                 ),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Autocomplete<String>(
+                    initialValue: TextEditingValue(
+                      text: _issuePreffixController.text,
+                    ),
+                    optionsBuilder: (TextEditingValue textEditingValue) {
+                      if (textEditingValue.text.isEmpty) {
+                        return _availableProjects;
+                      }
+                      return _availableProjects.where((String option) {
+                        return option
+                            .toLowerCase()
+                            .contains(textEditingValue.text.toLowerCase());
+                      });
+                    },
+                    onSelected: (String selection) {
+                      // Agregar guion al final si no lo tiene
+                      final prefixWithDash =
+                          selection.endsWith('-') ? selection : '$selection-';
+                      _issuePreffixController.text =
+                          prefixWithDash.toUpperCase();
+                    },
+                    fieldViewBuilder: (BuildContext context,
+                        TextEditingController fieldTextEditingController,
+                        FocusNode fieldFocusNode,
+                        VoidCallback onFieldSubmitted) {
+                      if (fieldTextEditingController.text.isEmpty &&
+                          _issuePreffixController.text.isNotEmpty) {
+                        fieldTextEditingController.text =
+                            _issuePreffixController.text;
+                      }
+
+                      fieldTextEditingController.addListener(() {
+                        _issuePreffixController.text =
+                            fieldTextEditingController.text;
+                      });
+
+                      return TextField(
+                        controller: fieldTextEditingController,
+                        focusNode: fieldFocusNode,
+                        textCapitalization: TextCapitalization.characters,
+                        decoration: InputDecoration(
+                          border: const OutlineInputBorder(),
+                          labelText: AppLocalizations.of(context)?.issuePreffix,
+                          hintText: 'PROJ-',
+                          suffixIcon: _isLoadingProjects
+                              ? const Padding(
+                                  padding: EdgeInsets.all(12.0),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                        strokeWidth: 2),
+                                  ),
+                                )
+                              : (_availableProjects.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.refresh),
+                                      tooltip: AppLocalizations.of(context)
+                                          ?.reloadProjects,
+                                      onPressed: _loadProjects,
+                                    )
+                                  : IconButton(
+                                      icon: const Icon(Icons.download),
+                                      tooltip: AppLocalizations.of(context)
+                                          ?.loadProjectsFromJira,
+                                      onPressed: _loadProjects,
+                                    )),
+                          helperText: _availableProjects.isEmpty
+                              ? AppLocalizations.of(context)?.loadProjectsHelper
+                              : AppLocalizations.of(context)?.projectsAvailable(
+                                  _availableProjects.length),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 30.0),
             DropdownButtonFormField<ThemeMode>(

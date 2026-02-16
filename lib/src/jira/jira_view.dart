@@ -5,6 +5,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
+import 'package:worklogs_jira/src/config/app_config.dart';
 import '../settings/settings_view.dart';
 import 'jira_controller.dart';
 import 'worklog_list/worklog_list_view.dart';
@@ -206,7 +207,7 @@ class _JiraViewState extends State<JiraView> {
   }
 
   _launchURL() async {
-    final uri = Uri.parse('https://github.com/alejandrobolano/worklogs_jira');
+    final uri = Uri.parse(AppConfig.githubUrl);
     final isPossibleLaunchUrl = await canLaunchUrl(uri);
     if (isPossibleLaunchUrl) {
       await launchUrl(uri);

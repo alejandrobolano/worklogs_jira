@@ -69,4 +69,12 @@ class SettingsController with ChangeNotifier {
   Future<void> clear() async {
     await _settingsService.clear();
   }
+
+  Future<String?> getAuthentication() async {
+    return await _settingsService.getAuthentication();
+  }
+
+  Future<List<String>> getUserProjects() async {
+    return await _settingsService.getUserProjects();
+  }
 }
