@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.0] - 2026-02-16
+
+### Added
+- Automatic update checker on app startup
+- Autocomplete for project prefix from Jira API with dropdown selector
+- Load user projects from Jira automatically in settings
+- Centralized GitHub configuration (app_config.dart)
+- Update notification dialog with release notes
+
+### Improved
+- Unified Jira API version across the application (v2)
+- Auto-uppercase and add dash to project prefix on selection
+- Better error handling for Jira API calls
+- Simplified project loading logic
+
+### Changed
+- Moved GitHub repository configuration to centralized config file
+- Standardized Jira API usage throughout the app
+
 ## [2.3.0] - 2026-01-29
 
 ### Added
@@ -13,8 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add date range filtering for dashboard
 - Remember last logged date in date picker
 - Center window on startup with minimum size 720×720
-- Autocomplete for project prefix from Jira API
-- Load user projects from Jira with dropdown selector
 
 ### Improved
 - Improve responsive layout for input fields
