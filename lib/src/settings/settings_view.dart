@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_controller.dart';
+import '../services/notification_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SettingsView extends StatefulWidget {
@@ -30,6 +31,11 @@ class _SettingsViewState extends State<SettingsView> {
   List<String> _availableProjects = [];
   bool _isLoadingProjects = false;
 
+  // reminder state
+  bool _reminderEnabled = false;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
+  final _reminderMessageController = TextEditingController();
+
   @override
   void initState() {
     _textControllers.add(_userController);
@@ -40,16 +46,21 @@ class _SettingsViewState extends State<SettingsView> {
         TextEditingController(text: widget.controller.jiraPath ?? "");
     _workDays = _getWorkDays();
 
+    // reminders
+    _reminderEnabled = widget.controller.reminderEnabled;
+    _reminderTime = widget.controller.reminderTime;
+    _reminderMessageController.text = widget.controller.reminderMessage;
+
     _userController.addListener(() {
       _emailController.text = _userController.text;
     });
 
     _getAppVersion();
-    
+
     if (widget.controller.isAuthSaved) {
       _loadProjects();
     }
-    
+
     super.initState();
   }
 
@@ -58,6 +69,7 @@ class _SettingsViewState extends State<SettingsView> {
     for (var controller in _textControllers) {
       controller.dispose();
     }
+    _reminderMessageController.dispose();
     super.dispose();
   }
 
@@ -68,8 +80,14 @@ class _SettingsViewState extends State<SettingsView> {
         _tokenController.text,
         _issuePreffixController.text,
         _jiraPathController.text,
-        _workDays);
+        _workDays,
+        _reminderEnabled,
+        _reminderTime,
+        _reminderMessageController.text);
     await widget.controller.loadSettings();
+    // re‑schedule notifications with current locale
+    await widget.controller
+        .scheduleWorklogReminders(Localizations.localeOf(context));
     _clearTextControllers();
   }
 
@@ -227,6 +245,52 @@ class _SettingsViewState extends State<SettingsView> {
                   AppLocalizations.of(context)?.workedHoursDescription ?? ""),
               childrenPadding: const EdgeInsets.all(24),
               children: _workDays.map((day) => buildWorkDayRow(day)).toList(),
+            ),
+            const SizedBox(height: 24.0),
+            ExpansionTile(
+              title: Text(AppLocalizations.of(context)?.worklogReminder ?? ''),
+              subtitle:
+                  Text(AppLocalizations.of(context)?.selectReminderTime ?? ''),
+              childrenPadding: const EdgeInsets.all(24),
+              children: [
+                SwitchListTile(
+                  title:
+                      Text(AppLocalizations.of(context)?.enableReminder ?? ''),
+                  value: _reminderEnabled,
+                  onChanged: (bool v) {
+                    setState(() {
+                      _reminderEnabled = v;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                ListTile(
+                  leading: const Icon(Icons.access_time),
+                  trailing: Text(_reminderTime.format(context)),
+                  title: Text(
+                      AppLocalizations.of(context)?.selectReminderTime ?? ''),
+                  onTap: () async {
+                    final picked = await showTimePicker(
+                        context: context, initialTime: _reminderTime);
+                    if (picked != null) {
+                      setState(() {
+                        _reminderTime = picked;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                TextField(
+                  controller: _reminderMessageController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText:
+                        AppLocalizations.of(context)?.customReminderMessage,
+                    hintText: NotificationService.getDefaultReminderMessage(
+                        Localizations.localeOf(context)),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24.0),
             Row(

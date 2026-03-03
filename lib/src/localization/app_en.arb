@@ -63,6 +63,10 @@
   "loadProjectsFromJira":"Load projects from Jira",
   "loadProjectsHelper":"Load projects from Jira or write manually",
   "projectsAvailable":"{count} projects available",
+  "worklogReminder":"Worklog reminder",
+  "enableReminder":"Enable reminder",
+  "selectReminderTime":"Select reminder time",
+  "customReminderMessage":"Custom message",
   "@projectsAvailable": {
     "description": "Shows the number of available projects",
     "placeholders": {

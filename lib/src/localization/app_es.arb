@@ -63,6 +63,10 @@
   "loadProjectsFromJira":"Cargar proyectos desde Jira",
   "loadProjectsHelper":"Cargar proyectos desde Jira o escribir manualmente",
   "projectsAvailable":"{count} proyectos disponibles",
+  "worklogReminder":"Recordatorio de horas",
+  "enableReminder":"Activar recordatorio",
+  "selectReminderTime":"Seleccionar hora del recordatorio",
+  "customReminderMessage":"Mensaje personalizado",
   "@projectsAvailable": {
     "description": "Muestra la cantidad de proyectos disponibles",
     "placeholders": {

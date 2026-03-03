@@ -6,6 +6,7 @@ import 'src/jira/jira_controller.dart';
 import 'src/jira/jira_service.dart';
 import 'src/settings/settings_controller.dart';
 import 'src/settings/settings_service.dart';
+import 'src/services/notification_service.dart';
 
 void main() async {
   final settingsController =
@@ -15,6 +16,9 @@ void main() async {
   final dashboardController =
       DashboardController(JiraService(), SettingsService(PreferencesService()));
   await settingsController.loadSettings();
+
+  // prepare notifications (timezone, plugin)
+  await NotificationService.initNotifications();
 
   runApp(MyApp(
     settingsController: settingsController,
