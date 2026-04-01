@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 import 'dashboard/dashboard_controller.dart';
 import 'dashboard/dashboard_view.dart';
 import 'jira/jira_controller.dart';
 import 'jira/jira_view.dart';
-import 'services/notification_service.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'widgets/update_checker.dart';
@@ -27,16 +26,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await NotificationService.restoreWorklogRemindersFromPreferences(
-          widget.settingsController.settingsService,
-          Localizations.localeOf(context));
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:worklogs_jira/src/services/update_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 
 class UpdateChecker extends StatefulWidget {
   final Widget child;
@@ -70,7 +70,7 @@ class _UpdateCheckerState extends State<UpdateChecker> {
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.1),
+                    color: Colors.grey.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -92,12 +92,11 @@ class _UpdateCheckerState extends State<UpdateChecker> {
             ElevatedButton.icon(
               onPressed: () async {
                 final uri = Uri.parse(updateInfo.downloadUrl);
+                final nav = Navigator.of(context);
                 if (await canLaunchUrl(uri)) {
                   await launchUrl(uri, mode: LaunchMode.externalApplication);
                 }
-                if (mounted) {
-                  Navigator.of(context).pop();
-                }
+                nav.pop();
               },
               icon: const Icon(Icons.download),
               label: Text(AppLocalizations.of(context)?.download ?? 'Download'),
