@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import '../../models/worklog_response.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 
 class WorklogListView extends StatelessWidget {
   final WorklogResponse worklogResponse;

@@ -12,7 +12,7 @@ import 'package:worklogs_jira/src/dashboard/logged_tasks_table.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import 'package:worklogs_jira/src/models/worklist_response.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 
 class DashboardView extends StatefulWidget {
   const DashboardView({super.key, required this.controller});
@@ -93,7 +93,7 @@ class _DashboardViewState extends State<DashboardView>
 
   void _showDatePicker(TextEditingController rangeController) async {
     List<int> notWorkedDays = await widget.controller.getNotWorkedDays();
-    if (!context.mounted) return;
+    if (!mounted) return;
     DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: DateHelper.getInitialDate(notWorkedDays),

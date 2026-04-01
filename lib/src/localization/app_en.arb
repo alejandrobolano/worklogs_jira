@@ -67,6 +67,12 @@
   "enableReminder":"Enable reminder",
   "selectReminderTime":"Select reminder time",
   "customReminderMessage":"Custom message",
+  "applyToAllDays":"Apply to all working days",
+  "reminderTimeForDay":"Reminder time",
+  "daysReceiveReminder":"Days that will receive the reminder",
+  "noWorkingDaysReminder":"Select at least one working day to enable reminders.",
+  "resetToDefaultTime":"Reset to default time",
+  "reminderDaysHint":"Enable or disable the reminder individually for each working day. Tap the time to set a custom time.",
   "@projectsAvailable": {
     "description": "Shows the number of available projects",
     "placeholders": {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/models/worklist_response.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 import 'package:intl/intl.dart';
 
 class LoggedTasksTable extends StatefulWidget {
@@ -145,7 +145,7 @@ class _LoggedTasksTableState extends State<LoggedTasksTable> {
                               color: Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.1),
+                                  .withValues(alpha: 0.1),
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(4),
                                 topRight: Radius.circular(4),

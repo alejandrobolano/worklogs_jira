@@ -67,6 +67,12 @@
   "enableReminder":"Activar recordatorio",
   "selectReminderTime":"Seleccionar hora del recordatorio",
   "customReminderMessage":"Mensaje personalizado",
+  "applyToAllDays":"Aplicar a todos los días de trabajo",
+  "reminderTimeForDay":"Hora del recordatorio",
+  "daysReceiveReminder":"Días que recibirán el recordatorio",
+  "noWorkingDaysReminder":"Marca al menos un día laborable para activar recordatorios.",
+  "resetToDefaultTime":"Restaurar hora predeterminada",
+  "reminderDaysHint":"Activa o desactiva el recordatorio individualmente por cada día laborable. Toca la hora para establecer una hora personalizada.",
   "@projectsAvailable": {
     "description": "Muestra la cantidad de proyectos disponibles",
     "placeholders": {

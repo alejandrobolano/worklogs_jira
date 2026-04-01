@@ -94,9 +94,13 @@ class SettingsController with ChangeNotifier {
     await _settingsService.setReminderMessage(reminderMessage);
 
     // update controller state for UI
+    _workDays = workDays;
     _reminderEnabled = reminderEnabled;
     _reminderTime = reminderTime;
     _reminderMessage = reminderMessage;
+    _issuePreffix = issuePreffix.toUpperCase();
+    _jiraPath = jiraPath;
+    _email = email;
   }
 
   Future<void> clear() async {
@@ -104,11 +108,12 @@ class SettingsController with ChangeNotifier {
   }
 
   /// helper that delegates scheduling to the notification service.
-  Future<void> scheduleWorklogReminders(Locale locale) async {
-    await NotificationService.scheduleWeeklyReminderForActiveDays(
-        _settingsService,
+  /// Returns null if successful, or an error message if scheduling failed.
+  Future<ReminderSyncResult> scheduleWorklogReminders(Locale locale) async {
+    return await NotificationService.scheduleWeeklyReminderForActiveDays(
         enabled: _reminderEnabled,
-        time: _reminderTime,
+        workDays: _workDays ?? [],
+        defaultTime: _reminderTime,
         message: _reminderMessage,
         locale: locale);
   }
