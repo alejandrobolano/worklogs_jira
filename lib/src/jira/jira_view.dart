@@ -10,7 +10,7 @@ import '../settings/settings_view.dart';
 import 'jira_controller.dart';
 import 'worklog_list/worklog_list_view.dart';
 import '../models/worklog_response.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class JiraView extends StatefulWidget {
@@ -165,7 +165,7 @@ class _JiraViewState extends State<JiraView> {
       initialDate = DateHelper.getInitialDate(notWorkedDays);
     }
 
-    if (!context.mounted) return;
+    if (!mounted) return;
     DateTime? pickedDate = await showDatePicker(
         context: context,
         initialDate: initialDate,

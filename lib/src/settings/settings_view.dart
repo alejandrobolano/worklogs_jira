@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
+import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_controller.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import '../services/notification_service.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 
 class SettingsView extends StatefulWidget {
   const SettingsView({super.key, required this.controller});
@@ -30,6 +33,13 @@ class _SettingsViewState extends State<SettingsView> {
   List<String> _availableProjects = [];
   bool _isLoadingProjects = false;
 
+  // reminder state
+  bool _reminderEnabled = false;
+  TimeOfDay _reminderTime = const TimeOfDay(hour: 9, minute: 0);
+  final _reminderMessageController = TextEditingController();
+  bool _isSaving = false;
+  String? _saveProgressMessage;
+
   @override
   void initState() {
     _textControllers.add(_userController);
@@ -39,17 +49,23 @@ class _SettingsViewState extends State<SettingsView> {
     _jiraPathController =
         TextEditingController(text: widget.controller.jiraPath ?? "");
     _workDays = _getWorkDays();
+    _normalizeReminderDays();
+
+    // reminders
+    _reminderEnabled = widget.controller.reminderEnabled;
+    _reminderTime = widget.controller.reminderTime;
+    _reminderMessageController.text = widget.controller.reminderMessage;
 
     _userController.addListener(() {
       _emailController.text = _userController.text;
     });
 
     _getAppVersion();
-    
+
     if (widget.controller.isAuthSaved) {
       _loadProjects();
     }
-    
+
     super.initState();
   }
 
@@ -58,25 +74,174 @@ class _SettingsViewState extends State<SettingsView> {
     for (var controller in _textControllers) {
       controller.dispose();
     }
+    _reminderMessageController.dispose();
     super.dispose();
   }
 
+  void _normalizeReminderDays() {
+    for (final WorkDay workDay in _workDays) {
+      // Ensure non-working days cannot fire a reminder; preserve working days' user choice
+      if (!workDay.isWorking) workDay.reminderEnabled = false;
+    }
+  }
+
+  /// All working days (shown in the per-day list regardless of their reminder toggle).
+  List<WorkDay> get _workingDays =>
+      _workDays.where((day) => day.isWorking).toList();
+
+  /// Working days that have their individual reminder toggle enabled.
+  List<WorkDay> get _activeReminderDays =>
+      _workDays.where((day) => day.isWorking && day.reminderEnabled).toList();
+
+  TimeOfDay _effectiveTimeForDay(WorkDay day) =>
+      day.reminderTimeOfDay ?? _reminderTime;
+
+  String _localizedDayLabel(BuildContext context, int day) {
+    final Locale locale = Localizations.localeOf(context);
+    final DateTime monday = DateTime(2024, 1, 1);
+    final DateTime date = monday.add(Duration(days: day - 1));
+    final String label = DateFormat.EEEE(locale.toLanguageTag()).format(date);
+    if (label.isEmpty) {
+      return DateHelper.getDay(day);
+    }
+    return '${label[0].toUpperCase()}${label.substring(1)}';
+  }
+
+  String _reminderSubtitle(BuildContext context) {
+    final Locale locale = Localizations.localeOf(context);
+    final List<WorkDay> activeDays = _activeReminderDays;
+
+    if (activeDays.isEmpty) {
+      return locale.languageCode == 'es'
+          ? 'Selecciona días laborables para programar el reminder'
+          : 'Select working days to schedule the reminder';
+    }
+
+    final bool hasCustomTimes =
+        activeDays.any((d) => d.reminderTimeOfDay != null);
+
+    if (!hasCustomTimes) {
+      final String daysLabel =
+          activeDays.map((d) => _localizedDayLabel(context, d.day)).join(', ');
+      return '${_reminderTime.format(context)} · $daysLabel';
+    }
+
+    return activeDays.map((d) {
+      final String abbr = _localizedDayLabel(context, d.day);
+      final String time = _effectiveTimeForDay(d).format(context);
+      return '$abbr $time';
+    }).join(', ');
+  }
+
+  void _refreshLocalReminderState() {
+    _workDays = _getWorkDays();
+    _normalizeReminderDays();
+    _issuePreffixController.text = widget.controller.issuePreffix ?? '';
+    _jiraPathController.text = widget.controller.jiraPath ?? '';
+    _reminderEnabled = widget.controller.reminderEnabled;
+    _reminderTime = widget.controller.reminderTime;
+    _reminderMessageController.text = widget.controller.reminderMessage;
+  }
+
   Future<void> _save() async {
-    await widget.controller.savePreferences(
-        _userController.text,
-        _emailController.text,
-        _tokenController.text,
-        _issuePreffixController.text,
-        _jiraPathController.text,
-        _workDays);
-    await widget.controller.loadSettings();
-    _clearTextControllers();
+    if (_isSaving) {
+      return;
+    }
+
+    try {
+      final Locale locale = Localizations.localeOf(context);
+      FocusScope.of(context).unfocus();
+
+      _normalizeReminderDays();
+
+      setState(() {
+        _isSaving = true;
+        _saveProgressMessage = locale.languageCode == 'es'
+            ? 'Guardando preferencias...'
+            : 'Saving preferences...';
+      });
+
+      await widget.controller.savePreferences(
+          _userController.text,
+          _emailController.text,
+          _tokenController.text,
+          _issuePreffixController.text,
+          _jiraPathController.text,
+          _workDays,
+          _reminderEnabled,
+          _reminderTime,
+          _reminderMessageController.text);
+
+      if (!mounted) return;
+
+      setState(() {
+        _saveProgressMessage = locale.languageCode == 'es'
+            ? 'Sincronizando recordatorios con Windows...'
+            : 'Syncing reminders with Windows...';
+      });
+
+      final ReminderSyncResult syncResult =
+          await widget.controller.scheduleWorklogReminders(locale);
+
+      // Always clear dedup when reminders are enabled so that a time change
+      // is reflected immediately on the same day (not blocked by today's key).
+      if (_reminderEnabled) {
+        await NotificationService.clearTodayDedup();
+      }
+
+      if (!mounted) return;
+
+      setState(() {
+        _saveProgressMessage = locale.languageCode == 'es'
+            ? 'Recargando configuración...'
+            : 'Reloading settings...';
+      });
+
+      await widget.controller.loadSettings();
+
+      if (!mounted) return;
+
+      setState(() {
+        _refreshLocalReminderState();
+        _isSaving = false;
+        _saveProgressMessage = null;
+      });
+
+      final String finalMessage = syncResult.buildUserMessage(
+        locale,
+        reminderEnabled: _reminderEnabled,
+      );
+
+      WidgetHelper.showMessageSnackBar(context, finalMessage);
+
+      if (!syncResult.success) {
+        debugPrint(
+          '[Settings] reminder synchronization error: ${syncResult.errorMessage}',
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _isSaving = false;
+        _saveProgressMessage = null;
+      });
+
+      debugPrint('[Settings] _save error: $e');
+      WidgetHelper.showMessageSnackBar(context, 'Error saving settings: $e');
+    }
   }
 
   Future<void> _clear() async {
     await widget.controller.clear();
-    _clearTextControllers();
     await widget.controller.loadSettings();
+    if (!mounted) return;
+    setState(() {
+      _clearTextControllers();
+      _issuePreffixController.clear();
+      _jiraPathController.clear();
+      _refreshLocalReminderState();
+    });
   }
 
   void _clearTextControllers() {
@@ -133,6 +298,9 @@ class _SettingsViewState extends State<SettingsView> {
 
   @override
   Widget build(BuildContext context) {
+    final List<WorkDay> workingDays = _workingDays;
+    final List<WorkDay> activeReminderDays = _activeReminderDays;
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -229,6 +397,184 @@ class _SettingsViewState extends State<SettingsView> {
               children: _workDays.map((day) => buildWorkDayRow(day)).toList(),
             ),
             const SizedBox(height: 24.0),
+            ExpansionTile(
+              title: Text(AppLocalizations.of(context)?.worklogReminder ?? ''),
+              subtitle: Text(_reminderSubtitle(context)),
+              childrenPadding: const EdgeInsets.all(24),
+              children: [
+                SwitchListTile(
+                  title:
+                      Text(AppLocalizations.of(context)?.enableReminder ?? ''),
+                  subtitle: Text(workingDays.isEmpty
+                      ? (Localizations.localeOf(context).languageCode == 'es'
+                          ? 'No hay días laborables seleccionados'
+                          : 'No working days selected')
+                      : (Localizations.localeOf(context).languageCode == 'es'
+                          ? 'Se aplicará a ${activeReminderDays.length} día(s) con recordatorio activo'
+                          : 'Will apply to ${activeReminderDays.length} day(s) with reminder enabled')),
+                  value: _reminderEnabled,
+                  onChanged: (bool v) {
+                    setState(() {
+                      _reminderEnabled = v;
+                    });
+                  },
+                ),
+                if (_isSaving && _saveProgressMessage != null) ...[
+                  Card(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            _saveProgressMessage!,
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
+                          const SizedBox(height: 12),
+                          const LinearProgressIndicator(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    AppLocalizations.of(context)?.daysReceiveReminder ??
+                        'Days that will receive the reminder',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                ),
+                const SizedBox(height: 4.0),
+                if (workingDays.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Text(
+                      AppLocalizations.of(context)?.noWorkingDaysReminder ??
+                          'Select at least one working day to enable reminders.',
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  )
+                else
+                  Column(
+                    children: workingDays.map((day) {
+                      return SwitchListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text(_localizedDayLabel(context, day.day)),
+                        subtitle: day.reminderEnabled
+                            ? InkWell(
+                                onTap: _reminderEnabled
+                                    ? () async {
+                                        final TimeOfDay? picked =
+                                            await showTimePicker(
+                                          context: context,
+                                          initialTime:
+                                              _effectiveTimeForDay(day),
+                                        );
+                                        if (picked != null) {
+                                          setState(() {
+                                            day.reminderTimeOfDay = picked;
+                                          });
+                                        }
+                                      }
+                                    : null,
+                                child: Wrap(
+                                  spacing: 4,
+                                  crossAxisAlignment: WrapCrossAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.access_time,
+                                      size: 14,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                    Text(
+                                      _effectiveTimeForDay(day).format(context),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .bodySmall
+                                          ?.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
+                                          ),
+                                    ),
+                                    if (day.reminderTimeOfDay != null)
+                                      Tooltip(
+                                        message: AppLocalizations.of(context)
+                                                ?.resetToDefaultTime ??
+                                            'Reset to default time',
+                                        child: GestureDetector(
+                                          onTap: () => setState(() {
+                                            day.reminderTimeOfDay = null;
+                                          }),
+                                          child: const Icon(
+                                            Icons.restore,
+                                            size: 14,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              )
+                            : null,
+                        value: day.reminderEnabled,
+                        onChanged: _reminderEnabled
+                            ? (bool v) =>
+                                setState(() => day.reminderEnabled = v)
+                            : null,
+                      );
+                    }).toList(),
+                  ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 4.0, bottom: 8.0),
+                  child: Text(
+                    AppLocalizations.of(context)?.reminderDaysHint ??
+                        'Enable or disable the reminder individually for each working day. Tap the time to set a custom time.',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ),
+                const SizedBox(height: 8.0),
+                ListTile(
+                  leading: const Icon(Icons.access_time),
+                  trailing: Text(_reminderTime.format(context)),
+                  title: Text(
+                      AppLocalizations.of(context)?.selectReminderTime ?? ''),
+                  subtitle: Text(
+                    Localizations.localeOf(context).languageCode == 'es'
+                        ? 'Hora predeterminada · toca un día para personalizar por día'
+                        : 'Default time · tap a day row to set individual time',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  enabled: _reminderEnabled && workingDays.isNotEmpty,
+                  onTap: !_reminderEnabled || workingDays.isEmpty
+                      ? null
+                      : () async {
+                    final picked = await showTimePicker(
+                        context: context, initialTime: _reminderTime);
+                    if (picked != null) {
+                      setState(() {
+                        _reminderTime = picked;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 16.0),
+                TextField(
+                  enabled: _reminderEnabled,
+                  controller: _reminderMessageController,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    labelText:
+                        AppLocalizations.of(context)?.customReminderMessage,
+                    hintText: NotificationService.getDefaultReminderMessage(
+                        Localizations.localeOf(context)),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24.0),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -322,7 +668,7 @@ class _SettingsViewState extends State<SettingsView> {
                 icon: Icon(Icons.color_lens_outlined),
                 border: OutlineInputBorder(),
               ),
-              value: widget.controller.themeMode,
+              initialValue: widget.controller.themeMode,
               isExpanded: false,
               borderRadius: BorderRadius.circular(5),
               onChanged: widget.controller.updateThemeMode,
@@ -368,9 +714,15 @@ class _SettingsViewState extends State<SettingsView> {
       floatingActionButton: Container(
           margin: const EdgeInsets.all(10),
           child: FloatingActionButton(
-              onPressed: _save,
+              onPressed: _isSaving ? null : _save,
               heroTag: 'save',
-              child: const Icon(Icons.save))),
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 24,
+                      height: 24,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.save))),
       floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
       floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
     );
@@ -410,6 +762,7 @@ class _SettingsViewState extends State<SettingsView> {
               onChanged: (value) {
                 setState(() {
                   workDay.isWorking = value!;
+                  workDay.reminderEnabled = value;
                 });
               },
             ),

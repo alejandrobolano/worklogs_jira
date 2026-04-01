@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:worklogs_jira/src/dashboard/dashboard_controller.dart';
-import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
-import 'package:worklogs_jira/src/widgets/update_checker.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
+import 'dashboard/dashboard_controller.dart';
+import 'dashboard/dashboard_view.dart';
 import 'jira/jira_controller.dart';
 import 'jira/jira_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'widgets/update_checker.dart';
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({
     super.key,
     required this.settingsController,
@@ -22,9 +22,14 @@ class MyApp extends StatelessWidget {
   final DashboardController dashboardController;
 
   @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: settingsController,
+      animation: widget.settingsController,
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
           restorationScopeId: 'app',
@@ -48,7 +53,7 @@ class MyApp extends StatelessWidget {
               textTheme: ThemeData.dark()
                   .textTheme
                   .apply(fontFamily: 'JetBrainsMono')),
-          themeMode: settingsController.themeMode,
+          themeMode: widget.settingsController.themeMode,
           onGenerateRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(
               settings: routeSettings,
@@ -56,13 +61,14 @@ class MyApp extends StatelessWidget {
                 Widget view;
                 switch (routeSettings.name) {
                   case SettingsView.routeName:
-                    view = SettingsView(controller: settingsController);
+                    view = SettingsView(controller: widget.settingsController);
                     break;
                   case DashboardView.routeName:
-                    view = DashboardView(controller: dashboardController);
+                    view =
+                        DashboardView(controller: widget.dashboardController);
                     break;
                   default:
-                    view = JiraView(controller: jiraController);
+                    view = JiraView(controller: widget.jiraController);
                 }
                 if (routeSettings.name == null || routeSettings.name == '/') {
                   return UpdateChecker(child: view);

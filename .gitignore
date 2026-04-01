@@ -10,6 +10,10 @@
 .svn/
 migrate_working_dir/
 
+# Analysis output files
+analyze_out.txt
+analyze2.txt
+
 # IntelliJ related
 *.iml
 *.ipr

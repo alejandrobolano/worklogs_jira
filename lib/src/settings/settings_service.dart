@@ -18,6 +18,10 @@ class SettingsService {
   static const String _lastLoggedDateKey = 'lastLoggedDate';
   static const String _jiraPathKey = 'jiraPath';
   static const String _workDaysKey = 'workDaysKey';
+  // reminder settings
+  static const String _reminderEnabledKey = 'reminderEnabled';
+  static const String _reminderTimeKey = 'reminderTime'; // stored as "HH:mm"
+  static const String _reminderMessageKey = 'reminderMessage';
   static const int _jiraApiVersion = 2;
 
   Future<SharedPreferences> _getPreferencesInstance() async {
@@ -142,6 +146,41 @@ class SettingsService {
 
   Future<void> clear() async {
     await _preferencesService.clear();
+  }
+
+  // reminder preferences helpers
+  Future<bool> getReminderEnabled() async {
+    final String? raw = await _preferencesService.get(_reminderEnabledKey);
+    return raw == 'true';
+  }
+
+  Future<void> setReminderEnabled(bool enabled) async {
+    await _preferencesService.set(_reminderEnabledKey, enabled.toString());
+  }
+
+  Future<TimeOfDay?> getReminderTime() async {
+    final String? raw = await _preferencesService.get(_reminderTimeKey);
+    if (raw == null) return null;
+    final parts = raw.split(':');
+    if (parts.length != 2) return null;
+    final hour = int.tryParse(parts[0]);
+    final minute = int.tryParse(parts[1]);
+    if (hour == null || minute == null) return null;
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  Future<void> setReminderTime(TimeOfDay time) async {
+    final formatted = '${time.hour.toString().padLeft(2, '0')}:'
+        '${time.minute.toString().padLeft(2, '0')}';
+    await _preferencesService.set(_reminderTimeKey, formatted);
+  }
+
+  Future<String?> getReminderMessage() async {
+    return _preferencesService.get(_reminderMessageKey);
+  }
+
+  Future<void> setReminderMessage(String message) async {
+    await _preferencesService.set(_reminderMessageKey, message);
   }
 
   Future<List<int>> getNotWorkedDays() async {

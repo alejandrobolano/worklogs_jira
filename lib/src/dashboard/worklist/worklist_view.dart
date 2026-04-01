@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:worklogs_jira/src/localization/app_localizations.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import 'package:worklogs_jira/src/models/worklist_response.dart';
 

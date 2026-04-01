@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.6.0] - 2026-04-01
+
+### Added
+- Per-day reminder toggle in settings: each working day now has its own enable/disable switch inside the "Days that will receive the reminder" section
+- Per-day custom reminder time: tapping the time shown under an active day opens a time picker for that specific day; a restore icon resets it to the global default
+- New localization keys for the reminder days section (`daysReceiveReminder`, `noWorkingDaysReminder`, `resetToDefaultTime`, `reminderDaysHint`) in English and Spanish
+
+### Changed
+- Replaced the InputChip row for reminder days with a `SwitchListTile` list, one row per working day, showing the day name, its toggle and the effective reminder time
+- `_normalizeReminderDays` no longer resets per-day reminder choices on save/init; non-working days are still disabled automatically
+- "Enable reminder" subtitle now reflects the count of days with their individual reminder toggle active
+
 ## [2.4.0] - 2026-02-16
 
 ### Added
