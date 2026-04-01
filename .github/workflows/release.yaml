@@ -16,8 +16,15 @@ jobs:
         id: version
         run: |
           VERSION=$(grep '^version:' pubspec.yaml | sed 's/version: *//' | tr -d '[:space:]')
+          PATCH=$(echo "$VERSION" | cut -d'.' -f3)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+          # Only publish release for major/minor versions (patch == 0)
+          if [ "$PATCH" = "0" ]; then
+            echo "is_release=true" >> $GITHUB_OUTPUT
+          else
+            echo "is_release=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: 📋 Extract changelog for this version
         id: changelog
@@ -44,7 +51,7 @@ jobs:
           fi
 
       - name: 🚀 Create GitHub Release
-        if: steps.check_tag.outputs.exists == 'false'
+        if: steps.version.outputs.is_release == 'true' && steps.check_tag.outputs.exists == 'false'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
