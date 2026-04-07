@@ -88,7 +88,9 @@ class _JiraViewState extends State<JiraView> {
       _handleResponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
-        widget.controller.setLastLoggedDate(date);
+        final lastDate =
+            await widget.controller.calculateLastLoggedDate(date, repetitions);
+        widget.controller.setLastLoggedDate(lastDate);
         _getData();
       }
     }

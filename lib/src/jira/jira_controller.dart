@@ -129,6 +129,22 @@ class JiraController with ChangeNotifier {
     return _settingsService.getNotWorkedDays();
   }
 
+  Future<String> calculateLastLoggedDate(
+      String startDate, int repetitions) async {
+    List<WorkDay> workDays = await _getWorkDays() ?? [];
+    if (workDays.isEmpty || repetitions <= 0) return startDate;
+
+    var dateTime = DateTime.parse(startDate);
+    for (int i = 0; i < repetitions; i++) {
+      final workDay = _getNextWorkDay(workDays, dateTime);
+      dateTime = workDay[1];
+      if (i < repetitions - 1) {
+        dateTime = dateTime.add(const Duration(days: 1));
+      }
+    }
+    return DateFormat('yyyy-MM-dd').format(dateTime);
+  }
+
   List _getNextWorkDay(List<WorkDay> workDays, DateTime dateTime) {
     final workDay =
         workDays.firstWhere((element) => element.day == dateTime.weekday);
