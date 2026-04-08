@@ -8,6 +8,7 @@ import 'package:worklogs_jira/src/helper/widget_helper.dart';
 import 'package:worklogs_jira/src/config/app_config.dart';
 import '../settings/settings_view.dart';
 import 'jira_controller.dart';
+import 'multi_task/multi_task_view.dart';
 import 'worklog_list/worklog_list_view.dart';
 import '../models/worklog_response.dart';
 import 'package:worklogs_jira/src/localization/app_localizations.dart';
@@ -250,6 +251,14 @@ class _JiraViewState extends State<JiraView> {
                 _launchURL();
               },
               icon: const Icon(Icons.code)),
+          IconButton(
+              tooltip: AppLocalizations.of(context)!.multiTaskTitle,
+              onPressed: () async {
+                final refreshed =
+                    await Navigator.pushNamed(context, MultiTaskView.routeName);
+                if (refreshed == true) _getData();
+              },
+              icon: const Icon(Icons.playlist_add_check)),
           IconButton(
               tooltip: "Dashboard",
               onPressed: () {

@@ -5,6 +5,7 @@ import 'dashboard/dashboard_controller.dart';
 import 'dashboard/dashboard_view.dart';
 import 'jira/jira_controller.dart';
 import 'jira/jira_view.dart';
+import 'jira/multi_task/multi_task_view.dart';
 import 'settings/settings_controller.dart';
 import 'settings/settings_view.dart';
 import 'widgets/update_checker.dart';
@@ -66,6 +67,10 @@ class _MyAppState extends State<MyApp> {
                   case DashboardView.routeName:
                     view =
                         DashboardView(controller: widget.dashboardController);
+                    break;
+                  case MultiTaskView.routeName:
+                    view =
+                        MultiTaskView(controller: widget.jiraController);
                     break;
                   default:
                     view = JiraView(controller: widget.jiraController);

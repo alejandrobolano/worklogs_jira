@@ -221,4 +221,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get download => 'Download';
+
+  @override
+  String get multiTaskTitle => 'Log multiple tasks';
+
+  @override
+  String get addTask => 'Add task';
+
+  @override
+  String get logAll => 'Log all';
+
+  @override
+  String totalHoursInfo(String total, String max) {
+    return 'Total: ${total}h / ${max}h';
+  }
+
+  @override
+  String hoursExceeded(String total, String max) {
+    return 'Daily hours exceeded (${total}h / ${max}h). Continue anyway?';
+  }
+
+  @override
+  String get continueAnyway => 'Continue';
+
+  @override
+  String get reviewTasks => 'Review';
+
+  @override
+  String get noTasksToLog => 'No tasks to log';
+
+  @override
+  String get allTasksLogged => 'All tasks logged successfully';
 }

@@ -505,6 +505,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download'**
   String get download;
+
+  /// No description provided for @multiTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log multiple tasks'**
+  String get multiTaskTitle;
+
+  /// No description provided for @addTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get addTask;
+
+  /// No description provided for @logAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Log all'**
+  String get logAll;
+
+  /// Shows total logged hours vs max daily hours
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {total}h / {max}h'**
+  String totalHoursInfo(String total, String max);
+
+  /// Warning when sum of hours exceeds daily max
+  ///
+  /// In en, this message translates to:
+  /// **'Daily hours exceeded ({total}h / {max}h). Continue anyway?'**
+  String hoursExceeded(String total, String max);
+
+  /// No description provided for @continueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAnyway;
+
+  /// No description provided for @reviewTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reviewTasks;
+
+  /// No description provided for @noTasksToLog.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks to log'**
+  String get noTasksToLog;
+
+  /// No description provided for @allTasksLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'All tasks logged successfully'**
+  String get allTasksLogged;
 }
 
 class _AppLocalizationsDelegate

@@ -86,5 +86,28 @@
   "releaseNotes":"Release Notes",
   "noReleaseNotes":"No release notes available",
   "later":"Later",
-  "download":"Download"
+  "download":"Download",
+  "multiTaskTitle":"Log multiple tasks",
+  "addTask":"Add task",
+  "logAll":"Log all",
+  "totalHoursInfo":"Total: {total}h / {max}h",
+  "@totalHoursInfo": {
+    "description": "Shows total logged hours vs max daily hours",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "hoursExceeded":"Daily hours exceeded ({total}h / {max}h). Continue anyway?",
+  "@hoursExceeded": {
+    "description": "Warning when sum of hours exceeds daily max",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "continueAnyway":"Continue",
+  "reviewTasks":"Review",
+  "noTasksToLog":"No tasks to log",
+  "allTasksLogged":"All tasks logged successfully"
 }

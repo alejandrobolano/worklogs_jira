@@ -86,5 +86,28 @@
   "releaseNotes":"Notas de la versión",
   "noReleaseNotes":"No hay notas de versión disponibles",
   "later":"Más tarde",
-  "download":"Descargar"
+  "download":"Descargar",
+  "multiTaskTitle":"Imputar varias tareas",
+  "addTask":"Añadir tarea",
+  "logAll":"Imputar todas",
+  "totalHoursInfo":"Total: {total}h / {max}h",
+  "@totalHoursInfo": {
+    "description": "Muestra el total de horas imputadas frente al máximo diario",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "hoursExceeded":"Has superado las horas del día ({total}h / {max}h). ¿Continuar igualmente?",
+  "@hoursExceeded": {
+    "description": "Advertencia cuando la suma de horas supera el máximo diario",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "continueAnyway":"Continuar",
+  "reviewTasks":"Revisar",
+  "noTasksToLog":"No hay tareas para imputar",
+  "allTasksLogged":"Todas las tareas imputadas correctamente"
 }

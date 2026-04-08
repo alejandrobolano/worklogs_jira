@@ -22,6 +22,8 @@ class SettingsService {
   static const String _reminderEnabledKey = 'reminderEnabled';
   static const String _reminderTimeKey = 'reminderTime'; // stored as "HH:mm"
   static const String _reminderMessageKey = 'reminderMessage';
+  static const String _dailyTasksDraftKey = 'dailyTasksDraft';
+  static const String _dailyTasksDraftDateKey = 'dailyTasksDraftDate';
   static const int _jiraApiVersion = 2;
 
   Future<SharedPreferences> _getPreferencesInstance() async {
@@ -194,6 +196,32 @@ class SettingsService {
     });
 
     return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getDailyTasksDraft() async {
+    final List<String>? encoded =
+        await _preferencesService.getStringList(_dailyTasksDraftKey);
+    if (encoded == null) return [];
+    return encoded
+        .map((e) => Map<String, dynamic>.from(json.decode(e) as Map))
+        .toList();
+  }
+
+  Future<String?> getDailyTasksDraftDate() async {
+    return _preferencesService.get(_dailyTasksDraftDateKey);
+  }
+
+  Future<void> saveDailyTasksDraft(
+      List<Map<String, dynamic>> tasks, String date) async {
+    final List<String> encoded = tasks.map((t) => json.encode(t)).toList();
+    await _preferencesService.setStringList(_dailyTasksDraftKey, encoded);
+    await _preferencesService.set(_dailyTasksDraftDateKey, date);
+  }
+
+  Future<void> clearDailyTasksDraft() async {
+    final SharedPreferences prefs = await _getPreferencesInstance();
+    await prefs.remove(_dailyTasksDraftKey);
+    await prefs.remove(_dailyTasksDraftDateKey);
   }
 
   Future<List<String>> getUserProjects() async {

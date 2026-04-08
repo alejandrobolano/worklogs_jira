@@ -222,4 +222,35 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get download => 'Descargar';
+
+  @override
+  String get multiTaskTitle => 'Imputar varias tareas';
+
+  @override
+  String get addTask => 'Añadir tarea';
+
+  @override
+  String get logAll => 'Imputar todas';
+
+  @override
+  String totalHoursInfo(String total, String max) {
+    return 'Total: ${total}h / ${max}h';
+  }
+
+  @override
+  String hoursExceeded(String total, String max) {
+    return 'Has superado las horas del día (${total}h / ${max}h). ¿Continuar igualmente?';
+  }
+
+  @override
+  String get continueAnyway => 'Continuar';
+
+  @override
+  String get reviewTasks => 'Revisar';
+
+  @override
+  String get noTasksToLog => 'No hay tareas para imputar';
+
+  @override
+  String get allTasksLogged => 'Todas las tareas imputadas correctamente';
 }
