@@ -109,5 +109,17 @@
   "continueAnyway":"Continuar",
   "reviewTasks":"Revisar",
   "noTasksToLog":"No hay tareas para imputar",
-  "allTasksLogged":"Todas las tareas imputadas correctamente"
+  "allTasksLogged":"Todas las tareas imputadas correctamente",
+  "onboardingSkip":"\u00a1Entendido!",
+  "onboardingNext":"Siguiente",
+  "onboardingSettingsTitle":"Configuraci\u00f3n",
+  "onboardingSettingsDesc":"Aqu\u00ed puedes configurar las horas de trabajo por d\u00eda, recordatorios, autenticaci\u00f3n y la URL de Jira.",
+  "onboardingFabTitle":"Acciones r\u00e1pidas",
+  "onboardingFabDesc":"Usa estos botones para cargar los worklogs de una tarea o imputar horas directamente.",
+  "onboardingDashboardTitle":"Dashboard",
+  "onboardingDashboardDesc":"Visualiza todas tus tareas imputadas con gr\u00e1ficos e informes para cualquier rango de fechas.",
+  "onboardingMultiTaskTitle":"Imputar varias tareas",
+  "onboardingMultiTaskDesc":"Crea una lista de tareas para el d\u00eda, gu\u00e1rdala como borrador y env\u00edaas todas a la vez cuando estés listo.",
+  "onboardingGithubTitle":"C\u00f3digo fuente",
+  "onboardingGithubDesc":"El c\u00f3digo fuente completo de esta app est\u00e1 disponible en GitHub."
 }

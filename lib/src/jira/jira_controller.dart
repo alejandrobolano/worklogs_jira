@@ -204,6 +204,14 @@ class JiraController with ChangeNotifier {
     await _settingsService.clearDailyTasksDraft();
   }
 
+  Future<bool> getOnboardingSeen() async {
+    return _settingsService.getOnboardingSeen();
+  }
+
+  Future<void> setOnboardingSeen(bool seen) async {
+    await _settingsService.setOnboardingSeen(seen);
+  }
+
   Future<double> getHoursForDay(DateTime date) async {
     final List<WorkDay> workDays = await _getWorkDays() ?? [];
     if (workDays.isEmpty) return 8.0;

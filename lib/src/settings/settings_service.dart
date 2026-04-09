@@ -24,6 +24,7 @@ class SettingsService {
   static const String _reminderMessageKey = 'reminderMessage';
   static const String _dailyTasksDraftKey = 'dailyTasksDraft';
   static const String _dailyTasksDraftDateKey = 'dailyTasksDraftDate';
+  static const String _onboardingSeenKey = 'onboardingSeen';
   static const int _jiraApiVersion = 2;
 
   Future<SharedPreferences> _getPreferencesInstance() async {
@@ -222,6 +223,15 @@ class SettingsService {
     final SharedPreferences prefs = await _getPreferencesInstance();
     await prefs.remove(_dailyTasksDraftKey);
     await prefs.remove(_dailyTasksDraftDateKey);
+  }
+
+  Future<bool> getOnboardingSeen() async {
+    final String? raw = await _preferencesService.get(_onboardingSeenKey);
+    return raw == 'true';
+  }
+
+  Future<void> setOnboardingSeen(bool seen) async {
+    await _preferencesService.set(_onboardingSeenKey, seen.toString());
   }
 
   Future<List<String>> getUserProjects() async {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:tutorial_coach_mark/tutorial_coach_mark.dart';
 import 'package:worklogs_jira/src/dashboard/dashboard_view.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
@@ -35,12 +36,23 @@ class _JiraViewState extends State<JiraView> {
   bool _areAllDataSaved = false;
   late WorklogResponse _worklogResponse = WorklogResponse();
 
+  // Onboarding GlobalKeys
+  final _keyCode = GlobalKey();
+  final _keyMultiTask = GlobalKey();
+  final _keyDashboard = GlobalKey();
+  final _keySettings = GlobalKey();
+  final _keyFAB = GlobalKey();
+
   @override
   void initState() {
     _textControllers.add(_hoursController);
     _textControllers.add(_dateController);
     _textControllers.add(_issueController);
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final seen = await widget.controller.getOnboardingSeen();
+      if (!seen && mounted) _showOnboarding();
+    });
   }
 
   @override
@@ -209,6 +221,104 @@ class _JiraViewState extends State<JiraView> {
     return isCorrect;
   }
 
+  void _showOnboarding() {
+    final l10n = AppLocalizations.of(context)!;
+
+    Widget _stepContent(String title, String desc) => Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title,
+                  style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16)),
+              const SizedBox(height: 8),
+              Text(desc,
+                  style: const TextStyle(color: Colors.white70, fontSize: 13)),
+            ],
+          ),
+        );
+
+    final targets = [
+      TargetFocus(
+        identify: 'settings',
+        keyTarget: _keySettings,
+        shape: ShapeLightFocus.Circle,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: _stepContent(
+                l10n.onboardingSettingsTitle, l10n.onboardingSettingsDesc),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'multitask',
+        keyTarget: _keyMultiTask,
+        shape: ShapeLightFocus.Circle,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: _stepContent(
+                l10n.onboardingMultiTaskTitle, l10n.onboardingMultiTaskDesc),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'dashboard',
+        keyTarget: _keyDashboard,
+        shape: ShapeLightFocus.Circle,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: _stepContent(
+                l10n.onboardingDashboardTitle, l10n.onboardingDashboardDesc),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'fab',
+        keyTarget: _keyFAB,
+        shape: ShapeLightFocus.Circle,
+        contents: [
+          TargetContent(
+            align: ContentAlign.top,
+            child:
+                _stepContent(l10n.onboardingFabTitle, l10n.onboardingFabDesc),
+          ),
+        ],
+      ),
+      TargetFocus(
+        identify: 'code',
+        keyTarget: _keyCode,
+        shape: ShapeLightFocus.Circle,
+        contents: [
+          TargetContent(
+            align: ContentAlign.bottom,
+            child: _stepContent(
+                l10n.onboardingGithubTitle, l10n.onboardingGithubDesc),
+          ),
+        ],
+      ),
+    ];
+
+    TutorialCoachMark(
+      targets: targets,
+      colorShadow: Colors.black,
+      textSkip: l10n.onboardingSkip,
+      paddingFocus: 10,
+      opacityShadow: 0.85,
+      onFinish: () => widget.controller.setOnboardingSeen(true),
+      onSkip: () {
+        widget.controller.setOnboardingSeen(true);
+        return true;
+      },
+    ).show(context: context);
+  }
+
   _launchURL() async {
     final uri = Uri.parse(AppConfig.githubUrl);
     final isPossibleLaunchUrl = await canLaunchUrl(uri);
@@ -246,12 +356,14 @@ class _JiraViewState extends State<JiraView> {
         title: Text(AppLocalizations.of(context)!.appTitle),
         actions: [
           IconButton(
+              key: _keyCode,
               tooltip: "GitHub Code",
               onPressed: () {
                 _launchURL();
               },
               icon: const Icon(Icons.code)),
           IconButton(
+              key: _keyMultiTask,
               tooltip: AppLocalizations.of(context)!.multiTaskTitle,
               onPressed: () async {
                 final refreshed =
@@ -260,16 +372,20 @@ class _JiraViewState extends State<JiraView> {
               },
               icon: const Icon(Icons.playlist_add_check)),
           IconButton(
+              key: _keyDashboard,
               tooltip: "Dashboard",
               onPressed: () {
                 Navigator.restorablePushNamed(context, DashboardView.routeName);
               },
               icon: const Icon(Icons.insert_chart_outlined_rounded)),
           IconButton(
+            key: _keySettings,
             tooltip: AppLocalizations.of(context)?.settings,
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.restorablePushNamed(context, SettingsView.routeName);
+            onPressed: () async {
+              final result =
+                  await Navigator.pushNamed(context, SettingsView.routeName);
+              if (result == 'onboarding' && mounted) _showOnboarding();
             },
           )
         ],
@@ -544,6 +660,7 @@ class _JiraViewState extends State<JiraView> {
         },
       ),
       floatingActionButton: Container(
+          key: _keyFAB,
           margin: const EdgeInsets.all(10),
           child: SpeedDial(
             heroTag: 'more',

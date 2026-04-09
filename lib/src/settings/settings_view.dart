@@ -309,6 +309,13 @@ class _SettingsViewState extends State<SettingsView> {
         ),
         actions: [
           IconButton(
+            tooltip: '?',
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              Navigator.of(context).pop('onboarding');
+            },
+          ),
+          IconButton(
             tooltip: AppLocalizations.of(context)?.clearCache,
             icon: const Icon(Icons.delete_outline),
             onPressed: () {

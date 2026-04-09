@@ -252,4 +252,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get allTasksLogged => 'All tasks logged successfully';
+
+  @override
+  String get onboardingSkip => 'Got it!';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingSettingsTitle => 'Settings';
+
+  @override
+  String get onboardingSettingsDesc =>
+      'Configure your work hours per day, reminders, authentication and Jira URL here.';
+
+  @override
+  String get onboardingFabTitle => 'Quick actions';
+
+  @override
+  String get onboardingFabDesc =>
+      'Use these buttons to load your issue worklogs or log hours directly in one tap.';
+
+  @override
+  String get onboardingDashboardTitle => 'Dashboard';
+
+  @override
+  String get onboardingDashboardDesc =>
+      'Visualise all your logged tasks with charts and reports across any date range.';
+
+  @override
+  String get onboardingMultiTaskTitle => 'Log multiple tasks';
+
+  @override
+  String get onboardingMultiTaskDesc =>
+      'Build a list of tasks for the day, save it as a draft and submit them all at once when you are ready.';
+
+  @override
+  String get onboardingGithubTitle => 'Source code';
+
+  @override
+  String get onboardingGithubDesc =>
+      'The full source code of this app is available on GitHub.';
 }
