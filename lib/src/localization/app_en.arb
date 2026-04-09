@@ -86,5 +86,41 @@
   "releaseNotes":"Release Notes",
   "noReleaseNotes":"No release notes available",
   "later":"Later",
-  "download":"Download"
+  "download":"Download",
+  "multiTaskTitle":"Log multiple tasks",
+  "addTask":"Add task",
+  "logAll":"Log all",
+  "totalHoursInfo":"Total: {total}h / {max}h",
+  "@totalHoursInfo": {
+    "description": "Shows total logged hours vs max daily hours",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "hoursExceeded":"Daily hours exceeded ({total}h / {max}h). Continue anyway?",
+  "@hoursExceeded": {
+    "description": "Warning when sum of hours exceeds daily max",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "continueAnyway":"Continue",
+  "reviewTasks":"Review",
+  "noTasksToLog":"No tasks to log",
+  "allTasksLogged":"All tasks logged successfully",
+  "onboardingSkip":"Got it!",
+  "onboardingNext":"Next",
+  "onboardingSettingsTitle":"Settings",
+  "onboardingSettingsDesc":"Configure your work hours per day, reminders, authentication and Jira URL here.",
+  "onboardingFabTitle":"Quick actions",
+  "onboardingFabDesc":"Use these buttons to load your issue worklogs or log hours directly in one tap.",
+  "onboardingDashboardTitle":"Dashboard",
+  "onboardingDashboardDesc":"Visualise all your logged tasks with charts and reports across any date range.",
+  "onboardingMultiTaskTitle":"Log multiple tasks",
+  "onboardingMultiTaskDesc":"Build a list of tasks for the day, save it as a draft and submit them all at once when you are ready.",
+  "onboardingGithubTitle":"Source code",
+  "onboardingGithubDesc":"The full source code of this app is available on GitHub.",
+  "accentColor":"Accent color"
 }

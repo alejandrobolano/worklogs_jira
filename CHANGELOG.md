@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.7.0] - 2026-04-09
+
+### Added
+- Multi-task daily logging: log multiple Jira issues for a single day in one shot, with live hours summary and draft auto-save
+- Onboarding tour on first launch (5-step coach marks); re-triggerable from the `?` button in Settings
+- Dynamic accent color: seed color picker next to the theme selector with 7 preset swatches, Windows system accent color detection, and a full custom color wheel
+- `ColorPickerButton` extracted as a standalone widget (`color_picker_button.dart`)
+
+### Changed
+- Last logged date calculation now accounts for repetitions and working-day skipping
+- Theme and accent color changes apply instantly without requiring a save
+
 ## [2.6.0] - 2026-04-01
 
 ### Added

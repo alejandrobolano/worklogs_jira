@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:worklogs_jira/src/models/daily_task.dart';
 import 'package:worklogs_jira/src/models/work_day.dart';
 import '../settings/settings_service.dart';
 import 'jira_service.dart';
@@ -129,6 +130,22 @@ class JiraController with ChangeNotifier {
     return _settingsService.getNotWorkedDays();
   }
 
+  Future<String> calculateLastLoggedDate(
+      String startDate, int repetitions) async {
+    List<WorkDay> workDays = await _getWorkDays() ?? [];
+    if (workDays.isEmpty || repetitions <= 0) return startDate;
+
+    var dateTime = DateTime.parse(startDate);
+    for (int i = 0; i < repetitions; i++) {
+      final workDay = _getNextWorkDay(workDays, dateTime);
+      dateTime = workDay[1];
+      if (i < repetitions - 1) {
+        dateTime = dateTime.add(const Duration(days: 1));
+      }
+    }
+    return DateFormat('yyyy-MM-dd').format(dateTime);
+  }
+
   List _getNextWorkDay(List<WorkDay> workDays, DateTime dateTime) {
     final workDay =
         workDays.firstWhere((element) => element.day == dateTime.weekday);
@@ -167,5 +184,73 @@ class JiraController with ChangeNotifier {
       repetitionsArray.add(i);
     }
     return repetitionsArray;
+  }
+
+  Future<List<DailyTask>> getDraftTasks() async {
+    final rawList = await _settingsService.getDailyTasksDraft();
+    return rawList.map((m) => DailyTask.fromMap(m)).toList();
+  }
+
+  Future<String?> getDraftDate() async {
+    return _settingsService.getDailyTasksDraftDate();
+  }
+
+  Future<void> saveDraftTasks(List<DailyTask> tasks, String date) async {
+    await _settingsService.saveDailyTasksDraft(
+        tasks.map((t) => t.toMap()).toList(), date);
+  }
+
+  Future<void> clearDraftTasks() async {
+    await _settingsService.clearDailyTasksDraft();
+  }
+
+  Future<bool> getOnboardingSeen() async {
+    return _settingsService.getOnboardingSeen();
+  }
+
+  Future<void> setOnboardingSeen(bool seen) async {
+    await _settingsService.setOnboardingSeen(seen);
+  }
+
+  Future<double> getHoursForDay(DateTime date) async {
+    final List<WorkDay> workDays = await _getWorkDays() ?? [];
+    if (workDays.isEmpty) return 8.0;
+    try {
+      final workDay = workDays.firstWhere((d) => d.day == date.weekday);
+      return workDay.hoursWorked;
+    } catch (_) {
+      return 8.0;
+    }
+  }
+
+  Future<Response> postMultipleTasksForDay(
+      String date, List<DailyTask> tasks) async {
+    final url = await _getJiraPath();
+    final basicAuth = await _getAuthentication();
+
+    if (url == "") {
+      return _buildErrorResponse(
+          'Error: Jira URL not found', 400, "Jira URL not found");
+    }
+    if (basicAuth == "") {
+      return _buildErrorResponse(
+          'Error: Basic Auth not found', 400, "Basic auth not found");
+    }
+
+    for (final task in tasks) {
+      final response = await _jiraService.postData(
+          url!, basicAuth, task.issue, task.hours, date);
+      if (!isOkStatusCode(response.statusCode)) {
+        return Future<Response>(
+          () => Response('Error: \${response.body}', response.statusCode,
+              reasonPhrase: response.reasonPhrase),
+        );
+      }
+    }
+
+    return Future<Response>(
+      () => Response('Successful request for \${tasks.length} tasks', 201,
+          reasonPhrase: 'Created'),
+    );
   }
 }

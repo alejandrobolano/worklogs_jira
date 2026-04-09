@@ -30,6 +30,11 @@ class SettingsController with ChangeNotifier {
   late String _reminderMessage;
   String get reminderMessage => _reminderMessage;
 
+  // Default seed color (deep purple / the current app default)
+  static const int _defaultSeedColorValue = 0xFF6750A4;
+  late Color _seedColor = const Color(_defaultSeedColorValue);
+  Color get seedColor => _seedColor;
+
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
     _issuePreffix = await _settingsService.getIssuePreffix();
@@ -46,6 +51,10 @@ class SettingsController with ChangeNotifier {
     _reminderTime = await _settingsService.getReminderTime() ??
         const TimeOfDay(hour: 9, minute: 0);
     _reminderMessage = await _settingsService.getReminderMessage() ?? '';
+    final int? storedColor = await _settingsService.getSeedColor();
+    _seedColor = storedColor != null
+        ? Color(storedColor)
+        : const Color(_defaultSeedColorValue);
     notifyListeners();
   }
 
@@ -55,6 +64,12 @@ class SettingsController with ChangeNotifier {
     _themeMode = newThemeMode;
     notifyListeners();
     await _settingsService.updateThemeMode(newThemeMode);
+  }
+
+  Future<void> updateSeedColor(Color color) async {
+    _seedColor = color;
+    notifyListeners();
+    await _settingsService.setSeedColor(color.toARGB32());
   }
 
   Future<void> savePreferences(

@@ -86,5 +86,41 @@
   "releaseNotes":"Notas de la versión",
   "noReleaseNotes":"No hay notas de versión disponibles",
   "later":"Más tarde",
-  "download":"Descargar"
+  "download":"Descargar",
+  "multiTaskTitle":"Imputar varias tareas",
+  "addTask":"Añadir tarea",
+  "logAll":"Imputar todas",
+  "totalHoursInfo":"Total: {total}h / {max}h",
+  "@totalHoursInfo": {
+    "description": "Muestra el total de horas imputadas frente al máximo diario",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "hoursExceeded":"Has superado las horas del día ({total}h / {max}h). ¿Continuar igualmente?",
+  "@hoursExceeded": {
+    "description": "Advertencia cuando la suma de horas supera el máximo diario",
+    "placeholders": {
+      "total": { "type": "String" },
+      "max": { "type": "String" }
+    }
+  },
+  "continueAnyway":"Continuar",
+  "reviewTasks":"Revisar",
+  "noTasksToLog":"No hay tareas para imputar",
+  "allTasksLogged":"Todas las tareas imputadas correctamente",
+  "onboardingSkip":"\u00a1Entendido!",
+  "onboardingNext":"Siguiente",
+  "onboardingSettingsTitle":"Configuraci\u00f3n",
+  "onboardingSettingsDesc":"Aqu\u00ed puedes configurar las horas de trabajo por d\u00eda, recordatorios, autenticaci\u00f3n y la URL de Jira.",
+  "onboardingFabTitle":"Acciones r\u00e1pidas",
+  "onboardingFabDesc":"Usa estos botones para cargar los worklogs de una tarea o imputar horas directamente.",
+  "onboardingDashboardTitle":"Dashboard",
+  "onboardingDashboardDesc":"Visualiza todas tus tareas imputadas con gr\u00e1ficos e informes para cualquier rango de fechas.",
+  "onboardingMultiTaskTitle":"Imputar varias tareas",
+  "onboardingMultiTaskDesc":"Crea una lista de tareas para el d\u00eda, gu\u00e1rdala como borrador y env\u00edaas todas a la vez cuando estés listo.",
+  "onboardingGithubTitle":"C\u00f3digo fuente",
+  "onboardingGithubDesc":"El c\u00f3digo fuente completo de esta app est\u00e1 disponible en GitHub.",
+  "accentColor":"Color de acento"
 }

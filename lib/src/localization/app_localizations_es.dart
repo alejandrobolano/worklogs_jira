@@ -222,4 +222,79 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get download => 'Descargar';
+
+  @override
+  String get multiTaskTitle => 'Imputar varias tareas';
+
+  @override
+  String get addTask => 'Añadir tarea';
+
+  @override
+  String get logAll => 'Imputar todas';
+
+  @override
+  String totalHoursInfo(String total, String max) {
+    return 'Total: ${total}h / ${max}h';
+  }
+
+  @override
+  String hoursExceeded(String total, String max) {
+    return 'Has superado las horas del día (${total}h / ${max}h). ¿Continuar igualmente?';
+  }
+
+  @override
+  String get continueAnyway => 'Continuar';
+
+  @override
+  String get reviewTasks => 'Revisar';
+
+  @override
+  String get noTasksToLog => 'No hay tareas para imputar';
+
+  @override
+  String get allTasksLogged => 'Todas las tareas imputadas correctamente';
+
+  @override
+  String get onboardingSkip => '¡Entendido!';
+
+  @override
+  String get onboardingNext => 'Siguiente';
+
+  @override
+  String get onboardingSettingsTitle => 'Configuración';
+
+  @override
+  String get onboardingSettingsDesc =>
+      'Aquí puedes configurar las horas de trabajo por día, recordatorios, autenticación y la URL de Jira.';
+
+  @override
+  String get onboardingFabTitle => 'Acciones rápidas';
+
+  @override
+  String get onboardingFabDesc =>
+      'Usa estos botones para cargar los worklogs de una tarea o imputar horas directamente.';
+
+  @override
+  String get onboardingDashboardTitle => 'Dashboard';
+
+  @override
+  String get onboardingDashboardDesc =>
+      'Visualiza todas tus tareas imputadas con gráficos e informes para cualquier rango de fechas.';
+
+  @override
+  String get onboardingMultiTaskTitle => 'Imputar varias tareas';
+
+  @override
+  String get onboardingMultiTaskDesc =>
+      'Crea una lista de tareas para el día, guárdala como borrador y envíaas todas a la vez cuando estés listo.';
+
+  @override
+  String get onboardingGithubTitle => 'Código fuente';
+
+  @override
+  String get onboardingGithubDesc =>
+      'El código fuente completo de esta app está disponible en GitHub.';
+
+  @override
+  String get accentColor => 'Color de acento';
 }

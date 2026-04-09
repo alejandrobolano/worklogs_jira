@@ -505,6 +505,138 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Download'**
   String get download;
+
+  /// No description provided for @multiTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log multiple tasks'**
+  String get multiTaskTitle;
+
+  /// No description provided for @addTask.
+  ///
+  /// In en, this message translates to:
+  /// **'Add task'**
+  String get addTask;
+
+  /// No description provided for @logAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Log all'**
+  String get logAll;
+
+  /// Shows total logged hours vs max daily hours
+  ///
+  /// In en, this message translates to:
+  /// **'Total: {total}h / {max}h'**
+  String totalHoursInfo(String total, String max);
+
+  /// Warning when sum of hours exceeds daily max
+  ///
+  /// In en, this message translates to:
+  /// **'Daily hours exceeded ({total}h / {max}h). Continue anyway?'**
+  String hoursExceeded(String total, String max);
+
+  /// No description provided for @continueAnyway.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get continueAnyway;
+
+  /// No description provided for @reviewTasks.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get reviewTasks;
+
+  /// No description provided for @noTasksToLog.
+  ///
+  /// In en, this message translates to:
+  /// **'No tasks to log'**
+  String get noTasksToLog;
+
+  /// No description provided for @allTasksLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'All tasks logged successfully'**
+  String get allTasksLogged;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Got it!'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get onboardingSettingsTitle;
+
+  /// No description provided for @onboardingSettingsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Configure your work hours per day, reminders, authentication and Jira URL here.'**
+  String get onboardingSettingsDesc;
+
+  /// No description provided for @onboardingFabTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick actions'**
+  String get onboardingFabTitle;
+
+  /// No description provided for @onboardingFabDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Use these buttons to load your issue worklogs or log hours directly in one tap.'**
+  String get onboardingFabDesc;
+
+  /// No description provided for @onboardingDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get onboardingDashboardTitle;
+
+  /// No description provided for @onboardingDashboardDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Visualise all your logged tasks with charts and reports across any date range.'**
+  String get onboardingDashboardDesc;
+
+  /// No description provided for @onboardingMultiTaskTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Log multiple tasks'**
+  String get onboardingMultiTaskTitle;
+
+  /// No description provided for @onboardingMultiTaskDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a list of tasks for the day, save it as a draft and submit them all at once when you are ready.'**
+  String get onboardingMultiTaskDesc;
+
+  /// No description provided for @onboardingGithubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get onboardingGithubTitle;
+
+  /// No description provided for @onboardingGithubDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'The full source code of this app is available on GitHub.'**
+  String get onboardingGithubDesc;
+
+  /// No description provided for @accentColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent color'**
+  String get accentColor;
 }
 
 class _AppLocalizationsDelegate
