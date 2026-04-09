@@ -25,6 +25,7 @@ class SettingsService {
   static const String _dailyTasksDraftKey = 'dailyTasksDraft';
   static const String _dailyTasksDraftDateKey = 'dailyTasksDraftDate';
   static const String _onboardingSeenKey = 'onboardingSeen';
+  static const String _seedColorKey = 'seedColor';
   static const int _jiraApiVersion = 2;
 
   Future<SharedPreferences> _getPreferencesInstance() async {
@@ -232,6 +233,16 @@ class SettingsService {
 
   Future<void> setOnboardingSeen(bool seen) async {
     await _preferencesService.set(_onboardingSeenKey, seen.toString());
+  }
+
+  Future<int?> getSeedColor() async {
+    final String? raw = await _preferencesService.get(_seedColorKey);
+    if (raw == null) return null;
+    return int.tryParse(raw);
+  }
+
+  Future<void> setSeedColor(int colorValue) async {
+    await _preferencesService.set(_seedColorKey, colorValue.toString());
   }
 
   Future<List<String>> getUserProjects() async {

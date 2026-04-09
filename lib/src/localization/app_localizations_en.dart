@@ -293,4 +293,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get onboardingGithubDesc =>
       'The full source code of this app is available on GitHub.';
+
+  @override
+  String get accentColor => 'Accent color';
 }

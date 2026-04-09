@@ -121,5 +121,6 @@
   "onboardingMultiTaskTitle":"Imputar varias tareas",
   "onboardingMultiTaskDesc":"Crea una lista de tareas para el d\u00eda, gu\u00e1rdala como borrador y env\u00edaas todas a la vez cuando estés listo.",
   "onboardingGithubTitle":"C\u00f3digo fuente",
-  "onboardingGithubDesc":"El c\u00f3digo fuente completo de esta app est\u00e1 disponible en GitHub."
+  "onboardingGithubDesc":"El c\u00f3digo fuente completo de esta app est\u00e1 disponible en GitHub.",
+  "accentColor":"Color de acento"
 }

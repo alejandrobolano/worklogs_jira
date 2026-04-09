@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'color_picker_button.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:worklogs_jira/src/helper/date_helper.dart';
 import 'package:worklogs_jira/src/helper/widget_helper.dart';
@@ -670,28 +671,44 @@ class _SettingsViewState extends State<SettingsView> {
               ],
             ),
             const SizedBox(height: 30.0),
-            DropdownButtonFormField<ThemeMode>(
-              decoration: const InputDecoration(
-                icon: Icon(Icons.color_lens_outlined),
-                border: OutlineInputBorder(),
-              ),
-              initialValue: widget.controller.themeMode,
-              isExpanded: false,
-              borderRadius: BorderRadius.circular(5),
-              onChanged: widget.controller.updateThemeMode,
-              items: [
-                DropdownMenuItem(
-                  value: ThemeMode.system,
-                  child: Text(AppLocalizations.of(context)!.systemTheme),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<ThemeMode>(
+                    decoration: const InputDecoration(
+                      prefixIcon: Icon(Icons.color_lens_outlined),
+                      border: OutlineInputBorder(),
+                    ),
+                    initialValue: widget.controller.themeMode,
+                    isExpanded: true,
+                    borderRadius: BorderRadius.circular(5),
+                    onChanged: widget.controller.updateThemeMode,
+                    items: [
+                      DropdownMenuItem(
+                        value: ThemeMode.system,
+                        child: Text(AppLocalizations.of(context)!.systemTheme),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.light,
+                        child: Text(AppLocalizations.of(context)!.lightTheme),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.dark,
+                        child: Text(AppLocalizations.of(context)!.darkTheme),
+                      )
+                    ],
+                  ),
                 ),
-                DropdownMenuItem(
-                  value: ThemeMode.light,
-                  child: Text(AppLocalizations.of(context)!.lightTheme),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 96,
+                  child: ColorPickerButton(
+                    current: widget.controller.seedColor,
+                    onColorSelected: widget.controller.updateSeedColor,
+                    label: AppLocalizations.of(context)!.accentColor,
+                  ),
                 ),
-                DropdownMenuItem(
-                  value: ThemeMode.dark,
-                  child: Text(AppLocalizations.of(context)!.darkTheme),
-                )
               ],
             ),
             const SizedBox(height: 16.0),

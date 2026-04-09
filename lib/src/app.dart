@@ -49,11 +49,19 @@ class _MyAppState extends State<MyApp> {
           theme: ThemeData(
             useMaterial3: true,
             fontFamily: 'JetBrainsMono',
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: widget.settingsController.seedColor,
+              brightness: Brightness.light,
+            ),
           ),
-          darkTheme: ThemeData.dark(useMaterial3: true).copyWith(
-              textTheme: ThemeData.dark()
-                  .textTheme
-                  .apply(fontFamily: 'JetBrainsMono')),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            fontFamily: 'JetBrainsMono',
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: widget.settingsController.seedColor,
+              brightness: Brightness.dark,
+            ),
+          ),
           themeMode: widget.settingsController.themeMode,
           onGenerateRoute: (RouteSettings routeSettings) {
             return MaterialPageRoute<void>(

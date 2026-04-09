@@ -631,6 +631,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The full source code of this app is available on GitHub.'**
   String get onboardingGithubDesc;
+
+  /// No description provided for @accentColor.
+  ///
+  /// In en, this message translates to:
+  /// **'Accent color'**
+  String get accentColor;
 }
 
 class _AppLocalizationsDelegate

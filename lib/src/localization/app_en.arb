@@ -121,5 +121,6 @@
   "onboardingMultiTaskTitle":"Log multiple tasks",
   "onboardingMultiTaskDesc":"Build a list of tasks for the day, save it as a draft and submit them all at once when you are ready.",
   "onboardingGithubTitle":"Source code",
-  "onboardingGithubDesc":"The full source code of this app is available on GitHub."
+  "onboardingGithubDesc":"The full source code of this app is available on GitHub.",
+  "accentColor":"Accent color"
 }
