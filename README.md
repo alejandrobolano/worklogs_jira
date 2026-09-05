@@ -4,7 +4,7 @@ This is a small project to log works in Jira. It is based on consuming the Jira 
 
 **Version:** 2.2.5
 
-**Author:** [Alejandro Bolaño](https://alejandrobolano.web.app)
+**Author:** [Alejandro Bolaño](https://alejandrobolano.com)
 
 ## Features
 
