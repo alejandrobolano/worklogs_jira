@@ -88,10 +88,7 @@ class JiraController with ChangeNotifier {
       final response = await _jiraService.postData(url!, basicAuth, issue,
           updatedHours, DateFormat('yyyy-MM-dd').format(dateTime));
       if (!isOkStatusCode(response.statusCode)) {
-        return Future<Response>(
-          () => Response('Error: ${response.body}', response.statusCode,
-              reasonPhrase: response.reasonPhrase),
-        );
+        return response;
       } else {
         dateTime = dateTime.add(const Duration(days: 1));
       }
@@ -241,10 +238,7 @@ class JiraController with ChangeNotifier {
       final response = await _jiraService.postData(
           url!, basicAuth, task.issue, task.hours, date);
       if (!isOkStatusCode(response.statusCode)) {
-        return Future<Response>(
-          () => Response('Error: \${response.body}', response.statusCode,
-              reasonPhrase: response.reasonPhrase),
-        );
+        return response;
       }
     }
 

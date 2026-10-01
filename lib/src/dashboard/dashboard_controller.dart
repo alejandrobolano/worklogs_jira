@@ -36,7 +36,10 @@ class DashboardController with ChangeNotifier {
 
     String jqlQuery =
         'worklogDate >= "$startRange" AND worklogDate <= "$finishRange" AND worklogAuthor = "$email"';
-    String finalUrl = '${url!}/search?jql=${Uri.encodeComponent(jqlQuery)}';
+    final apiVersion = await _settingsService.getJiraApiVersion();
+    final searchEndpoint = apiVersion == 3 ? 'search/jql' : 'search';
+    String finalUrl =
+        '${url!}$searchEndpoint?jql=${Uri.encodeComponent(jqlQuery)}';
 
     return _jiraService.getData(finalUrl, basicAuth);
   }

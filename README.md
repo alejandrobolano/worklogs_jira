@@ -23,6 +23,7 @@ This is a small project to log works in Jira. It is based on consuming the Jira 
 - ✅ **Encrypted credentials storage** (username/token are not stored in plain text)
 - ✅ **Responsive design** adapting to different window sizes
 - ✅ **Dark/Light theme support**
+- ✅ **Selectable Jira API version:** v3 recommended, with v2 compatibility for legacy enterprise installations
 
 ## Getting Started
 
@@ -49,6 +50,7 @@ This project has web hosting configuration for Firebase. The web version is avai
 1. **Go to Settings:** Click on the settings icon in the app bar
 2. **Enter credentials:**
    - **Jira URL:** Your company's Jira instance URL (e.g., `https://yourcompany.atlassian.net`)
+   - **Jira API version:** Use v3 (recommended), or v2 only for legacy enterprise installations
    - **Email/Username:** Your Jira email or username
    - **Token:** Your Jira API token or password (recommended to use API token)
 3. **Configure working hours:**
@@ -59,6 +61,8 @@ This project has web hosting configuration for Firebase. The web version is avai
    - Theme preference (System/Light/Dark)
 
 **Security Note:** All credentials are encrypted before storage. They are never stored in plain text.
+
+Existing installations keep Jira API v2 by default until v3 is selected and saved in Settings. New installations default to v3.
 
 ## Usage
 
@@ -186,5 +190,4 @@ This project is open source and available for personal and commercial use.
 ## Support
 
 For issues or questions, please visit the [GitHub repository](https://github.com/alejandrobolano/worklogs_jira) or contact the author.
-
 

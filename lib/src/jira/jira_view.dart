@@ -148,17 +148,25 @@ class _JiraViewState extends State<JiraView> {
     WidgetHelper.showMessageSnackBar(context, text);
   }
 
-  String _getMessageFromErrorResponse(body) {
+  String _getMessageFromErrorResponse(String body) {
     try {
-      Map<String, dynamic> jsonResponse = jsonDecode(body);
-      if (jsonResponse.containsKey("message")) {
-        return jsonResponse["message"];
-      }
-    } catch (exception) {
-      return '';
-    }
+      final jsonResponse = jsonDecode(body);
+      if (jsonResponse is Map<String, dynamic>) {
+        final message = jsonResponse['message'];
+        if (message is String && message.isNotEmpty) return message;
 
-    return '';
+        final errorMessages = jsonResponse['errorMessages'];
+        if (errorMessages is List && errorMessages.isNotEmpty) {
+          return errorMessages.join(', ');
+        }
+
+        final errors = jsonResponse['errors'];
+        if (errors is Map && errors.isNotEmpty) {
+          return errors.values.join(', ');
+        }
+      }
+    } catch (_) {}
+    return body;
   }
 
   void _showDatePicker() async {

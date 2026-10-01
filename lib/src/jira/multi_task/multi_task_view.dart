@@ -185,9 +185,8 @@ class _MultiTaskViewState extends State<MultiTaskView> {
       WidgetHelper.showMessageSnackBar(context, l10n.allTasksLogged);
       nav.pop(true);
     } else {
-      WidgetHelper.showMessageSnackBar(
-          context,
-          '${l10n.errorRequest} | ${response.reasonPhrase}');
+      WidgetHelper.showMessageSnackBar(context,
+          '${l10n.errorRequest} | ${response.reasonPhrase} | ${response.body}');
     }
     setState(() => _isLoading = false);
   }

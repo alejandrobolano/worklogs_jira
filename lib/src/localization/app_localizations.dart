@@ -314,6 +314,30 @@ abstract class AppLocalizations {
   /// **'Jira\'s URL'**
   String get jiraPath;
 
+  /// No description provided for @jiraApiVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'Jira API version'**
+  String get jiraApiVersion;
+
+  /// No description provided for @jiraApiVersion3Label.
+  ///
+  /// In en, this message translates to:
+  /// **'v3 — Recommended'**
+  String get jiraApiVersion3Label;
+
+  /// No description provided for @jiraApiVersion2Label.
+  ///
+  /// In en, this message translates to:
+  /// **'v2 — Legacy enterprise compatibility'**
+  String get jiraApiVersion2Label;
+
+  /// No description provided for @jiraApiVersionCompatibility.
+  ///
+  /// In en, this message translates to:
+  /// **'Use v2 only when your company\'s Jira installation does not support v3.'**
+  String get jiraApiVersionCompatibility;
+
   /// No description provided for @useToken.
   ///
   /// In en, this message translates to:

@@ -16,7 +16,15 @@ class JiraService {
     final String finalUrl = '$url$issue/worklog';
 
     final Map<String, dynamic> requestBody = {
-      'comment': '',
+      'comment': url.contains('/rest/api/3/')
+          ? {
+              'type': 'doc',
+              'version': 1,
+              'content': [
+                {'type': 'paragraph', 'content': []}
+              ]
+            }
+          : '',
       'timeSpent': hours.toStringAsPrecision(2),
       'started': '${date}T08:00:00.000+0000'
     };

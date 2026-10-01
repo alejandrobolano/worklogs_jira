@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:worklogs_jira/src/models/work_day.dart';
 import 'settings_service.dart';
@@ -17,6 +19,8 @@ class SettingsController with ChangeNotifier {
   String? get issuePreffix => _issuePreffix;
   late String? _jiraPath;
   String? get jiraPath => _jiraPath;
+  late int _jiraApiVersion;
+  int get jiraApiVersion => _jiraApiVersion;
   late String? _email;
   String? get email => _email;
   late List<WorkDay>? _workDays;
@@ -39,6 +43,7 @@ class SettingsController with ChangeNotifier {
     _themeMode = await _settingsService.themeMode();
     _issuePreffix = await _settingsService.getIssuePreffix();
     _jiraPath = await _settingsService.getJiraBasePath();
+    _jiraApiVersion = await _settingsService.getJiraApiVersion();
     _email = await _settingsService.getEmail();
     var authentication = await _settingsService.getAuthentication();
     _isAuthSaved = _jiraPath != null &&
@@ -78,13 +83,18 @@ class SettingsController with ChangeNotifier {
       String token,
       String issuePreffix,
       String jiraPath,
+      int jiraApiVersion,
       List<WorkDay> workDays,
       bool reminderEnabled,
       TimeOfDay reminderTime,
       String reminderMessage) async {
-    if (username.isNotEmpty && token.isNotEmpty) {
-      await _settingsService.addAuthentication('Bearer $token');
-      await _settingsService.addUsername(username);
+    if (token.isNotEmpty) {
+      final authEmail = email.isNotEmpty ? email : username;
+      if (authEmail.isNotEmpty) {
+        final credentials = base64Encode(utf8.encode('$authEmail:$token'));
+        await _settingsService.addAuthentication('Basic $credentials');
+        await _settingsService.addUsername(username);
+      }
     }
 
     if (issuePreffix.isNotEmpty) {
@@ -94,6 +104,7 @@ class SettingsController with ChangeNotifier {
     if (jiraPath.isNotEmpty) {
       await _settingsService.addJiraPath(jiraPath);
     }
+    await _settingsService.setJiraApiVersion(jiraApiVersion);
 
     if (workDays.isNotEmpty) {
       await _settingsService.addWorkDays(workDays);
@@ -115,6 +126,7 @@ class SettingsController with ChangeNotifier {
     _reminderMessage = reminderMessage;
     _issuePreffix = issuePreffix.toUpperCase();
     _jiraPath = jiraPath;
+    _jiraApiVersion = jiraApiVersion;
     _email = email;
   }
 

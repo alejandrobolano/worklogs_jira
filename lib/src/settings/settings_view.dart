@@ -26,6 +26,7 @@ class _SettingsViewState extends State<SettingsView> {
   final _tokenController = TextEditingController();
   var _issuePreffixController = TextEditingController();
   var _jiraPathController = TextEditingController();
+  late int _jiraApiVersion;
 
   late bool _isVisiblePassword = false;
   final _textControllers = [];
@@ -49,6 +50,7 @@ class _SettingsViewState extends State<SettingsView> {
         TextEditingController(text: widget.controller.issuePreffix ?? "");
     _jiraPathController =
         TextEditingController(text: widget.controller.jiraPath ?? "");
+    _jiraApiVersion = widget.controller.jiraApiVersion;
     _workDays = _getWorkDays();
     _normalizeReminderDays();
 
@@ -139,6 +141,7 @@ class _SettingsViewState extends State<SettingsView> {
     _normalizeReminderDays();
     _issuePreffixController.text = widget.controller.issuePreffix ?? '';
     _jiraPathController.text = widget.controller.jiraPath ?? '';
+    _jiraApiVersion = widget.controller.jiraApiVersion;
     _reminderEnabled = widget.controller.reminderEnabled;
     _reminderTime = widget.controller.reminderTime;
     _reminderMessageController.text = widget.controller.reminderMessage;
@@ -168,6 +171,7 @@ class _SettingsViewState extends State<SettingsView> {
           _tokenController.text,
           _issuePreffixController.text,
           _jiraPathController.text,
+          _jiraApiVersion,
           _workDays,
           _reminderEnabled,
           _reminderTime,
@@ -397,6 +401,46 @@ class _SettingsViewState extends State<SettingsView> {
               ),
             ),
             const SizedBox(height: 24.0),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 15),
+                  child: Icon(Icons.api),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: AppLocalizations.of(context)?.jiraApiVersion,
+                      helperText: AppLocalizations.of(context)
+                          ?.jiraApiVersionCompatibility,
+                    ),
+                    initialValue: _jiraApiVersion,
+                    isExpanded: true,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _jiraApiVersion = value);
+                      }
+                    },
+                    items: [
+                      DropdownMenuItem(
+                        value: 3,
+                        child: Text(
+                            AppLocalizations.of(context)!.jiraApiVersion3Label),
+                      ),
+                      DropdownMenuItem(
+                        value: 2,
+                        child: Text(
+                            AppLocalizations.of(context)!.jiraApiVersion2Label),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24.0),
             ExpansionTile(
               title: Text(AppLocalizations.of(context)?.workedHours ?? ""),
               subtitle: Text(
@@ -559,14 +603,14 @@ class _SettingsViewState extends State<SettingsView> {
                   onTap: !_reminderEnabled || workingDays.isEmpty
                       ? null
                       : () async {
-                    final picked = await showTimePicker(
-                        context: context, initialTime: _reminderTime);
-                    if (picked != null) {
-                      setState(() {
-                        _reminderTime = picked;
-                      });
-                    }
-                  },
+                          final picked = await showTimePicker(
+                              context: context, initialTime: _reminderTime);
+                          if (picked != null) {
+                            setState(() {
+                              _reminderTime = picked;
+                            });
+                          }
+                        },
                 ),
                 const SizedBox(height: 16.0),
                 TextField(
@@ -674,10 +718,11 @@ class _SettingsViewState extends State<SettingsView> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(Icons.color_lens_outlined),
+                const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<ThemeMode>(
                     decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.color_lens_outlined),
                       border: OutlineInputBorder(),
                     ),
                     initialValue: widget.controller.themeMode,
