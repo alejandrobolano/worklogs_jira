@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-10-01
+
+### Added
+- Persistent Jira REST API version selector: v3 is recommended for new installations, while v2 remains available and is preserved for existing installations
+- Version-specific Jira endpoints, including `search/jql` for API v3 and `search` for API v2
+- Atlassian Document Format (ADF) comments when creating worklogs through API v3
+- Focused tests for API version defaults, v3 worklog payloads, Basic Auth persistence, preserving existing authentication, and Jira error responses
+
+### Fixed
+- Basic Auth now correctly encodes the Atlassian email and API token instead of saving a placeholder, while leaving existing authentication unchanged when settings are saved without a token
+- Jira error responses retain their original body and headers, and useful `message`, `errorMessages`, and field errors are shown
+- Jira API and theme selector icons are aligned outside their dropdown borders to match the other Settings fields
+
 ## [2.7.0] - 2026-04-09
 
 ### Added
