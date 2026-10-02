@@ -248,13 +248,16 @@ class _SettingsViewState extends State<SettingsView> {
         _userSaved = saveUser && _userController.text.trim().isNotEmpty;
         _emailSaved = saveEmail && _emailController.text.trim().isNotEmpty;
         _tokenSaved = saveToken && _tokenController.text.trim().isNotEmpty;
-        _jiraPathSaved = saveJiraPath && _jiraPathController.text.trim().isNotEmpty;
+        _jiraPathSaved =
+            saveJiraPath && _jiraPathController.text.trim().isNotEmpty;
         _issuePrefixSaved =
             saveIssuePrefix && _issuePreffixController.text.trim().isNotEmpty;
         _jiraApiVersionSaved = saveJiraApiVersion;
         _reminderSaved = saveReminder;
         _workDaysSaved = saveWorkDays;
-        if (saveToken && _tokenController.text.isNotEmpty && !_tokenController.text.startsWith('*')) {
+        if (saveToken &&
+            _tokenController.text.isNotEmpty &&
+            !_tokenController.text.startsWith('*')) {
           _tokenController.text = '***************';
           _tokenController.selection = TextSelection.collapsed(
             offset: _tokenController.text.length,
@@ -443,7 +446,8 @@ class _SettingsViewState extends State<SettingsView> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       if (_tokenSaved)
-                        const Icon(Icons.check_circle, color: Colors.green, size: 18),
+                        const Icon(Icons.check_circle,
+                            color: Colors.green, size: 18),
                       IconButton(
                         onPressed: () {
                           if (_tokenSaved) {
