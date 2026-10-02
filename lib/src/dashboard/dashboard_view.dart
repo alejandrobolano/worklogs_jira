@@ -57,16 +57,27 @@ class _DashboardViewState extends State<DashboardView>
     super.dispose();
   }
 
-  void _getData() async {
+  Future<void> _getData() async {
+    if (_isLoading) return;
     setState(() {
       _isLoading = true;
     });
-    final response = await widget.controller.getWorklist(
-        _startRangeDateController.text, _finishRangeDateController.text);
-    _handleReponse(response);
-    setState(() {
-      _isLoading = false;
-    });
+    try {
+      final response = await widget.controller.getWorklist(
+          _startRangeDateController.text, _finishRangeDateController.text);
+      if (!mounted) return;
+      _handleReponse(response);
+    } catch (e) {
+      if (!mounted) return;
+      WidgetHelper.showMessageSnackBar(
+          context, '${AppLocalizations.of(context)?.errorRequest} | $e');
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
   }
 
   void _handleReponse(response, {extraText}) {
@@ -132,7 +143,7 @@ class _DashboardViewState extends State<DashboardView>
           ));
         }
 
-        double timespent = (element.fields!.timespent ?? 0) / 3600.0;
+        double timespent = (element.fields?.timespent ?? 0) / 3600.0;
         _biggerTimespent =
             timespent > _biggerTimespent ? timespent : _biggerTimespent;
         final isTouched = i == touchedIndex;

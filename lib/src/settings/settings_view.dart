@@ -208,7 +208,7 @@ class _SettingsViewState extends State<SettingsView> {
     bool saveReminder = false,
     bool saveWorkDays = false,
   }) async {
-    if (_isSaving) {
+    if (_isSaving || (saveToken && _tokenSaved)) {
       return;
     }
 
@@ -222,7 +222,7 @@ class _SettingsViewState extends State<SettingsView> {
 
       final rawToken = saveToken && _tokenController.text != '***************'
           ? _tokenController.text
-          : (widget.controller.isAuthSaved ? _tokenController.text : '');
+          : '';
 
       await widget.controller.savePreferences(
         _userController.text,
@@ -247,7 +247,6 @@ class _SettingsViewState extends State<SettingsView> {
         _refreshLocalReminderState();
         _userSaved = saveUser && _userController.text.trim().isNotEmpty;
         _emailSaved = saveEmail && _emailController.text.trim().isNotEmpty;
-        _tokenSaved = saveToken && _tokenController.text.trim().isNotEmpty;
         _jiraPathSaved =
             saveJiraPath && _jiraPathController.text.trim().isNotEmpty;
         _issuePrefixSaved =
@@ -262,6 +261,11 @@ class _SettingsViewState extends State<SettingsView> {
           _tokenController.selection = TextSelection.collapsed(
             offset: _tokenController.text.length,
           );
+        }
+        if (saveToken) {
+          _tokenSaved = rawToken.isNotEmpty &&
+              (_emailController.text.isNotEmpty ||
+                  _userController.text.isNotEmpty);
         }
         _isSaving = false;
       });
@@ -427,8 +431,9 @@ class _SettingsViewState extends State<SettingsView> {
             SizedBox(
               child: TextField(
                 obscureText: !_isVisiblePassword || _tokenSaved,
+                readOnly: _isSaving,
                 controller: _tokenController,
-                onTap: _tokenSaved
+                onTap: _tokenSaved && !_isSaving
                     ? () {
                         setState(() {
                           _tokenSaved = false;
@@ -449,17 +454,10 @@ class _SettingsViewState extends State<SettingsView> {
                         const Icon(Icons.check_circle,
                             color: Colors.green, size: 18),
                       IconButton(
-                        onPressed: () {
-                          if (_tokenSaved) {
-                            setState(() {
-                              _tokenSaved = false;
-                              _tokenController.clear();
-                              _isVisiblePassword = true;
-                            });
-                            return;
-                          }
-                          _saveField(saveToken: true);
-                        },
+                        tooltip: 'Guardar',
+                        onPressed: _isSaving || _tokenSaved
+                            ? null
+                            : () => _saveField(saveToken: true),
                         icon: const Icon(Icons.save_outlined),
                       ),
                       IconButton(

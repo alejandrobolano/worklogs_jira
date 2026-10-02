@@ -26,14 +26,16 @@ class WorkListView extends StatelessWidget {
         final worklog = worklogResponse.issues?[index];
         final issueKey = worklog?.key;
         final fields = worklog?.fields;
-        final double timespent = (worklog?.fields!.timespent ?? 0) / 3600.0;
+        final double timespent = (worklog?.fields?.timespent ?? 0) / 3600.0;
         final projectName = fields?.project?.name;
         final issueTypeName = fields?.issueType?.name;
 
         return Card(
             child: ListTile(
-          onTap: () =>
-              _settingModalBottomSheet(context, launchUrl, issueKey, fields!),
+          onTap: fields == null
+              ? null
+              : () => _settingModalBottomSheet(
+                  context, launchUrl, issueKey, fields),
           title: Text('$issueKey'),
           leading: Text('$issueTypeName'),
           subtitle: Text('$projectName | $timespent h'),
@@ -75,7 +77,7 @@ class WorkListView extends StatelessWidget {
                   leading: const Icon(Icons.comment_bank_outlined),
                   iconColor: color,
                   title: Text('${fields.summary}')),
-              if (subtasks!.isNotEmpty)
+              if (subtasks?.isNotEmpty ?? false)
                 ListTile(
                     leading: const Icon(Icons.pending_actions_outlined),
                     iconColor: color,
@@ -88,5 +90,5 @@ class WorkListView extends StatelessWidget {
 }
 
 String _concat(List<Issues?>? subtasks) {
-  return subtasks!.map((e) => e!.key).join(" | ");
+  return subtasks?.whereType<Issues>().map((e) => e.key).join(" | ") ?? '';
 }
