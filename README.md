@@ -2,7 +2,7 @@
 
 This is a small project to log works in Jira. It is based on consuming the Jira API to get, post, and delete data, you can view the [online documentation about issue-worklogs](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issue-worklogs/#api-group-issue-worklogs).
 
-**Version:** 2.8.0
+**Version:** 2.9.0
 
 **Author:** [Alejandro Bolaño](https://alejandrobolano.com)
 

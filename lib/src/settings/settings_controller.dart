@@ -15,6 +15,8 @@ class SettingsController with ChangeNotifier {
   ThemeMode get themeMode => _themeMode;
   late bool _isAuthSaved;
   bool get isAuthSaved => _isAuthSaved;
+  late String? _username;
+  String? get username => _username;
   late String? _issuePreffix;
   String? get issuePreffix => _issuePreffix;
   late String? _jiraPath;
@@ -41,6 +43,7 @@ class SettingsController with ChangeNotifier {
 
   Future<void> loadSettings() async {
     _themeMode = await _settingsService.themeMode();
+    _username = await _settingsService.getUsername();
     _issuePreffix = await _settingsService.getIssuePreffix();
     _jiraPath = await _settingsService.getJiraBasePath();
     _jiraApiVersion = await _settingsService.getJiraApiVersion();
@@ -74,7 +77,7 @@ class SettingsController with ChangeNotifier {
   Future<void> updateSeedColor(Color color) async {
     _seedColor = color;
     notifyListeners();
-    await _settingsService.setSeedColor(color.value);
+    await _settingsService.setSeedColor(color.toARGB32());
   }
 
   Future<void> savePreferences(
@@ -124,6 +127,7 @@ class SettingsController with ChangeNotifier {
     _reminderEnabled = reminderEnabled;
     _reminderTime = reminderTime;
     _reminderMessage = reminderMessage;
+    _username = username;
     _issuePreffix = issuePreffix.toUpperCase();
     _jiraPath = jiraPath;
     _jiraApiVersion = jiraApiVersion;

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.9.0] - 2026-10-02
+
+### Changed
+- Settings now save each field individually instead of relying on one global save button at the bottom of the screen
+- Each saved field shows a green confirmation check only after a successful save, and previously saved values are restored with the check visible on return
+- Token input is masked with `***************` after saving so the secret is not shown again in the form
+- Worked hours and reminder sections keep their current logic but place their save controls at the end of the expanded panel for a cleaner UX
+
+### Fixed
+- Removed the old global "Authorization saved" badge and bottom save action from the Settings screen to match the new per-field behavior
+- Preserved the existing persistence and reminder logic while redefining the save flow in the UI
+
 ## [2.8.0] - 2026-10-01
 
 ### Added
