@@ -269,6 +269,49 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('worklog details scroll on small screens with long comments',
+      (tester) async {
+    tester.view.physicalSize = const Size(360, 480);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final comment =
+        List.filled(40, 'Comentario largo de trabajo registrado').join('\n');
+    await tester.pumpWidget(app(WorklogListView(
+      worklogResponse: WorklogResponse(worklogs: [
+        Worklog(
+          id: '1',
+          issueId: '10',
+          author: Author(displayName: 'Alex'),
+          timeSpent: '1d 30m',
+          timeSpentSeconds: 30600,
+          comment: comment,
+          created: DateTime(2026, 10, 2),
+          updated: DateTime(2026, 10, 2),
+          started: DateTime(2026, 10, 1),
+        ),
+      ]),
+      onDeleteData: (_) {},
+    )));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Alex'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(SingleChildScrollView), findsOneWidget);
+    final avatar = find.byWidgetPredicate(
+        (widget) => widget is CircleAvatar && widget.radius == 32);
+    expect(tester.getSize(avatar), const Size(64, 64));
+    expect(tester.takeException(), isNull);
+    final updatedTile = find.ancestor(
+      of: find.byIcon(Icons.calendar_today_outlined).last,
+      matching: find.byType(ListTile),
+    );
+    await tester.ensureVisible(updatedTile);
+    await tester.pumpAndSettle();
+    expect(tester.getRect(updatedTile).bottom, lessThanOrEqualTo(480));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('table ignores stale worklog responses after refresh',
       (tester) async {
     final pending = Completer<Map<String, dynamic>>();
