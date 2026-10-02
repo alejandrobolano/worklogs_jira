@@ -45,6 +45,8 @@ void main() {
     await server.close();
 
     final body = json.decode(responseBody.single) as Map<String, dynamic>;
+    expect(body['timeSpentSeconds'], 3600);
+    expect(body.containsKey('timeSpent'), false);
     expect(body['comment'], {
       'type': 'doc',
       'version': 1,
@@ -53,6 +55,44 @@ void main() {
       ]
     });
   });
+
+  for (final version in [2, 3]) {
+    for (final duration in <double, int>{
+      8.5: 30600,
+      7: 25200,
+      0.25: 900,
+      1.125: 4050,
+    }.entries) {
+      test('sends ${duration.key} hours as seconds for Jira v$version',
+          () async {
+        final server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+        addTearDown(() => server.close(force: true));
+        final requestHandled = server.first.then((request) async {
+          final body = jsonDecode(await utf8.decoder.bind(request).join())
+              as Map<String, dynamic>;
+          request.response.statusCode = HttpStatus.created;
+          await request.response.close();
+          return body;
+        });
+
+        final response = await JiraService().postData(
+          'http://${server.address.host}:${server.port}/rest/api/$version/issue/',
+          'Basic test',
+          'TEST-1',
+          duration.key,
+          '2026-10-01',
+        );
+        final body = await requestHandled;
+
+        expect(response.statusCode, HttpStatus.created);
+        expect(body['timeSpentSeconds'], duration.value);
+        expect(body['timeSpentSeconds'], isA<int>());
+        expect(body.containsKey('timeSpent'), false);
+        expect(body['started'], '2026-10-01T08:00:00.000+0000');
+        if (version == 2) expect(body['comment'], '');
+      });
+    }
+  }
 
   test('persists classic tokens as Basic email credentials', () async {
     SharedPreferences.setMockInitialValues({});

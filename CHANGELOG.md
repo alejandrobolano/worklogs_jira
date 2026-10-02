@@ -5,7 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.9.0] - 2026-10-02
+## [2.8.0] - 2026-10-02
+
+### Added
+- Persistent Jira REST API version selector: v3 is recommended for new installations, while v2 remains available and is preserved for existing installations
+- Version-specific Jira endpoints, including `search/jql` for API v3 and `search` for API v2
+- Atlassian Document Format (ADF) comments when creating worklogs through API v3
+- Focused tests for API version defaults, v3 worklog payloads, Basic Auth persistence, preserving existing authentication, and Jira error responses
 
 ### Changed
 - Settings now save each field individually instead of relying on one global save button at the bottom of the screen
@@ -14,21 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Worked hours and reminder sections keep their current logic but place their save controls at the end of the expanded panel for a cleaner UX
 
 ### Fixed
-- Removed the old global "Authorization saved" badge and bottom save action from the Settings screen to match the new per-field behavior
-- Preserved the existing persistence and reminder logic while redefining the save flow in the UI
-
-## [2.8.0] - 2026-10-01
-
-### Added
-- Persistent Jira REST API version selector: v3 is recommended for new installations, while v2 remains available and is preserved for existing installations
-- Version-specific Jira endpoints, including `search/jql` for API v3 and `search` for API v2
-- Atlassian Document Format (ADF) comments when creating worklogs through API v3
-- Focused tests for API version defaults, v3 worklog payloads, Basic Auth persistence, preserving existing authentication, and Jira error responses
-
-### Fixed
 - Basic Auth now correctly encodes the Atlassian email and API token instead of saving a placeholder, while leaving existing authentication unchanged when settings are saved without a token
 - Jira error responses retain their original body and headers, and useful `message`, `errorMessages`, and field errors are shown
 - Jira API and theme selector icons are aligned outside their dropdown borders to match the other Settings fields
+- Removed the old global "Authorization saved" badge and bottom save action from the Settings screen to match the new per-field behavior
+- Preserved the existing persistence and reminder logic while redefining the save flow in the UI
+
 
 ## [2.7.0] - 2026-04-09
 
