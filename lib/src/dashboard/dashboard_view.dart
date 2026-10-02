@@ -34,6 +34,8 @@ class _DashboardViewState extends State<DashboardView>
   late final _finishRangeDateController =
       TextEditingController(text: DateHelper.formatDate(DateTime.now()));
   bool _isLoading = false;
+  String? _loadedStartRange;
+  String? _loadedFinishRange;
   bool _isBarsChartVisible = false;
   bool _isPieChartVisible = false;
   List<Widget> _indicators = [];
@@ -54,6 +56,8 @@ class _DashboardViewState extends State<DashboardView>
   @override
   void dispose() {
     _tabController.dispose();
+    _startRangeDateController.dispose();
+    _finishRangeDateController.dispose();
     super.dispose();
   }
 
@@ -63,9 +67,15 @@ class _DashboardViewState extends State<DashboardView>
       _isLoading = true;
     });
     try {
-      final response = await widget.controller.getWorklist(
-          _startRangeDateController.text, _finishRangeDateController.text);
+      final startRange = _startRangeDateController.text;
+      final finishRange = _finishRangeDateController.text;
+      final response =
+          await widget.controller.getWorklist(startRange, finishRange);
       if (!mounted) return;
+      if (widget.controller.isOkStatusCode(response.statusCode)) {
+        _loadedStartRange = startRange;
+        _loadedFinishRange = finishRange;
+      }
       _handleReponse(response);
     } catch (e) {
       if (!mounted) return;
@@ -129,6 +139,8 @@ class _DashboardViewState extends State<DashboardView>
     _indicators = [];
     _sections = [];
     _bars = [];
+    _biggerTimespent = 0;
+    _tooltipTitle.clear();
     if (mounted && issues != null) {
       for (int i = 0; i < issues.length; i++) {
         Issues element = issues[i]!;
@@ -335,6 +347,8 @@ class _DashboardViewState extends State<DashboardView>
                             ),
                             LoggedTasksTable(
                               issues: _worklistResponse.issues,
+                              startRange: _loadedStartRange,
+                              finishRange: _loadedFinishRange,
                               onTaskTap: _launchURL,
                               getWorklogsCallback: _getWorklogs,
                             ),

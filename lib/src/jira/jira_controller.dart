@@ -47,7 +47,7 @@ class JiraController with ChangeNotifier {
     }
 
     final String finalUrl = '$url$issue/worklog';
-    return _jiraService.getData(finalUrl, authentication);
+    return _jiraService.getPagedData(finalUrl, authentication, 'worklogs');
   }
 
   Future<Response> postData(
@@ -65,10 +65,20 @@ class JiraController with ChangeNotifier {
           'Error: Basic Auth not found', 400, "Basic auth not found");
     }
 
+    if (issue.trim().isEmpty ||
+        !hours.isFinite ||
+        hours <= 0 ||
+        (hours * 3600).round() <= 0 ||
+        repetitions <= 0 ||
+        DateTime.tryParse(startDate) == null) {
+      return _buildErrorResponse('Invalid worklog input', 400,
+          'Issue, positive hours, date and repetitions are required');
+    }
     final repetitionsArray = _buildRepetitionsArray(repetitions);
     List<WorkDay> workDays = await _getWorkDays() ?? [];
 
-    if (workDays.isEmpty) {
+    if (!workDays.any((day) =>
+        day.isWorking && day.hoursWorked.isFinite && day.hoursWorked > 0)) {
       return _buildErrorResponse('Error: You must edit hours in settings', 402,
           "You must edit hours in settings");
     }
@@ -89,7 +99,8 @@ class JiraController with ChangeNotifier {
           url!,
           basicAuth,
           issue.trim(),
-          updatedHours, DateFormat('yyyy-MM-dd').format(dateTime));
+          updatedHours,
+          DateFormat('yyyy-MM-dd').format(dateTime));
       if (!isOkStatusCode(response.statusCode)) {
         return response;
       } else {
@@ -147,15 +158,18 @@ class JiraController with ChangeNotifier {
   }
 
   List _getNextWorkDay(List<WorkDay> workDays, DateTime dateTime) {
-    final workDay =
-        workDays.firstWhere((element) => element.day == dateTime.weekday);
-
-    if (!workDay.isWorking) {
+    for (var i = 0; i < DateTime.daysPerWeek; i++) {
+      for (final workDay in workDays) {
+        if (workDay.day == dateTime.weekday &&
+            workDay.isWorking &&
+            workDay.hoursWorked.isFinite &&
+            workDay.hoursWorked > 0) {
+          return [workDay, dateTime];
+        }
+      }
       dateTime = dateTime.add(const Duration(days: 1));
-      return _getNextWorkDay(workDays, dateTime);
     }
-
-    return [workDay, dateTime];
+    throw StateError('No working days with positive hours configured');
   }
 
   Future<List<WorkDay>?> _getWorkDays() {
@@ -237,16 +251,30 @@ class JiraController with ChangeNotifier {
           'Error: Basic Auth not found', 400, "Basic auth not found");
     }
 
-    for (final task in tasks) {
+    if (tasks.isEmpty ||
+        DateTime.tryParse(date) == null ||
+        tasks.any((task) =>
+            task.issue.trim().isEmpty ||
+            !task.hours.isFinite ||
+            task.hours <= 0 ||
+            (task.hours * 3600).round() <= 0)) {
+      return _buildErrorResponse('Invalid worklog input', 400,
+          'Tasks must have an issue and positive hours');
+    }
+    final pendingTasks = List<DailyTask>.of(tasks);
+    await saveDraftTasks(pendingTasks, date);
+    for (var i = 0; i < pendingTasks.length; i++) {
+      final task = pendingTasks[i];
       final response = await _jiraService.postData(
           url!, basicAuth, task.issue, task.hours, date);
       if (!isOkStatusCode(response.statusCode)) {
         return response;
       }
+      await saveDraftTasks(pendingTasks.sublist(i + 1), date);
     }
 
     return Future<Response>(
-      () => Response('Successful request for \${tasks.length} tasks', 201,
+      () => Response('Successful request for ${tasks.length} tasks', 201,
           reasonPhrase: 'Created'),
     );
   }

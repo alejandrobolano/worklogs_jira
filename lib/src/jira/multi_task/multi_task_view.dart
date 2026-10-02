@@ -87,7 +87,10 @@ class _MultiTaskViewState extends State<MultiTaskView> {
               final issue = issueCtrl.text.trim().toUpperCase();
               final hoursStr = hoursCtrl.text.replaceAll(',', '.');
               final hours = double.tryParse(hoursStr);
-              if (issue.isEmpty || hours == null || hours <= 0) return;
+              if (issue.isEmpty ||
+                  hours == null ||
+                  !hours.isFinite ||
+                  hours <= 0) return;
               Navigator.of(ctx).pop();
               setState(() {
                 _tasks = List.from(_tasks)
@@ -110,8 +113,7 @@ class _MultiTaskViewState extends State<MultiTaskView> {
   }
 
   Future<void> _showDatePicker() async {
-    final List<int> notWorkedDays =
-        await widget.controller.getNotWorkedDays();
+    final List<int> notWorkedDays = await widget.controller.getNotWorkedDays();
     if (!mounted) return;
     final DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -130,43 +132,56 @@ class _MultiTaskViewState extends State<MultiTaskView> {
   }
 
   Future<void> _logAll() async {
+    if (_isLoading) return;
     if (_tasks.isEmpty) {
       WidgetHelper.showMessageSnackBar(
           context, AppLocalizations.of(context)!.noTasksToLog);
       return;
     }
 
-    final date = DateTime.tryParse(_date) ?? DateTime.now();
-    final maxHours = await widget.controller.getHoursForDay(date);
-    final total = _tasks.fold(0.0, (sum, t) => sum + t.hours);
-
-    if (total > maxHours) {
+    setState(() => _isLoading = true);
+    try {
+      final date = DateTime.tryParse(_date) ?? DateTime.now();
+      final maxHours = await widget.controller.getHoursForDay(date);
       if (!mounted) return;
-      final continueAnyway = await showDialog<bool>(
-        context: context,
-        builder: (ctx) => AlertDialog(
-          content: Text(
-            AppLocalizations.of(context)!.hoursExceeded(
-              total.toStringAsFixed(1),
-              maxHours.toStringAsFixed(1),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(false),
-              child: Text(AppLocalizations.of(context)!.reviewTasks),
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(ctx).pop(true),
-              child: Text(AppLocalizations.of(context)!.continueAnyway),
-            ),
-          ],
-        ),
-      );
-      if (continueAnyway != true) return;
-    }
+      final total = _tasks.fold(0.0, (sum, t) => sum + t.hours);
 
-    await _submitAll();
+      if (total > maxHours) {
+        if (!mounted) return;
+        final continueAnyway = await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            content: Text(
+              AppLocalizations.of(context)!.hoursExceeded(
+                total.toStringAsFixed(1),
+                maxHours.toStringAsFixed(1),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(false),
+                child: Text(AppLocalizations.of(context)!.reviewTasks),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(true),
+                child: Text(AppLocalizations.of(context)!.continueAnyway),
+              ),
+            ],
+          ),
+        );
+        if (continueAnyway != true) return;
+      }
+
+      await _submitAll();
+    } catch (e) {
+      if (!mounted) return;
+      await _loadDraft();
+      if (!mounted) return;
+      WidgetHelper.showMessageSnackBar(
+          context, '${AppLocalizations.of(context)!.errorRequest} | $e');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _submitAll() async {
@@ -185,10 +200,11 @@ class _MultiTaskViewState extends State<MultiTaskView> {
       WidgetHelper.showMessageSnackBar(context, l10n.allTasksLogged);
       nav.pop(true);
     } else {
+      await _loadDraft();
+      if (!mounted) return;
       WidgetHelper.showMessageSnackBar(context,
           '${l10n.errorRequest} | ${response.reasonPhrase} | ${response.body}');
     }
-    setState(() => _isLoading = false);
   }
 
   @override
@@ -207,7 +223,7 @@ class _MultiTaskViewState extends State<MultiTaskView> {
             TextField(
               readOnly: true,
               controller: TextEditingController(text: _date),
-              onTap: _showDatePicker,
+              onTap: _isLoading ? null : _showDatePicker,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 suffixIcon: const Icon(Icons.calendar_today),
@@ -216,8 +232,8 @@ class _MultiTaskViewState extends State<MultiTaskView> {
             ),
             const SizedBox(height: 12),
             FutureBuilder<double>(
-              future: widget.controller.getHoursForDay(
-                  DateTime.tryParse(_date) ?? DateTime.now()),
+              future: widget.controller
+                  .getHoursForDay(DateTime.tryParse(_date) ?? DateTime.now()),
               builder: (context, snapshot) {
                 final max = snapshot.data ?? 8.0;
                 return Text(
@@ -260,7 +276,9 @@ class _MultiTaskViewState extends State<MultiTaskView> {
                                 ),
                                 IconButton(
                                   icon: const Icon(Icons.delete_outline),
-                                  onPressed: () => _deleteTask(index),
+                                  onPressed: _isLoading
+                                      ? null
+                                      : () => _deleteTask(index),
                                 ),
                               ],
                             ),
@@ -295,7 +313,7 @@ class _MultiTaskViewState extends State<MultiTaskView> {
             SpeedDialChild(
               child: const Icon(Icons.add),
               label: AppLocalizations.of(context)!.addTask,
-              onTap: _showAddTaskDialog,
+              onTap: _isLoading ? null : _showAddTaskDialog,
             ),
           ],
         ),

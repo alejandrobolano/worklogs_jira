@@ -9,11 +9,15 @@ class LoggedTasksTable extends StatefulWidget {
     required this.issues,
     required this.onTaskTap,
     required this.getWorklogsCallback,
+    this.startRange,
+    this.finishRange,
   });
 
   final List<Issues?>? issues;
   final Function(String?) onTaskTap;
   final Future<Map<String, dynamic>> Function(String) getWorklogsCallback;
+  final String? startRange;
+  final String? finishRange;
 
   @override
   State<LoggedTasksTable> createState() => _LoggedTasksTableState();
@@ -22,6 +26,7 @@ class LoggedTasksTable extends StatefulWidget {
 class _LoggedTasksTableState extends State<LoggedTasksTable> {
   Map<String, List<Map<String, dynamic>>> _tasksByDate = {};
   bool _isLoading = true;
+  int _loadGeneration = 0;
 
   @override
   void initState() {
@@ -32,15 +37,23 @@ class _LoggedTasksTableState extends State<LoggedTasksTable> {
   @override
   void didUpdateWidget(LoggedTasksTable oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.issues != oldWidget.issues) {
+    if (widget.issues != oldWidget.issues ||
+        widget.startRange != oldWidget.startRange ||
+        widget.finishRange != oldWidget.finishRange) {
       _loadWorklogs();
     }
   }
 
   Future<void> _loadWorklogs() async {
+    final generation = ++_loadGeneration;
+    final issues = widget.issues;
+    final startRange = widget.startRange;
+    final finishRange = widget.finishRange;
+    final tasksByDate = <String, List<Map<String, dynamic>>>{};
     if (widget.issues == null || widget.issues!.isEmpty) {
       setState(() {
         _isLoading = false;
+        _tasksByDate = {};
       });
       return;
     }
@@ -50,10 +63,11 @@ class _LoggedTasksTableState extends State<LoggedTasksTable> {
       _tasksByDate = {};
     });
 
-    for (var issue in widget.issues!) {
-      if (issue == null) continue;
+    for (var issue in issues!) {
+      if (issue == null || issue.key == null) continue;
       try {
         final worklogsData = await widget.getWorklogsCallback(issue.key ?? '');
+        if (!mounted || generation != _loadGeneration) return;
         final worklogs = worklogsData['worklogs'] as List<dynamic>?;
 
         if (worklogs != null) {
@@ -62,16 +76,21 @@ class _LoggedTasksTableState extends State<LoggedTasksTable> {
             final timeSpentSeconds = worklog['timeSpentSeconds'] as int?;
 
             if (started != null && timeSpentSeconds != null) {
-              final dateTime = DateTime.parse(started);
-              final dateKey = DateFormat('yyyy-MM-dd').format(dateTime);
+              if (DateTime.tryParse(started) == null || started.length < 10)
+                continue;
+              // Keep the worklog's calendar date, not its UTC conversion.
+              final dateKey = started.substring(0, 10);
+              if ((startRange != null && dateKey.compareTo(startRange) < 0) ||
+                  (finishRange != null && dateKey.compareTo(finishRange) > 0))
+                continue;
 
-              if (!_tasksByDate.containsKey(dateKey)) {
-                _tasksByDate[dateKey] = [];
+              if (!tasksByDate.containsKey(dateKey)) {
+                tasksByDate[dateKey] = [];
               }
 
-              _tasksByDate[dateKey]!.add({
+              tasksByDate[dateKey]!.add({
                 'key': issue.key,
-                'summary': issue.fields?.summary,
+                'summary': issue.fields?.summary ?? '',
                 'hours': timeSpentSeconds / 3600.0,
                 'status': issue.fields?.status?.name,
               });
@@ -83,7 +102,9 @@ class _LoggedTasksTableState extends State<LoggedTasksTable> {
       }
     }
 
+    if (!mounted || generation != _loadGeneration) return;
     setState(() {
+      _tasksByDate = tasksByDate;
       _isLoading = false;
     });
   }

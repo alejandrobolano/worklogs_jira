@@ -46,7 +46,7 @@ class DashboardController with ChangeNotifier {
           'key,summary,timespent,timetracking,issuetype,project,subtasks,assignee,status',
       'maxResults': '100',
     };
-    var uri = Uri.parse('${url}${enhancedSearch ? 'search/jql' : 'search'}')
+    var uri = Uri.parse('$url${enhancedSearch ? 'search/jql' : 'search'}')
         .replace(queryParameters: query);
     var response = await _jiraService.getData(uri.toString(), basicAuth);
 
@@ -56,7 +56,10 @@ class DashboardController with ChangeNotifier {
       uri = Uri.parse('${url}search/jql').replace(queryParameters: query);
       response = await _jiraService.getData(uri.toString(), basicAuth);
     }
-    if (!enhancedSearch) return response;
+    if (!enhancedSearch) {
+      return _jiraService.getPagedData(uri.toString(), basicAuth, 'issues',
+          firstResponse: response);
+    }
 
     final issues = <dynamic>[];
     final seenTokens = <String>{};
@@ -105,12 +108,12 @@ class DashboardController with ChangeNotifier {
   Future<Response> getIssueWorklogs(String issueKey) async {
     final url = await _settingsService.getJiraPath();
     final basicAuth = await _settingsService.getAuthentication();
-    if (url == "" || basicAuth == null || basicAuth == "") {
+    if (url == null || url.isEmpty || basicAuth == null || basicAuth == "") {
       return Future<Response>(
         () => Response('Error: Configuration not found', 400),
       );
     }
-    String finalUrl = '${url!}issue/$issueKey/worklog';
-    return _jiraService.getData(finalUrl, basicAuth);
+    String finalUrl = '${url}issue/$issueKey/worklog';
+    return _jiraService.getPagedData(finalUrl, basicAuth, 'worklogs');
   }
 }
