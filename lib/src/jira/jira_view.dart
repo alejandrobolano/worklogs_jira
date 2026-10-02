@@ -60,77 +60,88 @@ class _JiraViewState extends State<JiraView> {
     for (var controller in _textControllers) {
       controller.dispose();
     }
+    _repetitionsController.dispose();
     super.dispose();
   }
 
-  void _getData() async {
-    if (_isCorrectValidationFields(isSimple: true)) {
-      setState(() {
-        _isLoading = true;
-      });
-      final String issue = _issueController.text;
-      final response = await widget.controller.getData(issue);
-
-      if (widget.controller.isOkStatusCode(response.statusCode)) {
-        Map<String, dynamic> map = jsonDecode(response.body);
-        setState(() {
-          _worklogResponse = WorklogResponse.fromJson(map);
-        });
-        widget.controller.setLastIssue(issue);
-      }
-      _handleResponse(response);
+  Future<void> _loadWorklogs(String issue) async {
+    final response = await widget.controller.getData(issue);
+    if (!mounted) return;
+    if (widget.controller.isOkStatusCode(response.statusCode)) {
+      final map = jsonDecode(response.body) as Map<String, dynamic>;
+      setState(() => _worklogResponse = WorklogResponse.fromJson(map));
+      widget.controller.setLastIssue(issue);
     }
-    setState(() {
-      _isLoading = false;
-    });
+    _handleResponse(response);
   }
 
-  void _postData() async {
-    if (_isCorrectValidationFields()) {
-      setState(() {
-        _isLoading = true;
-      });
-      final String issue = _issueController.text;
+  Future<void> _getData() async {
+    if (_isLoading || !_isCorrectValidationFields(isSimple: true)) return;
+    setState(() => _isLoading = true);
+    try {
+      await _loadWorklogs(_issueController.text.trim());
+    } catch (e) {
+      _showRequestError(e);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _postData() async {
+    if (_isLoading || !_isCorrectValidationFields()) return;
+    setState(() => _isLoading = true);
+    try {
+      final String issue = _issueController.text.trim();
       final hoursControllerValue = _hoursController.text.replaceAll(",", ".");
       final double hours = double.parse(hoursControllerValue);
       final String date = _dateController.text;
       var repetitions = int.tryParse(_repetitionsController.text);
       repetitions ??= 1;
-      final response =
-          await widget.controller.postData(issue, hours, date, repetitions);
+      final response = await widget.controller
+          .postData(issue.trim(), hours, date, repetitions);
+      if (!mounted) return;
       _handleResponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
         final lastDate =
             await widget.controller.calculateLastLoggedDate(date, repetitions);
         widget.controller.setLastLoggedDate(lastDate);
-        _getData();
+        await _loadWorklogs(issue);
       }
+    } catch (e) {
+      _showRequestError(e);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   Future<void> _deleteData(Worklog worklog) async {
-    if (_isCorrectValidationFields(isSimple: true)) {
-      setState(() {
-        _isLoading = true;
-      });
+    if (_isLoading || !_isCorrectValidationFields(isSimple: true)) return;
+    final issue = _issueController.text.trim();
+    setState(() => _isLoading = true);
+    try {
       late String? id = worklog.id;
       late String? issueId = worklog.issueId;
       if (id != null && issueId != null) {
         final response = await widget.controller.deleteData(id, issueId);
+        if (!mounted) return;
         _handleResponse(response);
 
         if (widget.controller.isOkStatusCode(response.statusCode)) {
-          _getData();
+          await _loadWorklogs(issue);
         }
       }
+    } catch (e) {
+      _showRequestError(e);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
     }
-    setState(() {
-      _isLoading = false;
-    });
+  }
+
+  void _showRequestError(Object error) {
+    if (!mounted) return;
+    WidgetHelper.showMessageSnackBar(
+        context, '${AppLocalizations.of(context)?.errorRequest} | $error');
   }
 
   void _handleResponse(response, {extraText}) {
@@ -148,17 +159,25 @@ class _JiraViewState extends State<JiraView> {
     WidgetHelper.showMessageSnackBar(context, text);
   }
 
-  String _getMessageFromErrorResponse(body) {
+  String _getMessageFromErrorResponse(String body) {
     try {
-      Map<String, dynamic> jsonResponse = jsonDecode(body);
-      if (jsonResponse.containsKey("message")) {
-        return jsonResponse["message"];
-      }
-    } catch (exception) {
-      return '';
-    }
+      final jsonResponse = jsonDecode(body);
+      if (jsonResponse is Map<String, dynamic>) {
+        final message = jsonResponse['message'];
+        if (message is String && message.isNotEmpty) return message;
 
-    return '';
+        final errorMessages = jsonResponse['errorMessages'];
+        if (errorMessages is List && errorMessages.isNotEmpty) {
+          return errorMessages.join(', ');
+        }
+
+        final errors = jsonResponse['errors'];
+        if (errors is Map && errors.isNotEmpty) {
+          return errors.values.join(', ');
+        }
+      }
+    } catch (_) {}
+    return body;
   }
 
   void _showDatePicker() async {
@@ -333,9 +352,11 @@ class _JiraViewState extends State<JiraView> {
   Widget build(BuildContext context) {
     var isLastIssueLoaded = false;
     widget.controller.areAllDataSaved().asStream().listen((value) {
+      if (!mounted) return;
       _areAllDataSaved = value;
     });
     widget.controller.getLastIssue().then((value) {
+      if (!mounted) return;
       if (value != null &&
           value.isNotEmpty &&
           _issueController.text.isEmpty &&
@@ -346,6 +367,7 @@ class _JiraViewState extends State<JiraView> {
       }
     });
     widget.controller.getIssuePreffix().then((value) {
+      if (!mounted) return;
       if (value != null && value.isNotEmpty && _issueController.text.isEmpty) {
         _issueController.text = value;
       }

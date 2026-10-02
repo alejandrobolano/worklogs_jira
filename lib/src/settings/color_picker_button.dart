@@ -96,7 +96,7 @@ class _ColorPickerButtonState extends State<ColorPickerButton> {
   }
 
   Widget _buildSwatch(BuildContext ctx, Color color, {bool isWindows = false}) {
-    final isSelected = color.toARGB32() == widget.current.toARGB32();
+    final isSelected = color.value == widget.current.value;
     final circle = InkWell(
       borderRadius: BorderRadius.circular(24),
       onTap: () {

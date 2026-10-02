@@ -5,6 +5,40 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.8.0] - 2026-10-02
+
+### Added
+- Persistent Jira REST API version selector: v3 is recommended for new installations, while v2 remains available and is preserved for existing installations
+- Version-specific Jira endpoints, including `search/jql` for API v3 and `search` for API v2
+- Atlassian Document Format (ADF) comments when creating worklogs through API v3
+- Focused tests for API version defaults, v3 worklog payloads, Basic Auth persistence, preserving existing authentication, and Jira error responses
+- Regression tests for decimal-hour conversion, paginated searches and worklogs, v2/v3 deletion, working-day repetitions, partial batch retries, and worklog detail rendering
+
+### Changed
+- Settings now save each field individually instead of relying on one global save button at the bottom of the screen
+- Each saved field shows a green confirmation check only after a successful save, and previously saved values are restored with the check visible on return
+- Token input is masked with `***************` after saving so the secret is not shown again in the form
+- Worked hours and reminder sections keep their current logic but place their save controls at the end of the expanded panel for a cleaner UX
+
+### Fixed
+- Basic Auth now correctly encodes the Atlassian email and API token instead of saving a placeholder, while leaving existing authentication unchanged when settings are saved without a token
+- Jira error responses retain their original body and headers, and useful `message`, `errorMessages`, and field errors are shown
+- Jira API and theme selector icons are aligned outside their dropdown borders to match the other Settings fields
+- Removed the old global "Authorization saved" badge and bottom save action from the Settings screen to match the new per-field behavior
+- Preserved the existing persistence and reminder logic while redefining the save flow in the UI
+- Jira v3 ADF worklog comments are converted to readable text while retaining v2 plain-text compatibility
+- Worklog durations are submitted as explicit `timeSpentSeconds` in v2 and v3, so 8.5 hours is recorded as 30,600 seconds instead of being interpreted as minutes
+- Saving a token keeps its confirmation check visible, prevents repeated saves, and never submits the masked placeholder when another settings field is saved
+- Dashboard searches explicitly request display fields, fetch all enhanced-search cursor pages, paginate legacy v2 results, and fall back to enhanced v2 search when Jira Cloud returns HTTP 410
+- Worklog loading fetches all offset pages in both API versions, making older entries available in the main list and dashboard
+- Logging and deletion recover correctly from request errors and prevent overlapping actions; successful deletion refreshes the list
+- Multi-task logging keeps only unconfirmed tasks in the saved draft after a partial failure, avoiding duplicate submissions of confirmed worklogs on retry
+- Invalid hours and repetitions are rejected; missing working-day configuration no longer causes unbounded recursion
+- Dashboard tables respect the queried date range, clear stale results, and ignore responses from superseded loads; chart scaling resets on refresh
+- Worklog lists tolerate missing avatars and authors, including single-word display names
+- Main-screen worklog details use a fixed-size avatar and a scrollable, height-limited sheet, preserving legacy avatar parameters without appending a null owner identifier
+
+
 ## [2.7.0] - 2026-04-09
 
 ### Added

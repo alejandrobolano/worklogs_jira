@@ -26,6 +26,7 @@ class _SettingsViewState extends State<SettingsView> {
   final _tokenController = TextEditingController();
   var _issuePreffixController = TextEditingController();
   var _jiraPathController = TextEditingController();
+  late int _jiraApiVersion;
 
   late bool _isVisiblePassword = false;
   final _textControllers = [];
@@ -40,15 +41,26 @@ class _SettingsViewState extends State<SettingsView> {
   final _reminderMessageController = TextEditingController();
   bool _isSaving = false;
   String? _saveProgressMessage;
+  bool _userSaved = false;
+  bool _emailSaved = false;
+  bool _tokenSaved = false;
+  bool _jiraPathSaved = false;
+  bool _issuePrefixSaved = false;
+  bool _jiraApiVersionSaved = false;
+  bool _reminderSaved = false;
+  bool _workDaysSaved = false;
 
   @override
   void initState() {
     _textControllers.add(_userController);
     _textControllers.add(_emailController);
+    _userController.text = widget.controller.username ?? '';
+    _emailController.text = widget.controller.email ?? '';
     _issuePreffixController =
         TextEditingController(text: widget.controller.issuePreffix ?? "");
     _jiraPathController =
         TextEditingController(text: widget.controller.jiraPath ?? "");
+    _jiraApiVersion = widget.controller.jiraApiVersion;
     _workDays = _getWorkDays();
     _normalizeReminderDays();
 
@@ -58,8 +70,49 @@ class _SettingsViewState extends State<SettingsView> {
     _reminderMessageController.text = widget.controller.reminderMessage;
 
     _userController.addListener(() {
-      _emailController.text = _userController.text;
+      if (_userSaved) {
+        setState(() => _userSaved = false);
+      }
     });
+    _emailController.addListener(() {
+      if (_emailSaved) {
+        setState(() => _emailSaved = false);
+      }
+    });
+    _tokenController.addListener(() {
+      if (_tokenSaved) {
+        setState(() => _tokenSaved = false);
+      }
+    });
+    _issuePreffixController.addListener(() {
+      if (_issuePrefixSaved) {
+        setState(() => _issuePrefixSaved = false);
+      }
+    });
+    _jiraPathController.addListener(() {
+      if (_jiraPathSaved) {
+        setState(() => _jiraPathSaved = false);
+      }
+    });
+
+    if (widget.controller.isAuthSaved) {
+      _tokenController.text = '***************';
+      _tokenSaved = true;
+    }
+    _userSaved = (widget.controller.username ?? '').isNotEmpty &&
+        _userController.text == (widget.controller.username ?? '');
+    _emailSaved = (widget.controller.email ?? '').isNotEmpty &&
+        _emailController.text == (widget.controller.email ?? '');
+    _jiraPathSaved = (widget.controller.jiraPath ?? '').isNotEmpty &&
+        _jiraPathController.text == (widget.controller.jiraPath ?? '');
+    _issuePrefixSaved = (widget.controller.issuePreffix ?? '').isNotEmpty &&
+        _issuePreffixController.text == (widget.controller.issuePreffix ?? '');
+    _jiraApiVersionSaved = widget.controller.jiraApiVersion == _jiraApiVersion;
+    _reminderSaved = widget.controller.reminderEnabled == _reminderEnabled &&
+        widget.controller.reminderMessage == _reminderMessageController.text &&
+        widget.controller.reminderTime == _reminderTime;
+    _workDaysSaved = widget.controller.workDays != null &&
+        widget.controller.workDays!.isNotEmpty;
 
     _getAppVersion();
 
@@ -139,64 +192,52 @@ class _SettingsViewState extends State<SettingsView> {
     _normalizeReminderDays();
     _issuePreffixController.text = widget.controller.issuePreffix ?? '';
     _jiraPathController.text = widget.controller.jiraPath ?? '';
+    _jiraApiVersion = widget.controller.jiraApiVersion;
     _reminderEnabled = widget.controller.reminderEnabled;
     _reminderTime = widget.controller.reminderTime;
     _reminderMessageController.text = widget.controller.reminderMessage;
   }
 
-  Future<void> _save() async {
-    if (_isSaving) {
+  Future<void> _saveField({
+    bool saveUser = false,
+    bool saveEmail = false,
+    bool saveToken = false,
+    bool saveJiraPath = false,
+    bool saveIssuePrefix = false,
+    bool saveJiraApiVersion = false,
+    bool saveReminder = false,
+    bool saveWorkDays = false,
+  }) async {
+    if (_isSaving || (saveToken && _tokenSaved)) {
       return;
     }
 
     try {
-      final Locale locale = Localizations.localeOf(context);
       FocusScope.of(context).unfocus();
-
       _normalizeReminderDays();
 
       setState(() {
         _isSaving = true;
-        _saveProgressMessage = locale.languageCode == 'es'
-            ? 'Guardando preferencias...'
-            : 'Saving preferences...';
       });
+
+      final rawToken = saveToken && _tokenController.text != '***************'
+          ? _tokenController.text
+          : '';
 
       await widget.controller.savePreferences(
-          _userController.text,
-          _emailController.text,
-          _tokenController.text,
-          _issuePreffixController.text,
-          _jiraPathController.text,
-          _workDays,
-          _reminderEnabled,
-          _reminderTime,
-          _reminderMessageController.text);
+        _userController.text,
+        _emailController.text,
+        rawToken,
+        _issuePreffixController.text,
+        _jiraPathController.text,
+        _jiraApiVersion,
+        _workDays,
+        _reminderEnabled,
+        _reminderTime,
+        _reminderMessageController.text,
+      );
 
       if (!mounted) return;
-
-      setState(() {
-        _saveProgressMessage = locale.languageCode == 'es'
-            ? 'Sincronizando recordatorios con Windows...'
-            : 'Syncing reminders with Windows...';
-      });
-
-      final ReminderSyncResult syncResult =
-          await widget.controller.scheduleWorklogReminders(locale);
-
-      // Always clear dedup when reminders are enabled so that a time change
-      // is reflected immediately on the same day (not blocked by today's key).
-      if (_reminderEnabled) {
-        await NotificationService.clearTodayDedup();
-      }
-
-      if (!mounted) return;
-
-      setState(() {
-        _saveProgressMessage = locale.languageCode == 'es'
-            ? 'Recargando configuración...'
-            : 'Reloading settings...';
-      });
 
       await widget.controller.loadSettings();
 
@@ -204,33 +245,59 @@ class _SettingsViewState extends State<SettingsView> {
 
       setState(() {
         _refreshLocalReminderState();
+        _userSaved = saveUser && _userController.text.trim().isNotEmpty;
+        _emailSaved = saveEmail && _emailController.text.trim().isNotEmpty;
+        _jiraPathSaved =
+            saveJiraPath && _jiraPathController.text.trim().isNotEmpty;
+        _issuePrefixSaved =
+            saveIssuePrefix && _issuePreffixController.text.trim().isNotEmpty;
+        _jiraApiVersionSaved = saveJiraApiVersion;
+        _reminderSaved = saveReminder;
+        _workDaysSaved = saveWorkDays;
+        if (saveToken &&
+            _tokenController.text.isNotEmpty &&
+            !_tokenController.text.startsWith('*')) {
+          _tokenController.text = '***************';
+          _tokenController.selection = TextSelection.collapsed(
+            offset: _tokenController.text.length,
+          );
+        }
+        if (saveToken) {
+          _tokenSaved = rawToken.isNotEmpty &&
+              (_emailController.text.isNotEmpty ||
+                  _userController.text.isNotEmpty);
+        }
         _isSaving = false;
-        _saveProgressMessage = null;
       });
-
-      final String finalMessage = syncResult.buildUserMessage(
-        locale,
-        reminderEnabled: _reminderEnabled,
-      );
-
-      WidgetHelper.showMessageSnackBar(context, finalMessage);
-
-      if (!syncResult.success) {
-        debugPrint(
-          '[Settings] reminder synchronization error: ${syncResult.errorMessage}',
-        );
-      }
     } catch (e) {
       if (!mounted) return;
 
       setState(() {
         _isSaving = false;
-        _saveProgressMessage = null;
       });
 
-      debugPrint('[Settings] _save error: $e');
+      debugPrint('[Settings] _saveField error: $e');
       WidgetHelper.showMessageSnackBar(context, 'Error saving settings: $e');
     }
+  }
+
+  Widget _buildSaveSuffix({
+    required bool saved,
+    required VoidCallback onSave,
+  }) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (saved)
+          const Icon(Icons.check_circle, color: Colors.green, size: 18),
+        const SizedBox(width: 4),
+        IconButton(
+          tooltip: 'Guardar',
+          icon: const Icon(Icons.save_outlined),
+          onPressed: onSave,
+        ),
+      ],
+    );
   }
 
   Future<void> _clear() async {
@@ -329,7 +396,6 @@ class _SettingsViewState extends State<SettingsView> {
           padding: const EdgeInsets.all(24),
           child: ListView(children: [
             SizedBox(
-              //width: 250,
               child: TextField(
                 keyboardType: TextInputType.text,
                 controller: _userController,
@@ -337,12 +403,15 @@ class _SettingsViewState extends State<SettingsView> {
                   icon: const Icon(Icons.person_2_outlined),
                   border: const OutlineInputBorder(),
                   labelText: AppLocalizations.of(context)?.user,
+                  suffixIcon: _buildSaveSuffix(
+                    saved: _userSaved,
+                    onSave: () => _saveField(saveUser: true),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 24.0),
             SizedBox(
-              //width: 250,
               child: TextField(
                 keyboardType: TextInputType.emailAddress,
                 controller: _emailController,
@@ -351,30 +420,57 @@ class _SettingsViewState extends State<SettingsView> {
                   icon: const Icon(Icons.email),
                   labelText: AppLocalizations.of(context)?.email,
                   helperText: AppLocalizations.of(context)?.emailHelperText,
+                  suffixIcon: _buildSaveSuffix(
+                    saved: _emailSaved,
+                    onSave: () => _saveField(saveEmail: true),
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 24.0),
             SizedBox(
               child: TextField(
-                obscureText: !_isVisiblePassword,
+                obscureText: !_isVisiblePassword || _tokenSaved,
+                readOnly: _isSaving,
                 controller: _tokenController,
+                onTap: _tokenSaved && !_isSaving
+                    ? () {
+                        setState(() {
+                          _tokenSaved = false;
+                          _tokenController.clear();
+                          _isVisiblePassword = true;
+                        });
+                      }
+                    : null,
                 decoration: InputDecoration(
                   icon: const Icon(Icons.security),
                   border: const OutlineInputBorder(),
                   labelText: "Token",
                   helperText: AppLocalizations.of(context)?.passwordDeprecated,
-                  suffixIcon: IconButton(
-                    icon: Icon(_isVisiblePassword
-                        ? Icons.visibility
-                        : Icons.visibility_off),
-                    onPressed: () {
-                      setState(
-                        () {
-                          _isVisiblePassword = !_isVisiblePassword;
+                  suffixIcon: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (_tokenSaved)
+                        const Icon(Icons.check_circle,
+                            color: Colors.green, size: 18),
+                      IconButton(
+                        tooltip: 'Guardar',
+                        onPressed: _isSaving || _tokenSaved
+                            ? null
+                            : () => _saveField(saveToken: true),
+                        icon: const Icon(Icons.save_outlined),
+                      ),
+                      IconButton(
+                        icon: Icon(_isVisiblePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isVisiblePassword = !_isVisiblePassword;
+                          });
                         },
-                      );
-                    },
+                      ),
+                    ],
                   ),
                   alignLabelWithHint: false,
                 ),
@@ -393,8 +489,56 @@ class _SettingsViewState extends State<SettingsView> {
                   border: const OutlineInputBorder(),
                   hintText: 'https://jira.domain.com/',
                   labelText: AppLocalizations.of(context)?.jiraPath,
+                  suffixIcon: _buildSaveSuffix(
+                    saved: _jiraPathSaved,
+                    onSave: () => _saveField(saveJiraPath: true),
+                  ),
                 ),
               ),
+            ),
+            const SizedBox(height: 24.0),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 15),
+                  child: Icon(Icons.api),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButtonFormField<int>(
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: AppLocalizations.of(context)?.jiraApiVersion,
+                      helperText: AppLocalizations.of(context)
+                          ?.jiraApiVersionCompatibility,
+                      suffixIcon: _buildSaveSuffix(
+                        saved: _jiraApiVersionSaved,
+                        onSave: () => _saveField(saveJiraApiVersion: true),
+                      ),
+                    ),
+                    initialValue: _jiraApiVersion,
+                    isExpanded: true,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() => _jiraApiVersion = value);
+                      }
+                    },
+                    items: [
+                      DropdownMenuItem(
+                        value: 3,
+                        child: Text(
+                            AppLocalizations.of(context)!.jiraApiVersion3Label),
+                      ),
+                      DropdownMenuItem(
+                        value: 2,
+                        child: Text(
+                            AppLocalizations.of(context)!.jiraApiVersion2Label),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24.0),
             ExpansionTile(
@@ -402,7 +546,17 @@ class _SettingsViewState extends State<SettingsView> {
               subtitle: Text(
                   AppLocalizations.of(context)?.workedHoursDescription ?? ""),
               childrenPadding: const EdgeInsets.all(24),
-              children: _workDays.map((day) => buildWorkDayRow(day)).toList(),
+              children: [
+                ..._workDays.map((day) => buildWorkDayRow(day)).toList(),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _buildSaveSuffix(
+                    saved: _workDaysSaved,
+                    onSave: () => _saveField(saveWorkDays: true),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24.0),
             ExpansionTile(
@@ -559,14 +713,14 @@ class _SettingsViewState extends State<SettingsView> {
                   onTap: !_reminderEnabled || workingDays.isEmpty
                       ? null
                       : () async {
-                    final picked = await showTimePicker(
-                        context: context, initialTime: _reminderTime);
-                    if (picked != null) {
-                      setState(() {
-                        _reminderTime = picked;
-                      });
-                    }
-                  },
+                          final picked = await showTimePicker(
+                              context: context, initialTime: _reminderTime);
+                          if (picked != null) {
+                            setState(() {
+                              _reminderTime = picked;
+                            });
+                          }
+                        },
                 ),
                 const SizedBox(height: 16.0),
                 TextField(
@@ -578,6 +732,14 @@ class _SettingsViewState extends State<SettingsView> {
                         AppLocalizations.of(context)?.customReminderMessage,
                     hintText: NotificationService.getDefaultReminderMessage(
                         Localizations.localeOf(context)),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: _buildSaveSuffix(
+                    saved: _reminderSaved,
+                    onSave: () => _saveField(saveReminder: true),
                   ),
                 ),
               ],
@@ -593,9 +755,6 @@ class _SettingsViewState extends State<SettingsView> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Autocomplete<String>(
-                    initialValue: TextEditingValue(
-                      text: _issuePreffixController.text,
-                    ),
                     optionsBuilder: (TextEditingValue textEditingValue) {
                       if (textEditingValue.text.isEmpty) {
                         return _availableProjects;
@@ -646,19 +805,36 @@ class _SettingsViewState extends State<SettingsView> {
                                         strokeWidth: 2),
                                   ),
                                 )
-                              : (_availableProjects.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(Icons.refresh),
-                                      tooltip: AppLocalizations.of(context)
-                                          ?.reloadProjects,
-                                      onPressed: _loadProjects,
-                                    )
-                                  : IconButton(
-                                      icon: const Icon(Icons.download),
-                                      tooltip: AppLocalizations.of(context)
-                                          ?.loadProjectsFromJira,
-                                      onPressed: _loadProjects,
-                                    )),
+                              : Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (_issuePrefixSaved)
+                                      const Icon(
+                                        Icons.check_circle,
+                                        color: Colors.green,
+                                        size: 18,
+                                      ),
+                                    IconButton(
+                                      icon: const Icon(Icons.save_outlined),
+                                      onPressed: () =>
+                                          _saveField(saveIssuePrefix: true),
+                                    ),
+                                    if (_availableProjects.isNotEmpty)
+                                      IconButton(
+                                        icon: const Icon(Icons.refresh),
+                                        tooltip: AppLocalizations.of(context)
+                                            ?.reloadProjects,
+                                        onPressed: _loadProjects,
+                                      )
+                                    else
+                                      IconButton(
+                                        icon: const Icon(Icons.download),
+                                        tooltip: AppLocalizations.of(context)
+                                            ?.loadProjectsFromJira,
+                                        onPressed: _loadProjects,
+                                      ),
+                                  ],
+                                ),
                           helperText: _availableProjects.isEmpty
                               ? AppLocalizations.of(context)?.loadProjectsHelper
                               : AppLocalizations.of(context)?.projectsAvailable(
@@ -674,10 +850,11 @@ class _SettingsViewState extends State<SettingsView> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
+                const Icon(Icons.color_lens_outlined),
+                const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<ThemeMode>(
                     decoration: const InputDecoration(
-                      prefixIcon: Icon(Icons.color_lens_outlined),
                       border: OutlineInputBorder(),
                     ),
                     initialValue: widget.controller.themeMode,
@@ -717,38 +894,12 @@ class _SettingsViewState extends State<SettingsView> {
                   avatar: const Icon(Icons.lock_outline_rounded),
                   onSelected: (bool value) {},
                   label: Text("v.$_version")),
-            const SizedBox(height: 16.0),
-            if (widget.controller.isAuthSaved)
-              SizedBox(
-                  child: InputChip(
-                avatar: const Icon(Icons.check),
-                onSelected: (bool value) {},
-                label: Text(
-                    AppLocalizations.of(context)!.authoritationSaved.toString(),
-                    style: const TextStyle(color: Colors.black)),
-                backgroundColor: Colors.greenAccent,
-                selectedColor: Colors.black,
-              )),
             const SizedBox(height: 24.0),
           ])),
       bottomNavigationBar: const BottomAppBar(
         shape: CircularNotchedRectangle(),
-        height: 65,
+        height: 12,
       ),
-      floatingActionButton: Container(
-          margin: const EdgeInsets.all(10),
-          child: FloatingActionButton(
-              onPressed: _isSaving ? null : _save,
-              heroTag: 'save',
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 24,
-                      height: 24,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.save))),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndDocked,
-      floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
     );
   }
 

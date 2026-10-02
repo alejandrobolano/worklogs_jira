@@ -29,25 +29,28 @@ class WorklogListView extends StatelessWidget {
         final worklog = worklogResponse.worklogs?[index];
         final author = worklog?.author;
         final started = worklog?.started;
-        var urlImage = worklog?.author?.avatarUrls?.big;
-        urlImage = urlImage!.contains("ownerId")
-            ? worklog?.author?.avatarUrls?.big
-            : "${worklog?.author?.avatarUrls!.big}&ownerId=${worklog?.author?.name}";
 
         return Card(
           child: ListTile(
-            onTap: () => _settingModalBottomSheet(context, worklog!),
-            title: Text('${author?.displayName}'),
-            subtitle: Text('${worklog?.timeSpent} | ${started.toString()}'),
+            onTap: worklog == null
+                ? null
+                : () => _settingModalBottomSheet(context, worklog),
+            title: Text(author?.displayName ?? ''),
+            subtitle: Text(
+                '${worklog?.timeSpent ?? ''} | ${started?.toLocal() ?? ''}'),
             leading: CircleAvatar(
               backgroundColor: WidgetHelper.getRandomColor(),
-              child: Text(_splitNameToInitials('${author?.displayName}')),
+              child: Text(_splitNameToInitials(author?.displayName ?? '')),
             ),
             trailing: IconButton(
               icon: const Icon(
                 Icons.delete_outline,
               ),
-              onPressed: () => onDeleteData(worklog!),
+              onPressed: worklog == null ||
+                      worklog.id == null ||
+                      worklog.issueId == null
+                  ? null
+                  : () => onDeleteData(worklog),
             ),
           ),
         );
@@ -56,57 +59,103 @@ class WorklogListView extends StatelessWidget {
   }
 
   String _splitNameToInitials(String fullName) {
-    List<String> words = fullName.split(' ');
-    String first = words[0];
-    String second = words[1];
-    return first[0].toUpperCase() + second[0].toUpperCase();
+    final words = fullName
+        .trim()
+        .split(RegExp(r'\s+'))
+        .where((word) => word.isNotEmpty)
+        .take(2);
+    return words.isEmpty
+        ? '?'
+        : words.map((word) => word.characters.first.toUpperCase()).join();
   }
 
   void _settingModalBottomSheet(context, Worklog worklog) {
-    final createdDate = DateHelper.formatDate(worklog.created!.toUtc());
-    final updatedDate = DateHelper.formatDate(worklog.updated!.toUtc());
-    final startedDate = DateHelper.formatDate(worklog.started!.toUtc());
+    final createdDate = worklog.created == null
+        ? ''
+        : DateHelper.formatDate(worklog.created!.toLocal());
+    final updatedDate = worklog.updated == null
+        ? ''
+        : DateHelper.formatDate(worklog.updated!.toLocal());
+    final startedDate = worklog.started == null
+        ? ''
+        : DateHelper.formatDate(worklog.started!.toLocal());
     var urlImage = worklog.author?.avatarUrls?.big;
-    urlImage = urlImage!.contains("ownerId")
-        ? worklog.author?.avatarUrls?.big
-        : "${worklog.author?.avatarUrls!.big}&ownerId=${worklog.author?.name}";
+    final avatarUri = Uri.tryParse(urlImage ?? '');
+    final authorName = worklog.author?.name;
+    if (urlImage != null &&
+        urlImage.isNotEmpty &&
+        avatarUri != null &&
+        authorName != null &&
+        authorName.isNotEmpty &&
+        !avatarUri.queryParameters.containsKey('ownerId')) {
+      urlImage = avatarUri.replace(queryParameters: {
+        ...avatarUri.queryParameters,
+        'ownerId': authorName,
+      }).toString();
+    }
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
         context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: true,
         builder: (BuildContext bc) {
-          return Wrap(
-            children: <Widget>[
-              Center(
-                  heightFactor: 2,
-                  child: CachedNetworkImage(
-                      imageUrl: '$urlImage',
-                      errorWidget: (context, url, error) =>
-                          const Icon(Icons.error))),
-              ListTile(
-                  leading: const Icon(Icons.person_outline),
-                  title: Text('${worklog.author!.displayName}'),
-                  onTap: () => {}),
-              ListTile(
-                  leading: const Icon(Icons.timelapse_outlined),
-                  title: Text(
-                      '${AppLocalizations.of(context)?.timeSpent}: ${worklog.timeSpent}')),
-              ListTile(
-                  leading: const Icon(Icons.calendar_today_rounded),
-                  title: Text(
-                      '${AppLocalizations.of(context)?.startedLog}: $startedDate')),
-              ListTile(
-                  leading: const Icon(Icons.text_snippet_outlined),
-                  title: Text(
-                      '${AppLocalizations.of(context)?.comment}: ${worklog.comment}')),
-              ListTile(
-                  leading: const Icon(Icons.calendar_today_outlined),
-                  title: Text(
-                      '${AppLocalizations.of(context)?.created}: $createdDate')),
-              ListTile(
-                  leading: const Icon(Icons.calendar_today_outlined),
-                  title: Text(
-                      '${AppLocalizations.of(context)?.updated}: $updatedDate')),
-            ],
+          return SafeArea(
+            top: false,
+            child: ConstrainedBox(
+              constraints:
+                  BoxConstraints(maxHeight: MediaQuery.sizeOf(bc).height * 0.8),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Center(
+                        heightFactor: 2,
+                        child: CircleAvatar(
+                          radius: 32,
+                          child: urlImage == null || urlImage.isEmpty
+                              ? Text(_splitNameToInitials(
+                                  worklog.author?.displayName ?? ''))
+                              : ClipOval(
+                                  child: CachedNetworkImage(
+                                      imageUrl: urlImage,
+                                      width: 64,
+                                      height: 64,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) =>
+                                          const Icon(Icons.person_outline),
+                                      errorWidget: (context, url, error) =>
+                                          const Icon(Icons.person_outline))),
+                        )),
+                    ListTile(
+                        leading: const Icon(Icons.person_outline),
+                        title: Text(worklog.author?.displayName ?? ''),
+                        onTap: () => {}),
+                    ListTile(
+                        leading: const Icon(Icons.timelapse_outlined),
+                        title: Text(
+                            '${AppLocalizations.of(context)?.timeSpent}: ${worklog.timeSpent ?? ''}')),
+                    ListTile(
+                        leading: const Icon(Icons.calendar_today_rounded),
+                        title: Text(
+                            '${AppLocalizations.of(context)?.startedLog}: $startedDate')),
+                    ListTile(
+                        leading: const Icon(Icons.text_snippet_outlined),
+                        title: Text(
+                            '${AppLocalizations.of(context)?.comment}: ${worklog.comment ?? ''}')),
+                    ListTile(
+                        leading: const Icon(Icons.calendar_today_outlined),
+                        title: Text(
+                            '${AppLocalizations.of(context)?.created}: $createdDate')),
+                    ListTile(
+                        leading: const Icon(Icons.calendar_today_outlined),
+                        title: Text(
+                            '${AppLocalizations.of(context)?.updated}: $updatedDate')),
+                  ],
+                ),
+              ),
+            ),
           );
         });
   }

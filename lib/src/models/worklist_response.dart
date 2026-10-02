@@ -59,7 +59,7 @@ class Fields {
 
   Fields.fromJson(Map<String, dynamic> json) {
     summary = json['summary'];
-    timespent = json['timespent'];
+    timespent = json['timespent'] ?? json['timetracking']?['timeSpentSeconds'];
     issueType = json['issuetype'] != null
         ? IssueType?.fromJson(json['issuetype'])
         : null;

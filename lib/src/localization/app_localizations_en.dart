@@ -118,6 +118,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get jiraPath => 'Jira\'s URL';
 
   @override
+  String get jiraApiVersion => 'Jira API version';
+
+  @override
+  String get jiraApiVersion3Label => 'v3 — Recommended';
+
+  @override
+  String get jiraApiVersion2Label => 'v2 — Legacy enterprise compatibility';
+
+  @override
+  String get jiraApiVersionCompatibility =>
+      'Use v2 only when your company\'s Jira installation does not support v3.';
+
+  @override
   String get useToken => 'Use token';
 
   @override

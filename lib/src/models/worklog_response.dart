@@ -53,7 +53,7 @@ class Worklog {
     updateAuthor = json['updateAuthor'] != null
         ? UpdateAuthor?.fromJson(json['updateAuthor'])
         : null;
-    comment = json['comment'];
+    comment = _commentToText(json['comment']);
     created = DateTime.parse(json['created']);
     updated = DateTime.parse(json['updated']);
     started = DateTime.parse(json['started']);
@@ -61,6 +61,27 @@ class Worklog {
     timeSpentSeconds = json['timeSpentSeconds'];
     id = json['id'];
     issueId = json['issueId'];
+  }
+
+  // Jira v2 returns plain text; v3 returns Atlassian Document Format (ADF).
+  static String? _commentToText(dynamic node) {
+    if (node == null || node is String) return node;
+    if (node is! Map) return '';
+    if (node['type'] == 'text') return node['text'] as String? ?? '';
+    if (node['type'] == 'hardBreak') return '\n';
+
+    final content = node['content'];
+    if (content is! List) return '';
+    final separator = const [
+      'doc',
+      'bulletList',
+      'orderedList',
+      'listItem',
+      'blockquote'
+    ].contains(node['type'])
+        ? '\n'
+        : '';
+    return content.map((child) => _commentToText(child) ?? '').join(separator);
   }
 }
 

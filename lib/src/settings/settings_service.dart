@@ -17,6 +17,7 @@ class SettingsService {
   static const String _lastIssueKey = 'lastIssue';
   static const String _lastLoggedDateKey = 'lastLoggedDate';
   static const String _jiraPathKey = 'jiraPath';
+  static const String _jiraApiVersionKey = 'jiraApiVersion';
   static const String _workDaysKey = 'workDaysKey';
   // reminder settings
   static const String _reminderEnabledKey = 'reminderEnabled';
@@ -26,7 +27,6 @@ class SettingsService {
   static const String _dailyTasksDraftDateKey = 'dailyTasksDraftDate';
   static const String _onboardingSeenKey = 'onboardingSeen';
   static const String _seedColorKey = 'seedColor';
-  static const int _jiraApiVersion = 2;
 
   Future<SharedPreferences> _getPreferencesInstance() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -105,16 +105,16 @@ class SettingsService {
     await _preferencesService.set(_emailKey, email);
   }
 
-//todo /rest/api/2
   Future<String?> getJiraPath() async {
     var jiraPathSaved = await getJiraBasePath();
     if (jiraPathSaved == null || (jiraPathSaved.isEmpty)) {
       return "";
     }
+    final jiraApiVersion = await getJiraApiVersion();
     if (jiraPathSaved.endsWith("/")) {
-      return "${jiraPathSaved.substring(0, jiraPathSaved.length - 1)}/rest/api/$_jiraApiVersion/";
+      return "${jiraPathSaved.substring(0, jiraPathSaved.length - 1)}/rest/api/$jiraApiVersion/";
     }
-    return "$jiraPathSaved/rest/api/$_jiraApiVersion/";
+    return "$jiraPathSaved/rest/api/$jiraApiVersion/";
   }
 
   Future<String?> getJiraBasePath() async {
@@ -123,6 +123,24 @@ class SettingsService {
 
   Future<void> addJiraPath(jiraPath) async {
     await _preferencesService.set(_jiraPathKey, jiraPath);
+  }
+
+  Future<int> getJiraApiVersion() async {
+    final savedVersion =
+        int.tryParse(await _preferencesService.get(_jiraApiVersionKey) ?? '');
+    if (savedVersion != null && (savedVersion == 2 || savedVersion == 3)) {
+      return savedVersion;
+    }
+
+    final jiraPath = await getJiraBasePath();
+    return jiraPath == null || jiraPath.isEmpty ? 3 : 2;
+  }
+
+  Future<void> setJiraApiVersion(int version) async {
+    if (version != 2 && version != 3) {
+      throw ArgumentError.value(version, 'version', 'Must be 2 or 3');
+    }
+    await _preferencesService.set(_jiraApiVersionKey, version.toString());
   }
 
   Future<bool> isCorrectUrl(String url) async {
@@ -247,17 +265,17 @@ class SettingsService {
 
   Future<List<String>> getUserProjects() async {
     try {
-      final jiraBasePath = await getJiraBasePath();
+      final jiraPath = await getJiraPath();
       final auth = await getAuthentication();
 
-      if (jiraBasePath == null ||
-          jiraBasePath.isEmpty ||
+      if (jiraPath == null ||
+          jiraPath.isEmpty ||
           auth == null ||
           auth.isEmpty) {
         return [];
       }
 
-      final url = '$jiraBasePath/rest/api/$_jiraApiVersion/project';
+      final url = '${jiraPath}project';
       final response = await http.get(
         Uri.parse(url),
         headers: {
