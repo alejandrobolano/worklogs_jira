@@ -47,9 +47,6 @@ dev_dependencies:
 
   flutter_lints: 2.0.0
 
-dependency_overrides:
-  win32: 5.15.0
-
 flutter:
   uses-material-design: true
   generate: true

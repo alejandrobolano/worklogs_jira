@@ -417,7 +417,7 @@ class _SettingsViewState extends State<SettingsView> {
                       helperText: AppLocalizations.of(context)
                           ?.jiraApiVersionCompatibility,
                     ),
-                    initialValue: _jiraApiVersion,
+                    value: _jiraApiVersion,
                     isExpanded: true,
                     onChanged: (value) {
                       if (value != null) {
@@ -637,9 +637,6 @@ class _SettingsViewState extends State<SettingsView> {
                 const SizedBox(width: 16),
                 Expanded(
                   child: Autocomplete<String>(
-                    initialValue: TextEditingValue(
-                      text: _issuePreffixController.text,
-                    ),
                     optionsBuilder: (TextEditingValue textEditingValue) {
                       if (textEditingValue.text.isEmpty) {
                         return _availableProjects;
@@ -725,7 +722,7 @@ class _SettingsViewState extends State<SettingsView> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
-                    initialValue: widget.controller.themeMode,
+                    value: widget.controller.themeMode,
                     isExpanded: true,
                     borderRadius: BorderRadius.circular(5),
                     onChanged: widget.controller.updateThemeMode,

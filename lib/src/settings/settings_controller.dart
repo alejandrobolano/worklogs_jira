@@ -74,7 +74,7 @@ class SettingsController with ChangeNotifier {
   Future<void> updateSeedColor(Color color) async {
     _seedColor = color;
     notifyListeners();
-    await _settingsService.setSeedColor(color.toARGB32());
+    await _settingsService.setSeedColor(color.value);
   }
 
   Future<void> savePreferences(

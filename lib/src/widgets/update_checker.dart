@@ -28,7 +28,7 @@ class _UpdateCheckerState extends State<UpdateChecker> {
     await Future.delayed(const Duration(seconds: 2));
 
     final updateInfo = await _updateService.checkForUpdates();
-    
+
     if (updateInfo != null && mounted) {
       _showUpdateDialog(updateInfo);
     }
@@ -44,8 +44,8 @@ class _UpdateCheckerState extends State<UpdateChecker> {
             children: [
               const Icon(Icons.system_update, color: Colors.blue),
               const SizedBox(width: 10),
-              Text(AppLocalizations.of(context)?.updateAvailable ?? 
-                   'Update Available'),
+              Text(AppLocalizations.of(context)?.updateAvailable ??
+                  'Update Available'),
             ],
           ),
           content: SingleChildScrollView(
@@ -62,22 +62,22 @@ class _UpdateCheckerState extends State<UpdateChecker> {
                 ),
                 const SizedBox(height: 16),
                 Text(
-                  AppLocalizations.of(context)?.releaseNotes ?? 
-                  'Release Notes:',
+                  AppLocalizations.of(context)?.releaseNotes ??
+                      'Release Notes:',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.grey.withValues(alpha: 0.1),
+                    color: Colors.grey.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     updateInfo.releaseNotes.isNotEmpty
                         ? updateInfo.releaseNotes
-                        : AppLocalizations.of(context)?.noReleaseNotes ?? 
-                          'No release notes available',
+                        : AppLocalizations.of(context)?.noReleaseNotes ??
+                            'No release notes available',
                     style: const TextStyle(fontSize: 13),
                   ),
                 ),
