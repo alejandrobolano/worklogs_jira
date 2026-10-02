@@ -68,7 +68,7 @@ class _JiraViewState extends State<JiraView> {
       setState(() {
         _isLoading = true;
       });
-      final String issue = _issueController.text;
+      final String issue = _issueController.text.trim();
       final response = await widget.controller.getData(issue);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {
@@ -90,14 +90,15 @@ class _JiraViewState extends State<JiraView> {
       setState(() {
         _isLoading = true;
       });
-      final String issue = _issueController.text;
+      final String issue = _issueController.text.trim();
       final hoursControllerValue = _hoursController.text.replaceAll(",", ".");
       final double hours = double.parse(hoursControllerValue);
       final String date = _dateController.text;
       var repetitions = int.tryParse(_repetitionsController.text);
       repetitions ??= 1;
       final response =
-          await widget.controller.postData(issue, hours, date, repetitions);
+          await widget.controller
+          .postData(issue.trim(), hours, date, repetitions);
       _handleResponse(response, extraText: response.reasonPhrase);
 
       if (widget.controller.isOkStatusCode(response.statusCode)) {

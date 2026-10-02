@@ -85,7 +85,10 @@ class JiraController with ChangeNotifier {
         updatedHours = workDay[0].hoursWorked;
       }
 
-      final response = await _jiraService.postData(url!, basicAuth, issue,
+      final response = await _jiraService.postData(
+          url!,
+          basicAuth,
+          issue.trim(),
           updatedHours, DateFormat('yyyy-MM-dd').format(dateTime));
       if (!isOkStatusCode(response.statusCode)) {
         return response;
